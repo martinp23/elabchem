@@ -1,0 +1,273 @@
+/* CSS Document */
+/* eLabFTW.net - Free open source labmanager */
+/* css/style.css */
+
+/* Fonts */
+@font-face {
+    font-family: 'bebas_neueregular';
+    src: url('fonts/bebasneue-webfont.eot');
+    src: url('fonts/bebasneue-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/bebasneue-webfont.woff') format('woff'),
+         url('fonts/bebasneue-webfont.ttf') format('truetype'),
+         url('fonts/bebasneue-webfont.svg#bebas_neueregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'museo700';
+    src: url('fonts/exljbris_-_museo-700-webfont.eot');
+    src: url('fonts/exljbris_-_museo-700-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/exljbris_-_museo-700-webfont.woff') format('woff'),
+         url('fonts/exljbris_-_museo-700-webfont.ttf') format('truetype'),
+         url('fonts/exljbris_-_museo-700-webfont.svg#museo700') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'museo500';
+    src: url('fonts/exljbris_-_museo-500-webfont.eot');
+    src: url('fonts/exljbris_-_museo-500-webfont.eot?#iefix') format('embedded-opentype'),
+         url('fonts/exljbris_-_museo-500-webfont.woff') format('woff'),
+         url('fonts/exljbris_-_museo-500-webfont.ttf') format('truetype'),
+         url('fonts/exljbris_-_museo-500-webfont.svg#museo500') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+body {
+    margin:0;
+    padding:0;
+    background-color:#262626;
+}
+
+.center {
+    text-align:center;
+}
+
+p {
+    color:white
+}
+h2 {
+    margin:0;
+    padding:0;
+    font-size: 36px;
+    font-family:'bebas_neueregular',  Impact, sans-serif;
+    font-weight: 100;
+    font-style: normal;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-shadow: 1px 1px 0px #21909f;
+    -o-text-shadow: 1px 1px 0px #21909f;
+    -webkit-text-shadow: 1px 1px 0px #21909f;
+    -moz-text-shadow: 1px 1px 0px #21909f;
+    text-align: center;
+}
+
+/* TOP MENU */
+#arrow {
+    display:none;
+    float:right;
+    transition-property: opacity;
+    transition-duration: 1s;
+    transition-timing-function: ease;
+}
+nav {
+    width:900px;
+    margin:auto;
+    padding-top:10px;
+}
+
+nav ul {
+    float:right;
+}
+
+nav ul li {
+    font:14px Verdana, sans-serif;
+    text-decoration:none;
+    color:#fafafa;
+}
+
+nav ul li:hover {
+    color:red;
+}
+
+nav ul, nav li {
+    margin:0 60px 0 7px;
+    display:inline;
+    list-style-type:none;
+}
+/* LOGO */
+#logo {
+    position:absolute;
+    left:60px;
+    top:10px;
+    color:white;
+}
+
+
+/* SECTIONS */
+section.first {
+    width:900px;
+    margin:3px auto 15px auto;
+}
+section.second {
+    padding-top:50px;
+    padding-bottom:50px;
+    background-color: #2cb2be;
+}
+section.third {
+    background-color: #09435b;
+    margin-top:40px;
+}
+section.fourth {
+    background-color: #262626;
+    color:white;
+}
+
+.tagline {
+    color: #ffffff;
+    font-size: 21px;
+    margin-left:80px;
+    display:inline;
+    font-family:'museo500', 'Courier Sans', serif;
+    font-weight: 100;
+    text-shadow:1px 1px 0px #000000;
+    -o-text-shadow:1px 1px 0px #000000;
+    -webkit-text-shadow:1px 1px 0px #000000;
+    -moz-text-shadow:1px 1px 0px #000000;
+}
+
+/* HOME */
+section#home_page figure {
+    width:900px;
+    margin:auto;
+}
+section#home_page figure img.ico {
+    margin-left:60px;
+}
+
+/* columns */
+section#home_page div#ico-txt {
+    width:900px;
+    margin:auto;
+    margin-top:42px;
+    column-count:5;
+    -webkit-column-count:5;
+    -moz-column-count:5;
+}
+
+section#home_page div#ico-txt p {
+    font-family: Arial, Verdana, sans-serif;
+    color: #ffffff;
+    text-align: center;
+    font-size: 14px;
+}
+section#tagline { 
+    background-color: #09435b;
+    margin-top:40px;
+    padding-top:20px;
+    height:60px;
+}
+section#tagline div { 
+    text-align:center;
+    width:80%;
+    margin:auto;
+}
+
+section#tagline img {
+    display:block;
+    padding-top:10px;
+    margin:auto;
+}
+
+section#updates {
+    margin-top:50px;
+}
+section#updates h2 {
+    margin-bottom:20px;
+}
+
+
+/* SCREENS */
+/* hide from start, because with the document.ready() you might see the other pages a very short time */
+section#screens_page {
+    display:none;
+}
+
+section#screens_page div {
+    margin-top:20px;
+    width:900px;
+    text-align:center;
+    margin:auto;
+}
+section#screens_page div img {
+    width:200px;
+    height:150px;
+    margin:5px;
+    border-radius:20px;
+    box-shadow: #AAA 4px 4px 4px;
+}
+
+section#screens_page div {
+    width:900px;
+    margin:auto;
+}
+section#screens_page article {
+    color:white;
+    text-align:center;
+}
+section#screens_page a {
+    color:blue;
+}
+section#screens_page ul li {
+    list-style-type:none;
+}
+
+/* ABOUT */
+/* hide from start, because with the document.ready() you might see the other pages a very short time */
+section#about_page {
+    display:none;
+}
+
+section#faq {
+    color:white;
+    width:900px;
+    padding:30px;
+    margin:auto;
+}
+
+section#faq a {
+    color:white;
+    text-decoration:none;
+}
+section#faq a:hover{
+    color:red;
+    text-decoration:underline;
+}
+
+/* FOOTER */
+footer {
+width:100%;
+background-color:#262626;
+color:white;
+padding-top:10px;
+text-align:center;
+font-size:12px;
+}
+
+footer img {
+    padding:4px;
+}
+/* LINKS */
+a {
+    color:#2cb2be;
+    text-decoration:none;
+}
+a:hover {
+    text-decoration:underline;
+}
