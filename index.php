@@ -26,7 +26,7 @@ require_once('inc/menu.php'); ?>
         </p>
         <h2>Flexibility</h2>
         <p>Any kind of lab can use eLabFTW<br/>
-        from Molecular biology to crystallography lab</p>
+        from molecular biology to crystallography lab</p>
         <h2>Updates</h2>
         <p>Get frequent updates<br/>
         They will always be free !</p>

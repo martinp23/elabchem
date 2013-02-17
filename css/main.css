@@ -246,6 +246,10 @@ section#screens_page article {
 section#screens_page a {
     color:blue;
 }
+section#screens_page a:hover {
+    color:red;
+}
+
 section#screens_page ul li {
     list-style-type:none;
 }
