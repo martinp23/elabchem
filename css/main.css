@@ -79,7 +79,7 @@ h2 {
     background-image: linear-gradient(top, #ff9a9a, #ff4040);
 }
 
-.button:hover{
+.button:hover {
     border:1px solid #ff3434; background-color: #ff6767;
     text-decoration:none;
     background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff6767), color-stop(100%, #ff0d0d));
