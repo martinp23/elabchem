@@ -34,8 +34,10 @@ require_once('inc/menu.php'); ?>
 
     <section id='tagline'>
         <div>
-            <p class="tagline">It was made by researchers, for researchers, with usability in mind.
-            <a href='https://github.com/NicolasCARPi/elabftw/#readme'><img src="img/btn-try.png" onmouseover="this.src='img/btn-try-hover.png'" onmouseout="this.src='img/btn-try.png'" alt='try me' /></a></p>
+            <p class="tagline">It was made by researchers, for researchers, with usability in mind.</p>
+            <p>
+                <a href='https://github.com/NicolasCARPi/elabftw/#readme' class='button' />Install eLabFTW</a>
+            </p>
         </div>
     </section>
 
