@@ -69,7 +69,18 @@ h2 {
 }
 
 .button {
-    border:1px solid #ff6262; -webkit-border-radius: 3px; -moz-border-radius: 3px;border-radius: 3px;font-size:14px;font-family:arial, helvetica, sans-serif; padding: 10px 10px 10px 10px; text-shadow: -1px -1px 0 rgba(0,0,0,0.3);font-weight:bold; text-align: center; color: #FFFFFF; background-color: #ff9a9a;
+    border:1px solid #ff6262;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    font-size:14px;
+    font-family:arial, helvetica, sans-serif;
+    padding: 10px 10px 10px 10px;
+    text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
+    font-weight:bold;
+    text-align: center;
+    color: #FFFFFF;
+    background-color: #ff9a9a;
     width:150px;
     background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ff9a9a), color-stop(100%, #ff4040));
     background-image: -webkit-linear-gradient(top, #ff9a9a, #ff4040);
