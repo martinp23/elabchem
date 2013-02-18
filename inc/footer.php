@@ -53,7 +53,7 @@ $(document).ready(function() {
     });
     function moveArrow(page) {
         if ( page == 'home') {
-            shift = '405';
+            shift = '397';
         } else if ( page == 'screens') {
             shift = '270';
         } else if ( page == 'about' ) {
