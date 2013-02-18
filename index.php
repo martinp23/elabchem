@@ -70,7 +70,7 @@ require_once('inc/menu.php'); ?>
     </div>
     <article><p>Want to try before installing ? Please do :<br />
     <ul>
-    <li><a href='http://elabftw-demo.yzi.me'>elabftw-demo.yzi.me</a></li> 
+    <li><a href='http://elabftw.byethost18.com/experiments.php?mode=show'>elabftw.byethost18.com</a></li> 
     <li>Username = demo</li>
     <li>Password = demo</li>
     </ul>
