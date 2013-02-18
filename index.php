@@ -81,7 +81,9 @@ require_once('inc/menu.php'); ?>
 <!-- ABOUT -->
 <section class='page' id='about_page'>
     <section class='second'>
-<p class='center'>About what ?</p>
+<p class='center'>About what ?<br>
+Drop me an email : 
+<script>document.write('nicolas.carpi@gmail.com');</script></p>
 <!--
         <figure class='center'><img src='img/home.png' alt='elabftw' title='elabftw can help you organize your lab' /></figure>
         <section id='faq'>

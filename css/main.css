@@ -121,12 +121,14 @@ nav ul {
 
 nav ul li {
     font:14px Verdana, sans-serif;
+    font-family:'museo500', 'Courier Sans', serif;
     text-decoration:none;
     color:#fafafa;
 }
 
 nav ul li:hover {
-    color:red;
+    color:#999;
+    cursor:pointer;
 }
 
 nav ul, nav li {
