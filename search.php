@@ -201,7 +201,7 @@ if (isset($_GET)) {
                 if(isset($_GET['all']) && !empty($_GET['all'])) {
             $sql = "SELECT * FROM experiments WHERE title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%' AND date BETWEEN '$from' AND '$to'";
                 } else { //search only in your experiments
-            $sql = "SELECT * FROM experiments WHERE userid = :userid AND title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%' AND date BETWEEN '$from' AND '$to'";
+            $sql = "SELECT * FROM experiments WHERE userid_creator = :userid AND title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%' AND date BETWEEN '$from' AND '$to'";
                 }
 
 
@@ -209,7 +209,7 @@ if (isset($_GET)) {
                 if(isset($_GET['all']) && !empty($_GET['all'])) {
             $sql = "SELECT * FROM experiments WHERE title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%' AND date BETWEEN '$from' AND '991212'";
                 } else { //search only in your experiments
-            $sql = "SELECT * FROM experiments WHERE userid = :userid AND title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%' AND date BETWEEN '$from' AND '991212'";
+            $sql = "SELECT * FROM experiments WHERE userid_creator = :userid AND title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%' AND date BETWEEN '$from' AND '991212'";
                 }
 
 
@@ -217,7 +217,7 @@ if (isset($_GET)) {
                 if(isset($_GET['all']) && !empty($_GET['all'])) {
             $sql = "SELECT * FROM experiments WHERE title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%'";
                 } else { //search only in your experiments
-            $sql = "SELECT * FROM experiments WHERE userid = :userid AND title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%'";
+            $sql = "SELECT * FROM experiments WHERE userid_creator = :userid AND title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%'";
                 }
 
 

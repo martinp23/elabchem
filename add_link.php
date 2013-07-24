@@ -36,7 +36,7 @@ if (isset($_POST['item_id']) && is_pos_int($_POST['item_id'])) {
 $link_id = filter_var($_POST['link_id'], FILTER_VALIDATE_INT);
 
 // Check expid is owned by connected user
-$sql = "SELECT userid FROM experiments WHERE id = ".$item_id;
+$sql = "SELECT userid_creator FROM experiments WHERE id = ".$item_id;
 $req = $bdd->prepare($sql);
 $req->execute();
 $data = $req->fetch();

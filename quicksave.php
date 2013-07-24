@@ -31,7 +31,7 @@ if (isset($_POST['status'])) {
 
     $sql = "UPDATE experiments 
         SET status = :status 
-        WHERE userid = :userid 
+        WHERE userid_creator = :userid 
         AND id = :id";
     $req = $bdd->prepare($sql);
     $result = $req->execute(array(
@@ -59,7 +59,7 @@ if (isset($_POST['status'])) {
     if ($_POST['type'] == 'experiments') {
         $sql = "UPDATE experiments 
             SET title = :title, date = :date, body = :body
-            WHERE userid = :userid 
+            WHERE userid_creator = :userid 
             AND id = :id";
     $req = $bdd->prepare($sql);
     $result = $req->execute(array(

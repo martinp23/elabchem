@@ -41,7 +41,7 @@ if (strlen($tag) > 0) {
     // Tag for experiment or protocol ?
     if ($_POST['type'] == 'exp' ){
         // Check expid is owned by connected user
-        $sql = "SELECT userid FROM experiments WHERE id = ".$item_id;
+        $sql = "SELECT userid_creator FROM experiments WHERE id = ".$item_id;
         $req = $bdd->prepare($sql);
         $req->execute();
         $data = $req->fetch();

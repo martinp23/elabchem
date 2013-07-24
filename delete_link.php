@@ -38,7 +38,7 @@ if(isset($_POST['item_id']) && is_pos_int($_POST['item_id'])) {
 }
 
 // Check item_id is owned by connected user
-$sql = "SELECT userid FROM experiments WHERE id = ".$item_id;
+$sql = "SELECT userid_creator FROM experiments WHERE id = ".$item_id;
 $req = $bdd->prepare($sql);
 $req->execute();
 $data = $req->fetch();

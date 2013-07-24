@@ -36,8 +36,10 @@ if(!class_exists('ZipArchive')) {
 // Switch exp/items just for the table to search in sql requests
 if ($_GET['type'] === 'exp') {
     $table = 'experiments';
+	$useridref = "userid_creator";
 } elseif ($_GET['type'] === 'items') {
     $table = 'items';
+	$useridref = "userid";
 } else {
     die('bad type');
 }
@@ -67,7 +69,7 @@ if(isset($_GET['id']) && !empty($_GET['id'])) {
             ////////////////
 
             // SQL to get title, body and date
-            $sql = "SELECT title, body, date, userid FROM ".$table." WHERE id = $id";
+            $sql = "SELECT title, body, date, " .$useridref." FROM ".$table." WHERE id = $id";
             $req = $bdd->prepare($sql);
             $req->execute();
             $data = $req->fetch();

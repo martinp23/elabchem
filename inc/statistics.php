@@ -34,7 +34,7 @@ $status_arr[] = 'running';
 foreach ($status_arr as $status){
 $sql = "SELECT COUNT(id)
     FROM experiments 
-    WHERE userid = :userid 
+    WHERE userid_creator = :userid 
     AND status LIKE'".$status."'";
 $req = $bdd->prepare($sql);
 $req->bindParam(':userid', $_SESSION['userid']);

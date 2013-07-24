@@ -43,8 +43,17 @@ if (isset($_GET['type']) && ($_GET['type'] === 'exp')){
 }
 
 // Check id is owned by connected user
-if ($item_type === 'experiments' || $item_type === 'experiments_templates') {
-    $sql = "SELECT userid_creator FROM $item_type WHERE id = ".$id;
+if ($item_type === 'experiments' ) {
+    $sql = "SELECT userid_creator FROM experiments WHERE id = ".$id;
+    $req = $bdd->prepare($sql);
+    $req->execute();
+    $result = $req->fetchColumn();
+    if($result != $_SESSION['userid']) {
+        die('You are trying to delete an item which is not yours !');
+    }
+}
+if ($item_type === 'experiments_templates') {
+    $sql = "SELECT userid FROM experiments_templates WHERE id = ".$id;
     $req = $bdd->prepare($sql);
     $req->execute();
     $result = $req->fetchColumn();

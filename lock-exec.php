@@ -39,7 +39,7 @@ if(isset($_GET['action']) && ($_GET['action'] == 'lock')) {
     $action = 0; // unlock
 }
 
-$sql = "UPDATE experiments SET locked = :action WHERE id = :id AND userid = :userid";
+$sql = "UPDATE experiments SET locked = :action WHERE id = :id AND userid_creator = :userid";
 $req = $bdd->prepare($sql);
 $result = $req->execute(array(
     'action' => $action,
