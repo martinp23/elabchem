@@ -119,6 +119,12 @@ require_once('inc/info_box.php');
                     }
 ?>
 >Fail</option>
+<option value='deleted' name='status'<?php
+                    if(isset($_GET['status']) && ($_GET['status'] == 'deleted')) {
+                        echo " selected='selected'";
+                    }
+?>
+>Deleted</option>
 </select>
 <br />
 <br /> <p class='inline'>And rating is </p><select name='rating' class='search_inputs'>
@@ -194,30 +200,103 @@ if (isset($_GET)) {
     // EXPERIMENT ADVANCED SEARCH
     if(isset($_GET['type'])) {
         if($_GET['type'] === 'experiments') {
+        	
+			$results_arr[] = 0;
+
             // SQL
             // the BETWEEN stuff makes the date mandatory, so we switch the $sql with/without date
             if(isset($_GET['to']) && !empty($_GET['to'])) {
 
                 if(isset($_GET['all']) && !empty($_GET['all'])) {
-            $sql = "SELECT * FROM experiments WHERE title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%' AND date BETWEEN '$from' AND '$to'";
-                } else { //search only in your experiments
-            $sql = "SELECT * FROM experiments WHERE userid_creator = :userid AND title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%' AND date BETWEEN '$from' AND '$to'";
-                }
+           			 $sql = "SELECT rev_id FROM experiments AND status LIKE '%$status%' AND date BETWEEN '$from' AND '$to'";
+					 $req = $bdd->prepare($sql);
+					 $req->execute();
+			         while ($data = $req->fetch()) {
+			        		if ($data['rev_id'] > 1){
+      				        	 $results_arr[] = $data['rev_id'];
+							}
+						$revids = implode(",", $results_arr);
+						$sql = "SELECT * FROM revisions WHERE rev_title LIKE '%$title%' AND rev_body LIKE '%$body%' AND rev_id IN ($revids)";
+    	    		}
+			}
+				else { //search only in your experiments
+           			 $sql = "SELECT rev_id FROM experiments WHERE userid_creator = :userid AND status LIKE '%$status%' AND date BETWEEN '$from' AND '$to'";
+            		 $req = $bdd->prepare($sql);
+					 $req->execute(array(
+              			  'userid' => $_SESSION['userid']
+           			 ));
 
+			         while ($data = $req->fetch()) {
+			        		if ($data['rev_id'] > 1){
+      				         	$results_arr[] = $data['rev_id'];
+							}
+					$revids = implode(",", $results_arr);
+					$sql = "SELECT * FROM revisions WHERE rev_title LIKE '%$title%' AND rev_body LIKE '%$body%' AND rev_id IN ($revids)";    
+					}
 
-            } elseif(isset($_GET['from']) && !empty($_GET['from'])) {
+				}
+			}
+			
+            elseif(isset($_GET['from']) && !empty($_GET['from'])) {
                 if(isset($_GET['all']) && !empty($_GET['all'])) {
-            $sql = "SELECT * FROM experiments WHERE title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%' AND date BETWEEN '$from' AND '991212'";
+            $sql = "SELECT rev_id FROM experiments WHERE status LIKE '%$status%' AND date BETWEEN '$from' AND '991212'";
+			$req = $bdd->prepare($sql);
+			$req->execute();
+			while ($data = $req->fetch()) {
+					if ($data['rev_id'] > 1){
+						$results_arr[] = $data['rev_id'];
+						}
+					$revids = implode(",", $results_arr);
+					$sql = "SELECT * FROM revisions WHERE rev_title LIKE '%$title%' AND rev_body LIKE '%$body%' AND rev_id IN ($revids)";    
+					}
+									
                 } else { //search only in your experiments
-            $sql = "SELECT * FROM experiments WHERE userid_creator = :userid AND title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%' AND date BETWEEN '$from' AND '991212'";
+            $sql = "SELECT rev_id FROM experiments WHERE userid_creator = :userid AND status LIKE '%$status%' AND date BETWEEN '$from' AND '991212'";
+			$req = $bdd->prepare($sql);
+			$req->execute(array(
+    	            'userid' => $_SESSION['userid']
+            ));
+
+			while ($data = $req->fetch()) {
+					if ($data['rev_id'] > 1){
+						$results_arr[] = $data['rev_id'];
+						}
+
+					}	
+					$revids = implode(",", $results_arr);
+					$sql = "SELECT * FROM revisions WHERE rev_title LIKE '%$title%' AND rev_body LIKE '%$body%' AND rev_id IN ($revids)";    		
+
                 }
-
-
+				
             } else { // no date input
                 if(isset($_GET['all']) && !empty($_GET['all'])) {
-            $sql = "SELECT * FROM experiments WHERE title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%'";
+            $sql = "SELECT rev_id FROM experiments WHERE status LIKE '%$status%'";
+			$req = $bdd->prepare($sql);
+			$req->execute();
+			while ($data = $req->fetch()) {
+					if ($data['rev_id'] > 1){
+						$results_arr[] = $data['rev_id'];
+						}
+					
+					}
+				$revids = implode(",", $results_arr);
+				$sql = "SELECT * FROM revisions WHERE rev_title LIKE '%$title%' AND rev_body LIKE '%$body%' AND rev_id IN ($revids)";    
                 } else { //search only in your experiments
-            $sql = "SELECT * FROM experiments WHERE userid_creator = :userid AND title LIKE '%$title%' AND body LIKE '%$body%' AND status LIKE '%$status%'";
+            $sql = "SELECT rev_id FROM experiments WHERE userid_creator = :userid AND status LIKE '%$status%'";
+			$req = $bdd->prepare($sql);
+			$req->execute(array(
+                'userid' => $_SESSION['userid']
+            ));
+
+			while ($data = $req->fetch()) {
+					if ($data['rev_id'] > 1){
+						$results_arr[] = $data['rev_id'];
+						}
+   
+					}
+					
+				$revids = implode(",", $results_arr);
+				$sql = "SELECT * FROM revisions WHERE rev_title LIKE '%$title%' AND rev_body LIKE '%$body%' AND rev_id IN ($revids)"; 
                 }
 
 
@@ -227,13 +306,13 @@ if (isset($_GET)) {
             $req->execute(array(
                 'userid' => $_SESSION['userid']
             ));
-            // This counts the number or results - and if there wasn't any it gives them a little message explaining that 
+            // This counts the number of results - and if there wasn't any it gives them a little message explaining that 
             $count = $req->rowCount();
             if ($count > 0) {
                 // make array of results id
                 $results_id = array();
                 while ($get_id = $req->fetch()) {
-                    $results_id[] = $get_id['id'];
+                    $results_id[] = $get_id['experiment_id'];
                 }
                 // sort by id, biggest (newer item) comes first
                 $results_id = array_reverse($results_id);

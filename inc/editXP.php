@@ -100,6 +100,7 @@ $status = $exp_data['status'];
 <option id='option_success' value="success">Success</option>
 <option id='option_redo' value="redo">Need to be redone</option>
 <option id='option_fail' value="fail">Fail</option>
+<option id='option_deleted' value="deleted">Deleted</option>
 </select>
 </span>
 <br />

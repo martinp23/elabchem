@@ -388,7 +388,8 @@ function check_status($input) {
         if (($input === 'running')
         || ($input === 'success')
         || ($input === 'fail')
-        || ($input === 'redo')) {
+        || ($input === 'redo')
+		|| ($input === 'deleted')) {
         return $input;
         }
     } else {
