@@ -57,7 +57,7 @@ if ($type === 'experiments'){
     }
 
     // SQL for create experiments
-    $sql = "INSERT INTO experiments(title, date, body, status, elabid, userid) VALUES(:title, :date, :body, :status, :elabid, :userid)";
+    $sql = "INSERT INTO experiments(title, date, body, status, elabid, userid_creator) VALUES(:title, :date, :body, :status, :elabid, :userid)";
     $req = $bdd->prepare($sql);
     $result = $req->execute(array(
         'title' => 'Untitled',
@@ -90,7 +90,7 @@ if ($type === 'experiments'){
 
 // Get what is the item id we just created
 if ($type === 'experiments') {
-    $sql = "SELECT id FROM experiments WHERE userid = :userid ORDER BY id DESC LIMIT 0,1";
+    $sql = "SELECT id FROM experiments WHERE userid_creator = :userid ORDER BY id DESC LIMIT 0,1";
 } else {
     $sql = "SELECT id FROM items WHERE userid = :userid ORDER BY id DESC LIMIT 0,1";
 }

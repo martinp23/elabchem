@@ -44,7 +44,7 @@ if (isset($_GET['type']) && ($_GET['type'] === 'exp')){
 
 // Check id is owned by connected user
 if ($item_type === 'experiments' || $item_type === 'experiments_templates') {
-    $sql = "SELECT userid FROM $item_type WHERE id = ".$id;
+    $sql = "SELECT userid_creator FROM $item_type WHERE id = ".$id;
     $req = $bdd->prepare($sql);
     $req->execute();
     $result = $req->fetchColumn();

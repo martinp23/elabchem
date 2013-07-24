@@ -95,7 +95,7 @@ if (isset($_GET['q'])) { // if there is a query
         $results_arr = array();
         // show only running XP
         $sql = "SELECT id FROM experiments 
-        WHERE userid = :userid AND status = 'running' LIMIT 100";
+        WHERE userid_creator = :userid AND status = 'running' LIMIT 100";
         $req = $bdd->prepare($sql);
         $req->execute(array(
             'userid' => $_SESSION['userid']
@@ -198,7 +198,7 @@ if (isset($_GET['q'])) { // if there is a query
 } else {
     $sql = "SELECT * 
         FROM experiments 
-        WHERE userid = :userid 
+        WHERE userid_creator = :userid 
         ORDER BY ".$order." ". $sort." 
         LIMIT ".$limit."
         OFFSET ".$offset;
@@ -231,7 +231,7 @@ if (isset($_GET['q']) || isset($_GET['related'])) {
     <section class='pagination'>
     <?php
     // COUNT TOTAL NUMBER OF ITEMS
-    $sql = "SELECT COUNT(id) FROM experiments WHERE userid = ".$_SESSION['userid'];
+    $sql = "SELECT COUNT(id) FROM experiments WHERE userid_creator = ".$_SESSION['userid'];
     $req = $bdd->prepare($sql);
     $req->execute();
     $full = $req->fetchAll();

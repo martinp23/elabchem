@@ -41,7 +41,7 @@ $req->execute();
 $data = $req->fetch();
 
 // Check id is owned by connected user
-if ($data['userid'] != $_SESSION['userid']) {
+if ($data['userid_creator'] != $_SESSION['userid']) {
     echo ("<ul class='errors'>You are trying to edit an experiment which is not yours.</ul>");
     require_once('inc/footer.php');
     exit();

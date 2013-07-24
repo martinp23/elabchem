@@ -63,7 +63,7 @@ if($errflag) {
         date = :date, 
         body = :body, 
         status = :status
-        WHERE userid = :userid 
+        WHERE userid_creator = :userid 
         AND id = :id";
 $req = $bdd->prepare($sql);
 $result = $req->execute(array(
