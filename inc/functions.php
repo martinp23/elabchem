@@ -122,16 +122,27 @@ function search_item($type, $query, $userid) {
     $results_arr = array();
     if($type === 'xp') {
     // search in title date and body
-    $sql = "SELECT id FROM experiments 
-        WHERE userid_creator = :userid AND (title LIKE '%$query%' OR date LIKE '%$query%' OR body LIKE '%$query%') LIMIT 100";
+    $sql = "SELECT rev_id FROM experiments 
+        WHERE userid_creator = :userid AND date LIKE '%$query%' LIMIT 100";
     $req = $bdd->prepare($sql);
     $req->execute(array(
         'userid' => $userid
     ));
     // put resulting ids in the results array
     while ($data = $req->fetch()) {
-        $results_arr[] = $data['id'];
+        $results_arr_rev[] = $data['rev_id'];
     }
+
+	$revids = implode(",", $results_arr_rev);
+	$sql = "SELECT * FROM revisions WHERE rev_title LIKE '%$query%' AND rev_body LIKE '%$query%' AND rev_id IN ($revids) LIMIT 100";   
+	
+	$req = $bdd->prepare($sql);
+    $req->execute();
+    // put resulting ids in the results array
+    while ($data = $req->fetch()) {
+        $results_arr_rev[] = $data['experiment_id'];
+    }
+
     // now we search in tags, and append the found ids to our result array
     $sql = "SELECT item_id FROM experiments_tags WHERE userid = :userid AND tag LIKE '%$query%' LIMIT 100";
     $req = $bdd->prepare($sql);
@@ -405,25 +416,41 @@ function make_pdf($id, $type, $out = 'browser') {
     global $bdd;
 
     // SQL to get title, body and date
+    if ($type === 'experiments') {
+    	$sql = "SELECT * FROM experiments WHERE id = $id";
+		$req = $bdd->prepare($sql);
+        $req->execute();
+        $exp_data = $req->fetch();	
+		
+		$sql = "SELECT * FROM revisions WHERE rev_id = ".$exp_data['rev_id'];
+		$req = $bdd->prepare($sql);
+        $req->execute();
+        $rev_data = $req->fetch();	
+			
+ 	    $title = stripslashes($rev_data['rev_title']);
+ 	    $date = $exp_data['date'];
+ 	    // the name of the pdf is needed in make_zip
+   	    $clean_title = $date."-".preg_replace('/[^A-Za-z0-9]/', ' ', $title);
+        $body = stripslashes($rev_data['rev_body']);
+ 	    $elabid = $exp_data['elabid'];
+    }
+		
+    else {
+    
     $sql = "SELECT * FROM $type WHERE id = $id";
     $req = $bdd->prepare($sql);
     $req->execute();
     $data = $req->fetch();
-    $title = stripslashes($data['title']);
-    $date = $data['date'];
-    // the name of the pdf is needed in make_zip
-    $clean_title = $date."-".preg_replace('/[^A-Za-z0-9]/', ' ', $title);
-    $body = stripslashes($data['body']);
-    if ($type == 'experiments') {
-        $elabid = $data['elabid'];
-    }
-    $req->closeCursor();
+	
+	
 
+    $req->closeCursor();
+    }
     // SQL to get firstname + lastname
     $sql = "SELECT firstname,lastname FROM users WHERE userid = :userid";
     $req = $bdd->prepare($sql);
     $req->execute(array(
-        'userid' => $data['userid']
+        'userid' => $exp_data['userid_creator']
     ));
     $data = $req->fetch();
     $firstname = $data['firstname'];
@@ -439,7 +466,7 @@ function make_pdf($id, $type, $out = 'browser') {
         $tags .= $data['tag'].' ';
     }
     $req->closeCursor();
-
+    
     // build content of page
     $content = "<h1>".$title."</h1><br />
         Date : ".$date."<br />
