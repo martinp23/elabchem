@@ -58,18 +58,27 @@ if($errflag) {
 }
 
 // SQL for editXP
+
+	$sql = "INSERT INTO revisions(user_id, experiment_id, rev_notes, rev_body, rev_title) VALUES(:userid, :expid, :notes, :body, :title)";
+    $req = $bdd->prepare($sql);
+    $result = $req->execute(array(
+        'title' => $title,
+        'expid' => $id,
+        'notes' => "TODO",
+        'body' => $body,
+        'userid' => $_SESSION['userid']));
+
+
     $sql = "UPDATE experiments 
-        SET title = :title, 
+        SET 
         date = :date, 
-        body = :body, 
-        status = :status
+        status = :status, 
+        rev_id = LAST_INSERT_ID() 
         WHERE userid_creator = :userid 
         AND id = :id";
 $req = $bdd->prepare($sql);
 $result = $req->execute(array(
-    'title' => $title,
     'date' => $date,
-    'body' => $body,
     'status' => $status,
     'userid' => $_SESSION['userid'],
     'id' => $id

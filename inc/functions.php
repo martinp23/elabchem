@@ -123,7 +123,7 @@ function search_item($type, $query, $userid) {
     if($type === 'xp') {
     // search in title date and body
     $sql = "SELECT id FROM experiments 
-        WHERE userid = :userid AND (title LIKE '%$query%' OR date LIKE '%$query%' OR body LIKE '%$query%') LIMIT 100";
+        WHERE userid_creator = :userid AND (title LIKE '%$query%' OR date LIKE '%$query%' OR body LIKE '%$query%') LIMIT 100";
     $req = $bdd->prepare($sql);
     $req->execute(array(
         'userid' => $userid
@@ -211,41 +211,49 @@ function showXP($id, $display) {
 // Show unique XP
     global $bdd;
     // SQL to get everything from selected id
-    $sql = "SELECT id, title, date, body, status, locked  FROM experiments WHERE id = :id";
+    $sql = "SELECT id, date, rev_id, status, locked  FROM experiments WHERE id = :id";
     $req = $bdd->prepare($sql);
     $req->execute(array(
         'id' => $id
     ));
-    $final_query = $req->fetch();
+    $exp_query = $req->fetch();
+	
+	$sql = "SELECT rev_id, rev_body, rev_title FROM revisions WHERE rev_id = :revid";
+	$req = $bdd->prepare($sql);
+	$req->execute(array(
+		'revid' => $exp_query['rev_id']
+	));
+	$rev_query = $req->fetch();
+	
         if ($display === 'compact') {
             // COMPACT MODE //
             echo "<section class='item'>";
-            echo "<span class='".$final_query['status']."_compact'>".$final_query['date']."</span> ";
-            echo stripslashes($final_query['title']);
+            echo "<span class='".$exp_query['status']."_compact'>".$exp_query['date']."</span> ";
+            echo stripslashes($rev_query['rev_title']);
             // view link
-            echo "<a href='experiments.php?mode=view&id=".$final_query['id']."'>
+            echo "<a href='experiments.php?mode=view&id=".$exp_query['id']."'>
                 <img class='align_right' src='img/view_compact.png' alt='view' title='view experiment' /></a>";
             echo "</section>";
         } else { // NOT COMPACT
 ?>
-        <section class="item <?php echo $final_query['status'];?>">
+        <section class="item <?php echo $exp_query['status'];?>">
     <?php
     // DATE
-    echo "<span class='redo_compact'>".$final_query['date']."</span> ";
+    echo "<span class='redo_compact'>".$exp_query['date']."</span> ";
     // TAGS
     echo show_tags($id, 'experiments_tags');
     // view link
-    echo "<a href='experiments.php?mode=view&id=".$final_query['id']."'>
+    echo "<a href='experiments.php?mode=view&id=".$exp_query['id']."'>
         <img class='align_right' style='margin-left:5px;' src='img/view.png' alt='view' title='view experiment' /></a>";
     // show attached if there is a file attached
-    if (has_attachement($final_query['id'])) {
+    if (has_attachement($exp_query['id'])) {
         echo "<img class='align_right' src='themes/".$_SESSION['prefs']['theme']."/img/attached_file.png' alt='file attached' />";
     }
     // show lock if item is locked on viewXP
-    if ($final_query['locked'] == 1) {
+    if ($exp_query['locked'] == 1) {
         echo "<img class='align_right' src='themes/".$_SESSION['prefs']['theme']."/img/lock.png' alt='lock' />";
     }
-    echo "<p class='title'>". stripslashes($final_query['title']) . "</p>";
+    echo "<p class='title'>". stripslashes($rev_query['rev_title']) . "</p>";
     echo "</section>";
         }
 }
@@ -513,25 +521,48 @@ function duplicate_item($id, $type) {
     global $bdd;
     if ($type === 'experiments') {
         $elabid = generate_elabid();
-        // SQL to get data from the experiment we duplicate
-        $sql = "SELECT title, body FROM experiments WHERE id = ".$id;
+        // SQL to get latest revision from the experiment we duplicate
+        $sql = "SELECT rev_id, rev_title, rev_body FROM revisions WHERE experiment_id = ".$id." ORDER BY rev_id DESC LIMIT 0,1";
         $req = $bdd->prepare($sql);
         $req->execute();
         $data = $req->fetch();
+		
+		//now get content of latest revision and 
+		
         // SQL for duplicateXP
-        $sql = "INSERT INTO experiments(title, date, body, status, elabid, userid) VALUES(:title, :date, :body, :status, :elabid, :userid)";
+        $sql = "INSERT INTO experiments(date, status, elabid, userid_creator) VALUES(:date, :status, :elabid, :userid)";
         $req = $bdd->prepare($sql);
         $result = $req->execute(array(
-            'title' => $data['title'],
             'date' => kdate(),
-            'body' => $data['body'],
             'status' => 'running',
             'elabid' => $elabid,
             'userid' => $_SESSION['userid']));
+
         // END SQL main
-
-
-    }
+        // Get what is the experiment id we just created
+		// Get what is the experiment id we just created
+   	    $sql = "SELECT LAST_INSERT_ID();";
+	    $req = $bdd->prepare($sql);
+	    $req->execute();
+	    $data1 = $req->fetch();
+ 	    $newid = $data1['LAST_INSERT_ID()'];
+			
+			
+		// now copy the text for the new page into the revisions table	
+		$sql = "INSERT INTO revisions(user_id, experiment_id, rev_notes, rev_body, rev_title) VALUES(:userid, :expid, :notes, :body, :title)";
+        $req = $bdd->prepare($sql);
+        $result = $req->execute(array(
+            'title' => $data['rev_title'],
+            'expid' => $newid,
+            'notes' => "Duplication of experiment {$id}.",
+            'body' => $data['rev_body'],
+            'userid' => $_SESSION['userid']));
+            
+        // now populate rev-id for expt
+   		$sql = "UPDATE experiments SET rev_id=LAST_INSERT_ID() WHERE id = " .$newid;
+    	$req = $bdd->prepare($sql);
+    	$result = $req->execute();  
+        }
 
     if ($type === 'items') {
         // SQL to get data from the item we duplicate
@@ -551,15 +582,17 @@ function duplicate_item($id, $type) {
             'type' => $data['type']
         ));
         // END SQL main
-    }
+        
+        // Get what is the experiment id we just created
+        $sql = "SELECT id FROM ".$type." WHERE userid = :userid ORDER BY id DESC LIMIT 0,1";
+        $req = $bdd->prepare($sql);
+        $req->bindParam(':userid', $_SESSION['userid']);
+        $req->execute();
+        $data = $req->fetch();
+        $newid = $data['id'];
+        }
 
-    // Get what is the experiment id we just created
-    $sql = "SELECT id FROM ".$type." WHERE userid = :userid ORDER BY id DESC LIMIT 0,1";
-    $req = $bdd->prepare($sql);
-    $req->bindParam(':userid', $_SESSION['userid']);
-    $req->execute();
-    $data = $req->fetch();
-    $newid = $data['id'];
+
 
 
     if ($type === 'experiments') {

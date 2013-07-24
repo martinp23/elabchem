@@ -57,16 +57,39 @@ if ($type === 'experiments'){
     }
 
     // SQL for create experiments
-    $sql = "INSERT INTO experiments(title, date, body, status, elabid, userid_creator) VALUES(:title, :date, :body, :status, :elabid, :userid)";
+    $sql = "INSERT INTO experiments(date, status, elabid, userid_creator) VALUES(:date, :status, :elabid, :userid)";
     $req = $bdd->prepare($sql);
     $result = $req->execute(array(
-        'title' => 'Untitled',
         'date' => kdate(),
-        'body' => $body,
         'status' => 'running',
         'elabid' => $elabid,
         'userid' => $_SESSION['userid']
     ));
+	
+	
+	// Get what is the experiment id we just created
+    $sql = "SELECT LAST_INSERT_ID();";
+    $req = $bdd->prepare($sql);
+    $req->execute();
+    $data = $req->fetch();
+    $newid = $data['LAST_INSERT_ID()'];
+			
+	// now insert the text for the new page into the revisions table	
+	$sql = "INSERT INTO revisions(user_id, experiment_id, rev_notes, rev_body, rev_title) VALUES(:userid, :expid, :notes, :body, :title)";
+    $req = $bdd->prepare($sql);
+    $result = $req->execute(array(
+        'title' => 'Untitled',
+        'expid' => $newid,
+        'notes' => "New experiment.",
+        'body' => $body,
+        'userid' => $_SESSION['userid']));
+		
+    // now populate rev-id for expt
+    $sql = "UPDATE experiments SET rev_id=LAST_INSERT_ID() WHERE id = " .$newid;
+    $req = $bdd->prepare($sql);
+    $result = $req->execute();  
+        
+
 } else { // create item for DB
     // SQL to get template
     $sql = "SELECT template FROM items_types WHERE id = :id";

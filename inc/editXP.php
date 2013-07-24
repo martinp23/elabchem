@@ -38,23 +38,30 @@ if(isset($_GET['id']) && !empty($_GET['id']) && is_pos_int($_GET['id'])){
 $sql = "SELECT * FROM experiments WHERE id = ".$id;
 $req = $bdd->prepare($sql);
 $req->execute();
-$data = $req->fetch();
+$exp_data = $req->fetch();
+
+$sql = "SELECT rev_id, rev_body, rev_title FROM revisions WHERE rev_id = :revid";
+$req = $bdd->prepare($sql);
+$req->execute(array(
+		'revid' => $exp_data['rev_id']
+	));
+$rev_data = $req->fetch();
 
 // Check id is owned by connected user
-if ($data['userid_creator'] != $_SESSION['userid']) {
+if ($exp_data['userid_creator'] != $_SESSION['userid']) {
     echo ("<ul class='errors'>You are trying to edit an experiment which is not yours.</ul>");
     require_once('inc/footer.php');
     exit();
 }
 
 // Check for lock
-if ($data['locked'] == 1) {
+if ($exp_data['locked'] == 1) {
     die("Item is locked. Can't edit.");
 }
 
 // BEGIN CONTENT
 ?>
-<section id='view_xp_item' class='item <?php echo $data['status'];?>'>
+<section id='view_xp_item' class='item <?php echo $exp_data['status'];?>'>
 <a class='align_right' href='delete_item.php?id=<?php echo $id;?>&type=exp' onClick="return confirm('Delete this experiment ?');"><img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/trash.png' title='delete' alt='delete' /></a>
 <!-- ADD TAG FORM -->
 <img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/tags.gif' alt='' /> <h4>Tags</h4><span class='smallgray'> (click a tag to remove it)</span><br />
@@ -80,13 +87,13 @@ echo stripslashes($tags['tag']);?>
 
 <h4>Date</h4><span class='smallgray'> (date format : YYMMDD)</span><br />
 <!-- TODO if firefox has support for it: type = date -->
-<img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/calendar.png' title='date' alt='Date :' /><input name='date' id='datepicker' size='6' type='text' value='<?php echo $data['date'];?>' />
+<img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/calendar.png' title='date' alt='Date :' /><input name='date' id='datepicker' size='6' type='text' value='<?php echo $exp_data['date'];?>' />
 
 <span class='align_right'>
 <h4>Status</h4>
 <!-- Status get selected by default -->
 <?php
-$status = $data['status'];
+$status = $exp_data['status'];
 ?>
     <select id="status_form" name="status" onchange="update_status(this.value)">
 <option id='option_running' value="running">Running</option>
@@ -99,7 +106,7 @@ $status = $data['status'];
 <br />
 <h4>Title</h4><br />
       <textarea id='title_txtarea' name='title' rows="1" cols="80"><?php if(empty($_SESSION['errors'])){
-          echo stripslashes($data['title']);
+          echo stripslashes($rev_data['rev_title']);
       } else {
           echo stripslashes($_SESSION['new_title']);
       } ?></textarea>
@@ -108,7 +115,7 @@ $status = $data['status'];
 <h4>Experiment</h4>
 <br />
 <textarea id='body_area' class='mceditable' name='body' rows="15" cols="80">
-    <?php echo stripslashes($data['body']);?>
+    <?php echo stripslashes($rev_data['rev_body']);?>
 </textarea>
 
 <!-- SUBMIT BUTTON -->
@@ -324,7 +331,7 @@ $(document).ready(function() {
     }
 
     // fix for the ' and "
-    title = "<?php echo $data['title']; ?>".replace(/\&#39;/g, "'").replace(/\&#34;/g, "\"");
+    title = "<?php echo $rev_data['rev_title']; ?>".replace(/\&#39;/g, "'").replace(/\&#34;/g, "\"");
     document.title = title;
     // DATEPICKER
     $( "#datepicker" ).datepicker({dateFormat: 'ymmdd'});

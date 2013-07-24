@@ -35,46 +35,54 @@ if(isset($_GET['id']) && !empty($_GET['id']) && is_pos_int($_GET['id'])){
 $sql = "SELECT * FROM experiments WHERE id = ".$id;
 $req = $bdd->prepare($sql);
 $req->execute();
-$data = $req->fetch();
+$expdata = $req->fetch();
+
+$sql = "SELECT rev_id, rev_body, rev_title FROM revisions WHERE rev_id = :revid";
+$req = $bdd->prepare($sql);
+$req->execute(array(
+		'revid' => $expdata['rev_id']
+	));
+$rev_data = $req->fetch();
+
 
 // Check id is owned by connected user to present comment div if not
-if ($data['userid_creator'] != $_SESSION['userid']) {
+if ($expdata['userid_creator'] != $_SESSION['userid']) {
     echo "<ul class='infos'>Read-only mode. Not your experiment.</ul>";
 }
 
 
 // Display experiment
 ?>
-<section class="item <?php echo $data['status'];?>">
-<a class='align_right' href='delete_item.php?id=<?php echo $data['id'];?>&type=exp' onClick="return confirm('Delete this experiment ?');"><img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/trash.png' title='delete' alt='delete' /></a>
+<section class="item <?php echo $expdata['status'];?>">
+<a class='align_right' href='delete_item.php?id=<?php echo $expdata['id'];?>&type=exp' onClick="return confirm('Delete this experiment ?');"><img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/trash.png' title='delete' alt='delete' /></a>
 <?php
-echo "<span class='date'><img src='themes/".$_SESSION['prefs']['theme']."/img/calendar.png' title='date' alt='Date :' />".$data['date']."</span><br />
-    <a href='experiments.php?mode=edit&id=".$data['id']."'><img src='themes/".$_SESSION['prefs']['theme']."/img/edit.png' title='edit' alt='edit' /></a> 
-<a href='duplicate_item.php?id=".$data['id']."&type=exp'><img src='themes/".$_SESSION['prefs']['theme']."/img/duplicate.png' title='duplicate experiment' alt='duplicate' /></a> 
-<a href='make_pdf.php?id=".$data['id']."&type=experiments'><img src='themes/".$_SESSION['prefs']['theme']."/img/pdf.png' title='make a pdf' alt='pdf' /></a> 
+echo "<span class='date'><img src='themes/".$_SESSION['prefs']['theme']."/img/calendar.png' title='date' alt='Date :' />".$expdata['date']."</span><br />
+    <a href='experiments.php?mode=edit&id=".$expdata['id']."'><img src='themes/".$_SESSION['prefs']['theme']."/img/edit.png' title='edit' alt='edit' /></a> 
+<a href='duplicate_item.php?id=".$expdata['id']."&type=exp'><img src='themes/".$_SESSION['prefs']['theme']."/img/duplicate.png' title='duplicate experiment' alt='duplicate' /></a> 
+<a href='make_pdf.php?id=".$expdata['id']."&type=experiments'><img src='themes/".$_SESSION['prefs']['theme']."/img/pdf.png' title='make a pdf' alt='pdf' /></a> 
 <a href='javascript:window.print()'><img src='themes/".$_SESSION['prefs']['theme']."/img/print.png' title='Print this page' alt='Print' /></a> 
-<a href='make_zip.php?id=".$data['id']."&type=exp'><img src='themes/".$_SESSION['prefs']['theme']."/img/zip.gif' title='make a zip archive' alt='zip' /></a> ";
+<a href='make_zip.php?id=".$expdata['id']."&type=exp'><img src='themes/".$_SESSION['prefs']['theme']."/img/zip.gif' title='make a zip archive' alt='zip' /></a> ";
 // lock
-if($data['locked'] == 0) {
-    echo "<a href='lock-exec.php?id=".$data['id']."&action=lock'><img src='themes/".$_SESSION['prefs']['theme']."/img/unlock.png' title='lock experiment' alt='lock' /></a>";
+if($expdata['locked'] == 0) {
+    echo "<a href='lock-exec.php?id=".$expdata['id']."&action=lock'><img src='themes/".$_SESSION['prefs']['theme']."/img/unlock.png' title='lock experiment' alt='lock' /></a>";
 } else { // experiment is locked
-    echo "<a href='lock-exec.php?id=".$data['id']."&action=unlock'><img src='themes/".$_SESSION['prefs']['theme']."/img/lock.png' title='unlock experiment' alt='unlock' /></a>";
+    echo "<a href='lock-exec.php?id=".$expdata['id']."&action=unlock'><img src='themes/".$_SESSION['prefs']['theme']."/img/lock.png' title='unlock experiment' alt='unlock' /></a>";
 }
 
-// <a href='publish.php?id=".$data['id']."&type=exp'><img src='themes/".$_SESSION['prefs']['theme']."/img/publish.png' title='submit to a journal' alt='publish' /></a>";
+// <a href='publish.php?id=".$expdata['id']."&type=exp'><img src='themes/".$_SESSION['prefs']['theme']."/img/publish.png' title='submit to a journal' alt='publish' /></a>";
 // TAGS
 echo show_tags($id, 'experiments_tags');
 // TITLE : click on it to go to edit mode
 ?>
-<div OnClick="document.location='experiments.php?mode=edit&id=<?php echo $data['id'];?>'" class='title'>
-    <?php echo stripslashes($data['title']);?>
-    <span class='align_right' id='status'>(<?php echo $data['status'];?>)<span>
+<div OnClick="document.location='experiments.php?mode=edit&id=<?php echo $expdata['id'];?>'" class='title'>
+    <?php echo stripslashes($rev_data['rev_title']);?>
+    <span class='align_right' id='status'>(<?php echo $expdata['status'];?>)<span>
 </div>
 <?php
 // BODY (show only if not empty, click on it to edit
-if ($data['body'] != ''){
+if ($rev_data['rev_body'] != ''){
     ?>
-    <div OnClick="document.location='experiments.php?mode=edit&id=<?php echo $data['id'];?>'" class='txt'><?php echo stripslashes($data['body']);?></div>
+    <div OnClick="document.location='experiments.php?mode=edit&id=<?php echo $expdata['id'];?>'" class='txt'><?php echo stripslashes($rev_data['rev_body']);?></div>
 <?php
 }
 echo "<br />";
@@ -107,7 +115,7 @@ if ($req->rowcount() != 0) {
 }
 
 // DISPLAY eLabID
-echo "<p class='elabid'>Unique eLabID : ".$data['elabid']."</p>";
+echo "<p class='elabid'>Unique eLabID : ".$expdata['elabid']."</p>";
 
 // KEYBOARD SHORTCUTS
 echo "<script>
@@ -120,7 +128,7 @@ echo "</section>";
 // change title
 $(document).ready(function() {
     // fix for the ' and "
-    title = "<?php echo $data['title']; ?>".replace(/\&#39;/g, "'").replace(/\&#34;/g, "\"");
+    title = "<?php echo $rev_data['rev_title']; ?>".replace(/\&#39;/g, "'").replace(/\&#34;/g, "\"");
     document.title = title;
 });
 </script>
