@@ -28,11 +28,18 @@ $page_title = 'Profile';
 require_once('inc/head.php');
 require_once('inc/menu.php');
 // SQL to get number of experiments
-$sql = "SELECT COUNT(*) FROM experiments WHERE userid_creator = ".$_SESSION['userid'];
+$sql = "SELECT COUNT(*) FROM experiments WHERE userid_creator = ".$_SESSION['userid'] . " AND status <> 'deleted'";
 $req = $bdd->prepare($sql);
 $req->execute();
 
-$count = $req->fetch();
+$countdone = $req->fetch();
+
+$sql = "SELECT COUNT(*) FROM experiments WHERE userid_creator = ".$_SESSION['userid'] . " AND status = 'deleted'";
+$req = $bdd->prepare($sql);
+$req->execute();
+
+$countdeleted = $req->fetch();
+
 
 // SQL for profile
 $sql = "SELECT * FROM users WHERE userid = ".$_SESSION['userid'];
@@ -53,7 +60,8 @@ echo "<section class='item'>";
 echo "<img src='themes/".$_SESSION['prefs']['theme']."/img/user.png' alt='' /> <h4>INFOS</h4>";
 echo "<div class='center'>
     <p>".$data['firstname']." ".$data['lastname']." (".$data['email'].")</p>
-    <p>".$count[0]." experiments done since ".date("l jS \of F Y", $data['register_date']);
+    <p>".$countdone[0]." experiments done and {$countdeleted[0]} deleted since ".date("l jS \of F Y", $data['register_date']);
+    
 if($data['group'] == 'admin') {echo "<p>You ARE admin \o/</p>";}
 if($data['group'] === 'journalclub') {echo "<p>You ARE responsible of the <a href='journal-club.php'>Journal Club</a> !</p>";}
 echo "</div>";

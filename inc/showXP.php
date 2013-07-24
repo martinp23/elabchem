@@ -199,6 +199,7 @@ if (isset($_GET['q'])) { // if there is a query
     $sql = "SELECT * 
         FROM experiments 
         WHERE userid_creator = :userid 
+        AND status <> 'deleted'
         ORDER BY ".$order." ". $sort." 
         LIMIT ".$limit."
         OFFSET ".$offset;
@@ -231,7 +232,7 @@ if (isset($_GET['q']) || isset($_GET['related'])) {
     <section class='pagination'>
     <?php
     // COUNT TOTAL NUMBER OF ITEMS
-    $sql = "SELECT COUNT(id) FROM experiments WHERE userid_creator = ".$_SESSION['userid'];
+    $sql = "SELECT COUNT(id) FROM experiments WHERE userid_creator = ".$_SESSION['userid'] ." AND status <> 'deleted'";
     $req = $bdd->prepare($sql);
     $req->execute();
     $full = $req->fetchAll();

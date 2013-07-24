@@ -75,9 +75,17 @@ if ($item_type === 'experiments'){
     }
 }
 // DELETE ITEM
-$sql = "DELETE FROM ".$item_type." WHERE id=".$id;
-$req = $bdd->prepare($sql);
-$result1 = $req->execute();
+
+if ($item_type === 'experiments') {
+	$sql = "UPDATE ".$item_type." SET status = 'deleted' WHERE id=".$id;
+	$req = $bdd->prepare($sql);
+	$result1 = $req->execute();
+	}
+else {
+	$sql = "DELETE FROM ".$item_type." WHERE id=".$id;
+	$req = $bdd->prepare($sql);
+	$result1 = $req->execute();
+}
 
 // DELETE TAGS
 if ($item_type === 'experiments' || $item_type === 'items') {

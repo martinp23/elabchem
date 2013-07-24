@@ -31,6 +31,7 @@ $status_arr[] = 'success';
 $status_arr[] = 'fail';
 $status_arr[] = 'redo';
 $status_arr[] = 'running';
+$status_arr[] = 'deleted';
 foreach ($status_arr as $status){
 $sql = "SELECT COUNT(id)
     FROM experiments 
@@ -46,6 +47,7 @@ $success = $count_arr[0][0];
 $fail = $count_arr[1][0];
 $redo = $count_arr[2][0];
 $running = $count_arr[3][0];
+$deleted = $count_arr[4][0];
 // MAKE TOTAL
 $total = ($success + $fail + $redo + $running);
 // Make percentage
@@ -54,6 +56,7 @@ if ($total != 0) {
     $fail_p = round(($fail / $total)*100);
     $redo_p = round(($redo / $total)*100);
     $running_p = round(($running / $total)*100);
+	$deleted_p = round(($deleted / $total)*100);
     $total_p = ($success_p + $fail_p + $redo_p + $running_p);
 
     // BEGIN CONTENT
@@ -73,6 +76,7 @@ if ($total != 0) {
                 ['Fail',  <?php echo $fail_p;?>],
                 ['Need to be redone',    <?php echo $redo_p;?>],
                 ['Success',      <?php echo $success_p;?>],
+                ['Deleted',      <?php echo $deleted_p;?>],
                           ]);
 
             var options = {
