@@ -9,3 +9,5 @@ populate.php
 populate-exec.php
 PASTIE
 uploads/
+js/jquery-1.9.1.js
+js/jquery-migrate-1.2.1.js
