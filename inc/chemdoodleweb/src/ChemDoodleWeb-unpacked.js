@@ -9548,7 +9548,7 @@ ChemDoodle.RESIDUE = (function() {
 		}
 		for ( var i = 0, ii = mols.length; i < ii; i++) {
 			var center = mols[i].getCenter();
-			if (center.x < ps[0].x) {
+			if (center.x < ps[1].x) {
 				molecules[0].push(mols[i]);
 			} else {
 				molecules[1].push(mols[i]);
