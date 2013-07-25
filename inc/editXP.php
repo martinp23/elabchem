@@ -47,6 +47,32 @@ $req->execute(array(
 	));
 $rev_data = $req->fetch();
 
+if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
+	// SQL to get our reaction box and probably do other stuff later...
+	if($rev_data['rev_reaction_id'] != NULL) {
+		$sql = "SELECT * FROM reactions WHERE rxn_id = ".$rev_data['rev_reaction_id'];
+		$req = $bdd->prepare($sql);
+		$req->execute();
+		$rxn_data = $req->fetch();			
+	}
+	
+	// now to make our reaction box ?>
+	<!--these four are required by the ChemDoodle Web Components library-->
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<link rel="stylesheet" href="js/chemdoodleweb/ChemDoodleWeb.css" type="text/css">
+	<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb-libs.js"></script>  
+    <script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb.js"></script> 	
+	<!--these three are required by the SketcherCanvas plugin-->
+	<link rel="stylesheet" href="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.css" type="text/css">
+	<script type="text/javascript" src="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.min.js"></script>
+	<script type="text/javascript" src="js/chemdoodleweb/sketcher/ChemDoodleWeb-sketcher.js"></script> 
+	<!-- initialise this as empty -->
+	<script language="javascript" type="text/javascript">var rxn = "";</script>
+	<?php 
+	
+	
+}
+
 // Check id is owned by connected user
 if ($exp_data['userid_creator'] != $_SESSION['userid']) {
     echo ("<ul class='errors'>You are trying to edit an experiment which is not yours.</ul>");
@@ -112,7 +138,52 @@ $status = $exp_data['status'];
           echo stripslashes($_SESSION['new_title']);
       } ?></textarea>
 
-<br />
+<br /><br />
+<?php if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') { ?>
+	<div id="scheme" align="center")><script language="javascript" type="text/javascript">
+
+			// changes the default JMol color of hydrogen to black so it appears on white backgrounds
+		ChemDoodle.ELEMENT['H'].jmolColor = 'black';
+		// darkens the default JMol color of sulfur so it appears on white backgrounds
+		ChemDoodle.ELEMENT['S'].jmolColor = '#B9A130';
+	
+		var reactionCanvas = new ChemDoodle.SketcherCanvas('reaction', 600, 200, {useServices:false});
+		reactionCanvas.specs.atoms_displayTerminalCarbonLabels_2D = true;
+		// sets atom labels to be colored by JMol colors, which are easy to recognize
+		reactionCanvas.specs.atoms_useJMOLColors = true;
+		// enables overlap clear widths, so that some depth is introduced to overlapping bonds
+		reactionCanvas.specs.bonds_clearOverlaps_2D = true;
+		// sets the shape color to improve contrast when drawing figures
+		reactionCanvas.specs.shapes_color = 'c10000';
+		// because we do not load any content, we need to repaint the sketcher, otherwise we would just see an empty area with the toolbar
+		// however, you can instead use one of the Canvas.load... functions to pre-populate the canvas with content, then you don't need to call repaint
+		reactionCanvas.repaint();	
+	
+	function updateScheme() 
+	{
+		var mols = reactionCanvas.getMolecules();
+		var shapes = reactionCanvas.getShapes();
+		var rxnnew = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), reactionCanvas.getShapes());
+		if (rxnnew != rxn)
+		{
+			rxn = rxnnew;
+			
+		}
+		
+	}
+	
+	$("canvas").on("mouseout", function() {
+		updateScheme();
+		var mols = reactionCanvas.getMolecules();
+	});
+
+	</script><br />
+
+	</div>
+
+	<br /><?php 
+	//end if
+} ?>
 <h4>Experiment</h4>
 <br />
 <textarea id='body_area' class='mceditable' name='body' rows="15" cols="80">
