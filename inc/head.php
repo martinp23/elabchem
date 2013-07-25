@@ -86,8 +86,9 @@ echo "<link id='maincss' rel='stylesheet' media='all' href='themes/default/style
 <link rel="stylesheet" media="all" href="css/jquery.rating.css" />
 <link rel="stylesheet" media="all" href="css/jquery.lightbox-0.5.css" />
 <!-- JAVASCRIPT -->
-<script src="js/jquery-1.7.2.min.js"></script>
-<script src="js/jquery-ui-1.8.18.custom.min.js"></script>
+<script src="js/jquery-1.9.1.min.js"></script>
+<script src="js/jquery-migrate-1.2.1.min.js"></script>
+<script src="js/jquery-ui-1.10.3.custom.min.js"></script>
 <!-- for editable comments -->
 <script src="js/jquery.jeditable.min.js"></script>
 <!-- for keyboard shortcuts -->
