@@ -161,11 +161,13 @@ $status = $exp_data['status'];
 		reactionCanvas.specs.shapes_color = 'c10000';
 		// because we do not load any content, we need to repaint the sketcher, otherwise we would just see an empty area with the toolbar
 		// however, you can instead use one of the Canvas.load... functions to pre-populate the canvas with content, then you don't need to call repaint
-		
-		var reaction_cd = ChemDoodle.readRXN(rxn);
+		if(rxn != "") {
+			var reaction_cd = ChemDoodle.readRXN(rxn);
 
-		reactionCanvas.loadContent(reaction_cd.molecules, reaction_cd.shapes);
-
+			reactionCanvas.loadContent(reaction_cd.molecules, reaction_cd.shapes);
+		} else {
+			reactionCanvas.repaint();
+		}
 	
 	function updateScheme() 
 	{

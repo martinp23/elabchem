@@ -178,8 +178,8 @@ CREATE TABLE IF NOT EXISTS `revisions` (
   UNIQUE KEY `revid_UNIQUE` (`rev_id`),
   KEY `user_id_idx` (`user_id`),
   KEY `experiment_id_idx` (`experiment_id`),
-  KEY `item_id_idx` (`item_id`)
-  KEY `rev_reaction_id` (`rev_reaction_id`)
+  KEY `item_id_idx` (`item_id`),
+  KEY `rev_rxn_id_idx` (`rev_reaction_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -242,42 +242,36 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 
 ALTER TABLE `experiments`
-  ADD CONSTRAINT `experiments_ibfk_1` FOREIGN KEY (`userid_creator`) REFERENCES `users` (`userid`),
-  ADD CONSTRAINT `experiments_ibfk_2` FOREIGN KEY (`userid_closer`) REFERENCES `users` (`userid`),
-  ADD CONSTRAINT `experiments_ibfk_3` FOREIGN KEY (`userid_witness`) REFERENCES `users` (`userid`),
+  ADD CONSTRAINT `experiments_ibfk_1` FOREIGN KEY (`userid_creator`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION,
+  ADD CONSTRAINT `experiments_ibfk_2` FOREIGN KEY (`userid_closer`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION,
+  ADD CONSTRAINT `experiments_ibfk_3` FOREIGN KEY (`userid_witness`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION,
   ADD CONSTRAINT `experiments_ibfk_4` FOREIGN KEY (`rev_id`) REFERENCES `revisions` (`rev_id`);
 
 ALTER TABLE `experiments_tags`
-  ADD CONSTRAINT `userid` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`);
+  ADD CONSTRAINT `userid` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION;
 
 ALTER TABLE `experiments_templates`
-  ADD CONSTRAINT `experiments_templates_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`);
+  ADD CONSTRAINT `experiments_templates_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION;
 
 ALTER TABLE `items`
-  ADD CONSTRAINT `items_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`),
-  ADD CONSTRAINT `items_ibfk_2` FOREIGN KEY (`type`) REFERENCES `items_types` (`id`);
+  ADD CONSTRAINT `items_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION,
+  ADD CONSTRAINT `items_ibfk_2` FOREIGN KEY (`type`) REFERENCES `items_types` (`id`) ON UPDATE NO ACTION;
 
 ALTER TABLE `items_tags`
-  ADD CONSTRAINT `items_tags_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `items_tags_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `items_tags_ibfk_3` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `items_tags_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 ALTER TABLE `reactions`
-  ADD CONSTRAINT `reactions_ibfk_2` FOREIGN KEY (`experiment_id`) REFERENCES `experiments` (`id`),
-  ADD CONSTRAINT `reactions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`);
+  ADD CONSTRAINT `reactions_ibfk_2` FOREIGN KEY (`experiment_id`) REFERENCES `experiments` (`id`) ON UPDATE NO ACTION,
+  ADD CONSTRAINT `reactions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION;
 
 ALTER TABLE `revisions`
   ADD CONSTRAINT `revisions_ibfk_5` FOREIGN KEY (`rev_reaction_id`) REFERENCES `reactions` (`rxn_id`),
-  ADD CONSTRAINT `experiment_id` FOREIGN KEY (`experiment_id`) REFERENCES `experiments` (`id`),
-  ADD CONSTRAINT `revisions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`),
-  ADD CONSTRAINT `revisions_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`),
-  ADD CONSTRAINT `revisions_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`),
-  ADD CONSTRAINT `revisions_ibfk_4` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`);
+  ADD CONSTRAINT `experiment_id` FOREIGN KEY (`experiment_id`) REFERENCES `experiments` (`id`) ON UPDATE NO ACTION,
+  ADD CONSTRAINT `revisions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION,
+  ADD CONSTRAINT `revisions_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON UPDATE NO ACTION;
 
 ALTER TABLE `uploads`
-  ADD CONSTRAINT `uploads_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`),
-  ADD CONSTRAINT `uploads_ibfk_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`),
-  ADD CONSTRAINT `uploads_ibfk_3` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`);
+  ADD CONSTRAINT `uploads_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION;
 
 -- ELABFTW
 INSERT INTO `items_types` (`id`, `name`, `bgcolor`, `template`, `tags`) VALUES
