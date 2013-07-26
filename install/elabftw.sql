@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `experiments` (
   `witnessed` tinyint(1) NOT NULL DEFAULT '0',
   `rev_id` int(10) unsigned DEFAULT NULL,
   `deleted` tinyint(1) unsigned DEFAULT '0',
+  `type` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `userid_idx` (`userid_creator`,`userid_witness`,`userid_closer`),
   KEY `userid_witness_idx` (`userid_witness`),
@@ -141,6 +142,22 @@ CREATE TABLE IF NOT EXISTS `items_types` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `reactions`
+--
+
+CREATE TABLE IF NOT EXISTS `reactions` (
+  `rxn_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `experiment_id` int(10) unsigned NOT NULL,
+  `rxn_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `rxn_mdl` longtext CHARACTER SET utf8 NOT NULL,
+  PRIMARY KEY (`rxn_id`),
+  KEY `user_id` (`user_id`,`experiment_id`),
+  KEY `experiment_id` (`experiment_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ;
+
+-- --------------------------------------------------------
+--
 -- Table structure for table `revisions`
 --
 
@@ -156,11 +173,13 @@ CREATE TABLE IF NOT EXISTS `revisions` (
   `rev_structure` varchar(45) DEFAULT NULL,
   `rev_links` varchar(255) DEFAULT NULL,
   `rev_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `rev_reaction_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`rev_id`),
   UNIQUE KEY `revid_UNIQUE` (`rev_id`),
   KEY `user_id_idx` (`user_id`),
   KEY `experiment_id_idx` (`experiment_id`),
   KEY `item_id_idx` (`item_id`)
+  KEY `rev_reaction_id` (`rev_reaction_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -243,7 +262,12 @@ ALTER TABLE `items_tags`
   ADD CONSTRAINT `items_tags_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `items_tags_ibfk_3` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
+ALTER TABLE `reactions`
+  ADD CONSTRAINT `reactions_ibfk_2` FOREIGN KEY (`experiment_id`) REFERENCES `experiments` (`id`),
+  ADD CONSTRAINT `reactions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`);
+
 ALTER TABLE `revisions`
+  ADD CONSTRAINT `revisions_ibfk_5` FOREIGN KEY (`rev_reaction_id`) REFERENCES `reactions` (`rxn_id`),
   ADD CONSTRAINT `experiment_id` FOREIGN KEY (`experiment_id`) REFERENCES `experiments` (`id`),
   ADD CONSTRAINT `revisions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`),
   ADD CONSTRAINT `revisions_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`),

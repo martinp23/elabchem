@@ -359,6 +359,16 @@ function check_title($input) {
     }
 }
 
+function check_rxn($input) {				
+		if ((isset($input)) && (!empty($input))) {
+       			 $rxn = filter_var($input, FILTER_SANITIZE_STRING);
+				 $rxn = str_replace("\r\n", "\n", $rxn); 
+			 return $rxn;
+	    } else {
+        return '';
+ 	    }
+}
+
 function check_date($input) {
     // Check DATE (is != null ? is 6 in length ? is int ? is valable ?)
     if ((isset($input)) 

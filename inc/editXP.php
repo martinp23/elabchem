@@ -40,7 +40,7 @@ $req = $bdd->prepare($sql);
 $req->execute();
 $exp_data = $req->fetch();
 
-$sql = "SELECT rev_id, rev_body, rev_title FROM revisions WHERE rev_id = :revid";
+$sql = "SELECT rev_id, rev_body, rev_title, rev_reaction_id FROM revisions WHERE rev_id = :revid";
 $req = $bdd->prepare($sql);
 $req->execute(array(
 		'revid' => $exp_data['rev_id']
@@ -53,7 +53,10 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 		$sql = "SELECT * FROM reactions WHERE rxn_id = ".$rev_data['rev_reaction_id'];
 		$req = $bdd->prepare($sql);
 		$req->execute();
-		$rxn_data = $req->fetch();			
+		$rxn_data = $req->fetch();		
+		$test = str_replace('\r\n', '\n\\', $rxn_data['rxn_mdl']);	
+	} else {
+		$rxn_data['rxn_mdl'] = "";
 	}
 	
 	// now to make our reaction box ?>
@@ -67,7 +70,7 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 	<script type="text/javascript" src="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.min.js"></script>
 	<script type="text/javascript" src="js/chemdoodleweb/sketcher/ChemDoodleWeb-sketcher.js"></script> 
 	<!-- initialise this as empty -->
-	<script language="javascript" type="text/javascript">var rxn = "";</script>
+	<script language="javascript" type="text/javascript">var rxn = <?php echo json_encode($rxn_data['rxn_mdl']);?>;</script>
 	<?php 
 	
 	
@@ -110,6 +113,7 @@ echo stripslashes($tags['tag']);?>
 <!-- BEGIN EDITXP FORM -->
 <form id="editXP" name="editXP" method="post" action="editXP-exec.php" enctype='multipart/form-data'>
 <input name='item_id' type='hidden' value='<?php echo $id;?>' />
+<input name='type' type='hidden' value='<?php echo $exp_data['type'];?>' />
 
 <h4>Date</h4><span class='smallgray'> (date format : YYMMDD)</span><br />
 <!-- TODO if firefox has support for it: type = date -->
@@ -140,8 +144,8 @@ $status = $exp_data['status'];
 
 <br /><br />
 <?php if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') { ?>
-	<div id="scheme" align="center")><script language="javascript" type="text/javascript">
-
+	<div id="scheme" align="center"><script language="javascript" type="text/javascript">
+	document.write("<input name='rxn_input' type='hidden' value='"+rxn+"' />");
 			// changes the default JMol color of hydrogen to black so it appears on white backgrounds
 		ChemDoodle.ELEMENT['H'].jmolColor = 'black';
 		// darkens the default JMol color of sulfur so it appears on white backgrounds
@@ -157,7 +161,11 @@ $status = $exp_data['status'];
 		reactionCanvas.specs.shapes_color = 'c10000';
 		// because we do not load any content, we need to repaint the sketcher, otherwise we would just see an empty area with the toolbar
 		// however, you can instead use one of the Canvas.load... functions to pre-populate the canvas with content, then you don't need to call repaint
-		reactionCanvas.repaint();	
+		
+		var reaction_cd = ChemDoodle.readRXN(rxn);
+
+		reactionCanvas.loadContent(reaction_cd.molecules, reaction_cd.shapes);
+
 	
 	function updateScheme() 
 	{
@@ -167,14 +175,13 @@ $status = $exp_data['status'];
 		if (rxnnew != rxn)
 		{
 			rxn = rxnnew;
-			
+		
 		}
 		
 	}
 	
 	$("canvas").on("mouseout", function() {
 		updateScheme();
-		var mols = reactionCanvas.getMolecules();
 	});
 
 	</script><br />
@@ -192,7 +199,7 @@ $status = $exp_data['status'];
 
 <!-- SUBMIT BUTTON -->
 <div class='center' id='saveButton'>
-    <input type="submit" name="Submit" class='button' value="Save and go back" />
+    <input type="submit" name="Submit" onclick="document.editXP.rxn_input.value = rxn;" class='button' value="Save and go back" />
 </div>
 </form><!-- end editXP form -->
 
