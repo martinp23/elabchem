@@ -164,6 +164,65 @@ Please refer to the [wiki](https://github.com/NicolasCARPi/elabftw/wiki/backup).
 * You can export in a .zip, a .pdf or a spreadsheet.
 * You can share an experiment by just sending the URL of the page to someone else.
 
+# Chemistry
+
+If you want to use chemistry functions, you need to do a bit more stuff!
+
+We need to install mychem: see http://mychem.sourceforge.net/
+and openbabel:  http://openbabel.org/wiki/Main_Page
+
+The svn version is known to work with MAMP 2.1.4 (mysql 5.5.29) and Debian Wheezy (mysql 5.5.31, on raspberry pi).
+
+## Debian Wheezy
+~~~ sh
+$ sudo apt-get install gcc cmake libmysqlclient-dev libopenbabel-dev openbabel subversion
+$ svn co https://mychem.svn.sourceforge.net/svnroot/mychem/mychem3 mychem
+$ cd mychem
+$ mkdir build
+$ cd build
+$ cmake ..
+$ make
+$ sudo make install
+$ mysql -u root -p < ../src/mychemdb.sql
+~~~
+
+To check installation in mysql, either use the tests provided in the mychem package or:
+~~~ mysql
+mysql> SELECT MYCHEM_VERSION();
+~~~
+
+## MAMP 2.1.4 (Mac OS X)
+
+This is a bit awkward because we need to download mysql again (in a redundant installation) because MAMP doesn't expose the necessary library. This is nasty and hacky! You'd probably be better off setting up your own MAMP stack following, say ( http://silicos-it.com/cookbook/configuring_osx_for_chemoinformatics/configuring_osx_for_chemoinformatics.html#mychem-cartridge-for-openbabel ) 
+
+Make sure that you install the openbabel binary as directed on openbabel.org.
+
+Get cmake from http://www.cmake.org/cmake/resources/software.html
+
+Make sure you have a C/C++ compiler (ideally GCC), via macports or XCode, and subversion.
+
+Get the relevant mysql package depending on your architecture (x86 or x86_64) from:
+
+ * x86 (32 bit) http://downloads.skysql.com/archive/signature/p/mysql/f/mysql-5.5.25-osx10.6-x86.dmg/v/5.5.25
+ * x86_64 (64 bit) http://downloads.skysql.com/archive/signature/p/mysql/f/mysql-5.5.25-osx10.6-x86_64.dmg/v/5.5.25
+
+ and install mysql.
+
+With the pre-requisites taken care of:
+~~~ sh
+$ svn co https://mychem.svn.sourceforge.net/svnroot/mychem/mychem3 mychem
+$ cd mychem
+$ mkdir build
+$ cd build
+$ cmake -DOPENBABEL2_INCLUDE_DIR=/usr/local/include/openbabel-2.0/ -DOPENBABEL2_LIBRARIES=/usr/local/lib/libopenbabel.dylib -DMYSQL_INCLUDE_DIR=/usr/local/mysql/include -DMYSQL_LIBRARIES=/usr/local/mysql/lib/libmysqlclient.dylib -DCMAKE_INSTALL_PREFIX=/Applications/MAMP/Library/lib/plugin/ ..
+$ make
+$ make install
+$ cd /Applications/MAMP/Library/lib/plugin
+$ ln -s lib/libmychem.dylib libmychem.so
+$ otool -L libmychem.so  # this will show that libmychem.so does not specify the location of the libmysqlclient library. So we add it
+$ install_name_tool -change libmysqlclient.18.dylib /usr/local/mysql-5.5.29-osx10.6-{x86 or x86_64}/lib/libmysqlclient.18.dylib libmychem.so
+$ mysql -u root -p < ../src/mychemdb.sql
+~~~
 
 ~Thank you for using eLabFTW :)
 
