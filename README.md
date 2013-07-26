@@ -171,12 +171,12 @@ If you want to use chemistry functions, you need to do a bit more stuff!
 We need to install mychem: see http://mychem.sourceforge.net/
 and openbabel:  http://openbabel.org/wiki/Main_Page
 
-The svn version is known to work with MAMP 2.1.4 (mysql 5.5.29) and Debian Wheezy (mysql 5.5.31, on raspberry pi).
+ svn revid 351 is known to work with MAMP 2.1.4 (mysql 5.5.29) and Debian Wheezy (mysql 5.5.31, on raspberry pi).
 
 ## Debian Wheezy
 ~~~ sh
 $ sudo apt-get install gcc cmake libmysqlclient-dev libopenbabel-dev openbabel subversion
-$ svn co https://mychem.svn.sourceforge.net/svnroot/mychem/mychem3 mychem
+$ svn co https://mychem.svn.sourceforge.net/svnroot/mychem/mychem3@351 mychem
 $ cd mychem
 $ mkdir build
 $ cd build
@@ -210,7 +210,7 @@ Get the relevant mysql package depending on your architecture (x86 or x86_64) fr
 
 With the pre-requisites taken care of:
 ~~~ sh
-$ svn co https://mychem.svn.sourceforge.net/svnroot/mychem/mychem3 mychem
+$ svn co https://mychem.svn.sourceforge.net/svnroot/mychem/mychem3@351 mychem
 $ cd mychem
 $ mkdir build
 $ cd build
