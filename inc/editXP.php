@@ -69,6 +69,26 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 	<link rel="stylesheet" href="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.css" type="text/css">
 	<script type="text/javascript" src="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.min.js"></script>
 	<script type="text/javascript" src="js/chemdoodleweb/sketcher/ChemDoodleWeb-sketcher.js"></script> 
+	
+	<!--now we load slickgrid for the stoichiometry table -->
+	<link rel="stylesheet" href="js/slickgrid/slick.grid.css" type="text/css">
+	<link rel="stylesheet" href="css/stoich-grid.css" type="text/css">
+    <link rel="stylesheet" href="js/slickgrid/controls/slick.columnpicker.css" type="text/css">
+	<script type="text/javascript" src="js/slickgrid/lib/jquery.event.drag-2.2.js"></script>
+	<script type="text/javascript" src="js/slickgrid/lib/jquery.event.drop-2.2.js"></script>
+	<script type="text/javascript" src="js/slickgrid/slick.dataview.js"></script>
+	<script type="text/javascript" src="js/slickgrid/controls/slick.columnpicker.js"></script>
+	<script type="text/javascript" src="js/slickgrid/plugins/slick.rowselectionmodel.js"></script>
+	<script type="text/javascript" src="js/slickgrid/slick.core.js"></script>
+	<script type="text/javascript" src="js/slickgrid/slick.editors.js"></script>
+	<script type="text/javascript" src="js/slickgrid/slick.formatters.js"></script>
+	<script type="text/javascript" src="js/slickgrid/slick.grid.js"></script>
+	<script type="text/javascript" src="js/chem-editors.js"></script> 	
+	<script type="text/javascript" src="js/chem-formatters.js"></script> 	
+	<script type="text/javascript" src="js/stoic-table-edit.js"></script> 	
+	<script type="text/javascript" src="js/unit-converters.js"></script> 	
+
+			
 	<!-- initialise this as empty -->
 	<script language="javascript" type="text/javascript">var rxn = <?php echo json_encode($rxn_data['rxn_mdl']);?>;</script>
 	<?php 
@@ -163,8 +183,8 @@ $status = $exp_data['status'];
 		// however, you can instead use one of the Canvas.load... functions to pre-populate the canvas with content, then you don't need to call repaint
 		if(rxn != "") {
 			var reaction_cd = ChemDoodle.readRXN(rxn);
-
 			reactionCanvas.loadContent(reaction_cd.molecules, reaction_cd.shapes);
+			updateStoichiometry();
 		} else {
 			reactionCanvas.repaint();
 		}
@@ -190,7 +210,14 @@ $status = $exp_data['status'];
 
 	</div>
 
-	<br /><?php 
+	<br />
+	
+	<div id="stoich-table" style="height:200px;width:600;center"></div>
+	
+	
+	
+	
+	<?php 
 	//end if
 } ?>
 <h4>Experiment</h4>
