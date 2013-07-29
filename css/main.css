@@ -677,3 +677,22 @@ footer p, footer p a {
 	font-size: 14px;
 }
 
+/* next three declarations are for webkit (safari/chrome) on OSX > Lion compatibility
+ * to force the horizontal scrollbar to show, when necessary.
+ * This does override a user preference in OSX (where scrollbars are hidden), but it
+ * is necessary because otherwise it can be impossible to tell that the table is
+ * scrollable.
+ */
+.slick-viewport::-webkit-scrollbar {
+	-webkit-appearance:none;
+}
+
+.slick-viewport::-webkit-scrollbar:horizontal {
+	height:11px;
+}
+
+.slick-viewport::-webkit-scrollbar-thumb {
+	border-radius:8px;
+	border:2px solid white;
+	background-color:rgba(0,0,0,.5);
+}
