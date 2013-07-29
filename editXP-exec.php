@@ -44,6 +44,7 @@ $date = check_date($_POST['date']);
 $body = check_body($_POST['body']);
 $status = check_status($_POST['status']);
 $rxn = check_rxn($_POST['rxn_input']);
+$grid = $_POST['grid_input'];
 
 // not sanitised! This is not committed to the db.
 $type = $_POST['type'];
@@ -72,14 +73,69 @@ if($errflag) {
 			'expid' => $id,
 			'rxn'	=> $rxn ));
 			
-		$sql = "INSERT INTO revisions(user_id, experiment_id, rev_notes, rev_body, rev_title, rev_reaction_id) VALUES(:userid, :expid, :notes, :body, :title, LAST_INSERT_ID())";
+		$rxn_id = $bdd->lastInsertId();
+			
+		$sql = "INSERT INTO revisions(user_id, experiment_id, rev_notes, rev_body, rev_title, rev_reaction_id) VALUES(:userid, :expid, :notes, :body, :title, :rxn_id)";
 	    $req = $bdd->prepare($sql);
 	    $result = $req->execute(array(
 	        'title' => $title,
 	        'expid' => $id,
 	        'notes' => "TODO",
 	        'body' => $body,
+	        'rxn_id' => $rxn_id,
 	        'userid' => $_SESSION['userid']));
+	    $rev_id = $bdd->lastInsertId();    
+		
+	//	$bdd->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+	    $grid = json_decode($grid,true);
+		for ($i = 0; $i < count($grid); $i++) {
+			$sql = "INSERT INTO rxn_stoichiometry(rxn_id, rev_id, row_id, user_id, cpd_name, cpd_id, cas_number, cpd_type, supplier, batch_ref,
+			mwt, mass, vol, mol, density, equiv, conc, solvent, limiting, notes, weightpercent, mwt_units, mass_units, mol_units, vol_units,
+			density_units, conc_units, formula, inchi) VALUES(:rxn_id, :rev_id, :row_id, :user_id, :cpd_name, :cpd_id, :cas_number, :cpd_type, :supplier, :batch_ref,
+			:mwt, :mass, :vol, :mol, :density, :equiv, :conc, :solvent, :limiting, :notes, :weightpercent, :mwt_units, :mass_units, :mol_units, :vol_units,
+			:density_units, :conc_units, :formula, :inchi)";
+		$req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
+		$values = array(
+	        'rxn_id' => $rxn_id,
+	        'rev_id' => $rev_id,
+	        'row_id' => $i,
+	        'user_id' => $_SESSION['userid'],
+	        'cpd_name' => $grid[$i]['cpd_name'],
+			'cpd_id' => $grid[$i]['cpd_id'],
+			'cas_number' => $grid[$i]['cas_number'],
+			'cpd_type' => $grid[$i]['cpd_type'],
+			'supplier' => $grid[$i]['supplier'],
+			'batch_ref' => $grid[$i]['batch_ref'],
+			'mwt' => $grid[$i]['mwt'],
+			'mass' => $grid[$i]['mass'],
+			'vol' => $grid[$i]['vol'],
+			'mol' => $grid[$i]['mol'],
+			'density' => $grid[$i]['density'],
+			'equiv' => $grid[$i]['equiv'],
+			'conc' => $grid[$i]['conc'],
+			'solvent' => $grid[$i]['solvent'],
+			'limiting' => $grid[$i]['limiting'],
+			'notes' => $grid[$i]['notes'],
+			'weightpercent' => $grid[$i]['weightpercent'],
+			'mwt_units' => $grid[$i]['mwt_units'],
+			'mass_units' => $grid[$i]['mass_units'],
+			'mol_units' => $grid[$i]['mol_units'],
+			'vol_units' => $grid[$i]['vol_units'],
+			'density_units' => $grid[$i]['density_units'],
+			'conc_units' => $grid[$i]['conc_units'],
+			'formula' => $grid[$i]['formula'],
+			'inchi' => $grid[$i]['inchi']);
+		$keys = array_keys($values);
+		for ($j=0; $j < count($values); $j++) {
+			if(!isset($values[$keys[$j]])) {
+				$values[$keys[$j]] = null;
+			}
+		}
+
+		$result = $req->execute($values);
+		}
+			
+		
 	} else {
 
 	$sql = "INSERT INTO revisions(user_id, experiment_id, rev_notes, rev_body, rev_title) VALUES(:userid, :expid, :notes, :body, :title)";
@@ -90,21 +146,23 @@ if($errflag) {
         'notes' => "TODO",
         'body' => $body,
         'userid' => $_SESSION['userid']));
+		$rev_id = $bdd->lastInsertId();  
 	}
-
+	
     $sql = "UPDATE experiments 
         SET 
         date = :date, 
         status = :status, 
-        rev_id = LAST_INSERT_ID() 
+        rev_id = :revid
         WHERE userid_creator = :userid 
         AND id = :id";
-$req = $bdd->prepare($sql);
-$result = $req->execute(array(
-    'date' => $date,
-    'status' => $status,
-    'userid' => $_SESSION['userid'],
-    'id' => $id
+	$req = $bdd->prepare($sql);
+	$result = $req->execute(array(
+	    'date' => $date,
+	    'status' => $status,
+	    'revid' => $rev_id,
+	    'userid' => $_SESSION['userid'],
+	    'id' => $id
 ));
 
 

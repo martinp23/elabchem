@@ -47,6 +47,8 @@ $req->execute(array(
 	));
 $rev_data = $req->fetch();
 
+
+// Do some chemistry-specific stuff
 if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 	// SQL to get our reaction box and probably do other stuff later...
 	if($rev_data['rev_reaction_id'] != NULL) {
@@ -54,12 +56,33 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 		$req = $bdd->prepare($sql);
 		$req->execute();
 		$rxn_data = $req->fetch();		
-		$test = str_replace('\r\n', '\n\\', $rxn_data['rxn_mdl']);	
 	} else {
 		$rxn_data['rxn_mdl'] = "";
 	}
 	
+	$gridDatadb = array();
+	$sql = "SELECT * FROM rxn_stoichiometry WHERE rev_id = {$exp_data['rev_id']}";
+	$req = $bdd->prepare($sql);
+	$req->execute();
+	if ($req->rowcount() != 0) {
+		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
+			$gridDatadb[] = $gridRow;
+		}
+	}
+		
+	
+	
 	// now to make our reaction box ?>
+	 <!-- first just make the grid data available -->
+	<script type="text/javascript">var gridData = <?php echo json_encode($gridDatadb);?>;
+		for (i in gridData) {
+			for(j in gridData[i]) {
+				if(gridData[i][j] === null) {
+					delete gridData[i][j];
+				}
+			}
+		}
+		</script>
 	<!--these four are required by the ChemDoodle Web Components library-->
 	<meta http-equiv="X-UA-Compatible" content="chrome=1">
 	<link rel="stylesheet" href="js/chemdoodleweb/ChemDoodleWeb.css" type="text/css">
@@ -89,8 +112,9 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 	<script type="text/javascript" src="js/unit-converters.js"></script> 	
 
 			
-	<!-- initialise this as empty -->
-	<script language="javascript" type="text/javascript">var rxn = <?php echo json_encode($rxn_data['rxn_mdl']);?>;</script>
+	
+	<script type="text/javascript">var rxn = <?php echo json_encode($rxn_data['rxn_mdl']);?>;</script>
+
 	<?php 
 	
 	
@@ -145,12 +169,12 @@ echo stripslashes($tags['tag']);?>
 <?php
 $status = $exp_data['status'];
 ?>
-    <select id="status_form" name="status" onchange="update_status(this.value)">
-<option id='option_running' value="running">Running</option>
-<option id='option_success' value="success">Success</option>
-<option id='option_redo' value="redo">Need to be redone</option>
-<option id='option_fail' value="fail">Fail</option>
-<option id='option_deleted' value="deleted">Deleted</option>
+<select id="status_form" name="status" onchange="update_status(this.value)">
+	<option id='option_running' value="running">Running</option>
+	<option id='option_success' value="success">Success</option>
+	<option id='option_redo' value="redo">Need to be redone</option>
+	<option id='option_fail' value="fail">Fail</option>
+	<option id='option_deleted' value="deleted">Deleted</option>
 </select>
 </span>
 <br />
@@ -164,71 +188,50 @@ $status = $exp_data['status'];
 
 <br /><br />
 <?php if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') { ?>
-	<div id="scheme" align="center"><script language="javascript" type="text/javascript">
-	document.write("<input name='rxn_input' type='hidden' value='"+rxn+"' />");
-			// changes the default JMol color of hydrogen to black so it appears on white backgrounds
-		ChemDoodle.ELEMENT['H'].jmolColor = 'black';
-		// darkens the default JMol color of sulfur so it appears on white backgrounds
-		ChemDoodle.ELEMENT['S'].jmolColor = '#B9A130';
-	
-		var reactionCanvas = new ChemDoodle.SketcherCanvas('reaction', 600, 200, {useServices:false});
-		reactionCanvas.specs.atoms_displayTerminalCarbonLabels_2D = true;
-		// sets atom labels to be colored by JMol colors, which are easy to recognize
-		reactionCanvas.specs.atoms_useJMOLColors = true;
-		// enables overlap clear widths, so that some depth is introduced to overlapping bonds
-		reactionCanvas.specs.bonds_clearOverlaps_2D = true;
-		// sets the shape color to improve contrast when drawing figures
-		reactionCanvas.specs.shapes_color = 'c10000';
-		// because we do not load any content, we need to repaint the sketcher, otherwise we would just see an empty area with the toolbar
-		// however, you can instead use one of the Canvas.load... functions to pre-populate the canvas with content, then you don't need to call repaint
-		if(rxn != "") {
-			var reaction_cd = ChemDoodle.readRXN(rxn);
-			reactionCanvas.loadContent(reaction_cd.molecules, reaction_cd.shapes);
-			updateStoichiometry();
-		} else {
-			reactionCanvas.repaint();
-		}
-	
-	function updateScheme() 
-	{
-		var mols = reactionCanvas.getMolecules();
-		var shapes = reactionCanvas.getShapes();
-		var rxnnew = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), reactionCanvas.getShapes());
-		if (rxnnew != rxn)
-		{
-			rxn = rxnnew;
-		
-		}
-		
-	}
-	
-	$("canvas").on("mouseout", function() {
-		updateScheme();
-	});
-
-	</script><br />
+	<h4>Reaction scheme</h4><br /><div id="scheme" align="center">
+		<script type="text/javascript" src="js/edittableScheme.js"></script><br />
 
 	</div>
 
 	<br />
-	
-	<div id="stoich-table" style="height:200px;width:600;center"></div>
-	
-	
-	
-	
+	<div class='center' id='updateStoichTableBtn'>
+		<input type="button" href"#" name="Update" onclick="updateStoichTable()" class='button' value="Update table" />
+	</div><br /><h4>Stoichiometry table</h4><br />
+	<div id="stoich-table"></div><br /><br />
+	<!-- Chemistry edit area smaller than generic -->
+<h4>Experiment</h4>
+<br />
+<textarea id='body_area' class='mceditable' style='height:350px;' name='body' rows="15" cols="80">
+    <?php echo stripslashes($rev_data['rev_body']);?>
+</textarea>
+<br /><br />
+<h4>Products</h4></br>
+<p>Todo: SlickGrid with structure(graphical),formula,mwt of product and options for ref-number, mass, 
+	colour, physical state, description, etc.</p>
+<p>This table should automatically calculate yield.</p>
+<p>We also need a way to add extra batches of each product.</p>
+<p>Calculate total yield by summing batches and products when there is more than one row.</p>
+<p>Add a link to a compound registration form to save compound info in database and get registration number.</p>
+<p>This should all be put into the database in rxn_product_grid and versioned, etc. This table is then
+	essentially a staging area before products are properly committed to the compounds tables upon registration.</p>
+
 	<?php 
-	//end if
-} ?>
+	// non-chemistry experiment section
+} else {
+?>
 <h4>Experiment</h4>
 <br />
 <textarea id='body_area' class='mceditable' name='body' rows="15" cols="80">
     <?php echo stripslashes($rev_data['rev_body']);?>
 </textarea>
 
+
+<?php 
+	//end if
+}?>
 <!-- SUBMIT BUTTON -->
 <div class='center' id='saveButton'>
-    <input type="submit" name="Submit" onclick="document.editXP.rxn_input.value = rxn;" class='button' value="Save and go back" />
+    <input type="submit" name="Submit" onclick="preSubmit();" class='button' value="Save and go back" />
 </div>
 </form><!-- end editXP form -->
 
