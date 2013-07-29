@@ -56,10 +56,20 @@ $(function() {
 
 
         grid.onAddNewRow.subscribe(function (e, args) {
-            var item = args.item;
-            grid.invalidateRow(data.length);
+            var item = args.item,
+                    limitIndex = 0;
+            data = grid.getData();
+            if(data.length === 0) {
+                item.limiting = true;
+            } else {
+                limitIndex = getLimitIndex(data);
+                item.mol = data[limitIndex].mol / data[limitIndex].equiv;
+                item.mol_units = getMolUnits(item.mol);
+            }
+            item.equiv = 1;
+            item.cpd_type = 'Reactant';
             data.push(item);
-            grid.updateRowCount();
+            grid.setData(data);
             grid.render();
         });
         
@@ -73,13 +83,8 @@ $(function() {
         
         grid.onCellChange.subscribe(function (e, args) {
             var allData = grid.getData(),
-                limitIndex;
-            // let's find the limiting reagent row
-            for (var i=0; i<allData.length; i++) {
-                if(allData[i].limiting) {
-                    limitIndex = i;
-                }
-            }
+                limitIndex = getLimitIndex(allData);
+
             switch (grid.getColumns()[args.cell].id) {
             case "mass":
                 // now we need to update the table to reflect changes in entered mass
@@ -113,7 +118,7 @@ $(function() {
 			case "vol":
 				// vol has been changed. Density/concentration is constant so we need to change mass and then mol, equiv, etc.
 				// concentration takes precedance over density
-				if ( args.item.concentration !== undefined ) {
+				if ( args.item.conc != undefined ) {
 					allData[args.row].mol = args.item.conc * args.item.vol;
 					massFromMolMwt();					
 				} else {
@@ -159,7 +164,7 @@ $(function() {
         grid.render();
 		
 		function volFromMass() {
-			if (args.item.density !== undefined) {
+			if (args.item.density != undefined) {
 				allData[args.row].vol = args.item.mass /args.item.density;
 				if(!allData[args.row].vol_units) {
 					// if units not already set, make them something sensible
@@ -175,15 +180,19 @@ $(function() {
 					allData[i].mol = allData[args.row].mol * allData[i].equiv / allData[args.row].equiv;
 					// then mass and vol
 					allData[i].mass = allData[i].mol * allData[i].mwt;
-					if (allData[i].density !== null) {
+					if (allData[i].density != null) {
 						allData[i].vol = allData[i].mass / allData[i].density;
 						allData[i].vol_units = getVolUnits(allData[i].vol);
-					} else if (allData[i].conc !== null) {
+					} else if (allData[i].conc != null) {
 						allData[i].vol = allData[i].mol / allData[i].conc;
 						allData[i].vol_units = getVolUnits(allData[i].vol);
 					}
 					allData[i].mol_units = getMolUnits(allData[i].mol);
 					allData[i].mass_units = getMassUnits(allData[i].mass);	
+				} else {
+				    allData[i].mol_units = getMolUnits(allData[i].mol);
+                    allData[i].mass_units = getMassUnits(allData[i].mass);
+                    allData[i].vol_units = getVolUnits(allData[i].vol);
 				}
 			}			
 		}
@@ -197,5 +206,14 @@ $(function() {
 			}
 			allData[args.row].mass_units = getMassUnits(allData[args.row].mass);	
 		}    
+		
+		function getLimitIndex(gridData) {
+		    // let's find the limiting reagent row
+            for (var i=0; i<gridData.length; i++) {
+                if(gridData[i].limiting) {
+                    return i;
+                }
+            }
+		}
     });
 });

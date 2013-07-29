@@ -13,7 +13,7 @@ function chemEditor(args) {
 		
 		switch(args.column.id) {
 			case "mwt":
-				$units = $("<select><option value='kg/mol'>kg/mol</option><option value='g/mol'>g/mol</option><option value='mg/mol'>mg/mol</option><option value='g/mmol'>g/mmol</option></select>");			
+				$units = $("<select><option value='g/mol'>g/mol</option><option value='kg/mol'>kg/mol</option><option value='mg/mol'>mg/mol</option><option value='g/mmol'>g/mmol</option></select>");			
 				break;
 			case "mass":
 				$units = $("<select><option value='kg'>kg</option><option value='g'>g</option><option value='mg'>mg</option><option value='ug'>ug</option><option value='ng'>ng</option></select>");			

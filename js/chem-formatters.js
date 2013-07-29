@@ -4,7 +4,7 @@ function buttonFormatter(row, cell, value, columnDef, dataContext) {
 }
 
 function mwtFormatter(row, cell, value, columnDef, dataContext) {
-	if (dataContext.mwt === undefined) {
+	if (!dataContext.mwt) {
 		return "";
 	}
 	var units = dataContext.mwt_units || 'g/mol',
@@ -13,7 +13,7 @@ function mwtFormatter(row, cell, value, columnDef, dataContext) {
 }
 
 function massFormatter(row, cell, value, columnDef, dataContext) {
-	if (dataContext.mass === undefined) {
+	if (isNaN(dataContext.mass)) {
 		return "";
 	}
 	var units = dataContext.mass_units || "g",
@@ -23,7 +23,7 @@ function massFormatter(row, cell, value, columnDef, dataContext) {
 
 function molFormatter(row, cell, value, columnDef, dataContext) {
 	
-	if (dataContext.mol === undefined) {
+	if (isNaN(dataContext.mol)) {
 		return "";
 	}
 	var units = dataContext.mol_units || 'mol',
@@ -32,7 +32,7 @@ function molFormatter(row, cell, value, columnDef, dataContext) {
 }
 
 function volFormatter(row, cell, value, columnDef, dataContext) {
-	if (dataContext.vol === undefined) {
+	if (isNaN(dataContext.vol)) {
 		return "";
 	}
 	var units = dataContext.vol_units || "L";
@@ -41,7 +41,7 @@ function volFormatter(row, cell, value, columnDef, dataContext) {
 }
 
 function concFormatter(row, cell, value, columnDef, dataContext) {
-	if (dataContext.conc === undefined) {
+	if (isNaN(dataContext.conc)) {
 		return "";
 	}
 	var units = dataContext.conc_units || "M",

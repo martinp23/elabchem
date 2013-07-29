@@ -19,11 +19,9 @@ reactionCanvas.specs.shapes_color = 'c10000';
 if(rxn !== "") {
     var reaction_cd = ChemDoodle.readRXN(rxn);
     reactionCanvas.loadContent(reaction_cd.molecules, reaction_cd.shapes);
-    reactionCanvas.repaint();
-    updateStoichiometry();
-} else {
-    reactionCanvas.repaint();
 }
+reactionCanvas.repaint();
+
 
 function updateScheme() 
 {
@@ -100,7 +98,6 @@ function updateStoichTable()
                 if( newCompounds.length == missingRows.length && numCompoundsInTable === numReact) {
                     for(i=0; i<missingRows.length; i++)
                     {   
-                        debugger;
                         // put dbdata[i] into reactantGridData[i];
                         // then do the updating stuff based on change to mwt and to density.
                         reactantGridData[missingRows[i]].mwt = newCompounds[i].mwt;

@@ -109,15 +109,15 @@ function toSI (value, units) {
 function getMassUnits(value) {
 	// We want to determine optimal units (kg, g, mg, ug, ng) for a given value in g.
 	var order = Math.log(value) / Math.LN10;
-	if(order > 3) {
+	if(order >= 3) {
 		return 'kg';
-	} else if (order > 0) {
+	} else if (order >= 0) {
 		return 'g';
-	} else if (order > -3) {
+	} else if (order >= -3) {
 		return 'mg';
-	} else if (order > -6) {
+	} else if (order >= -6) {
 		return 'ug';
-	} else if (order > -9) {
+	} else if (order >= -9) {
 		return 'ng';
 	} else {
 		return 'g';
@@ -127,13 +127,13 @@ function getMassUnits(value) {
 function getMolUnits(value) {
 	// We want to determine optimal units (mol, mmol, umol, nmol) for a given value in mol.
 	var order = Math.log(value) / Math.LN10;
-	if (order > 0) {
+	if (order >= 0) {
 		return 'mol';
-	} else if (order > -3) {
+	} else if (order >= -3) {
 		return 'mmol';
-	} else if (order > -6) {
+	} else if (order >= -6) {
 		return 'umol';
-	} else if (order > -9) {
+	} else if (order >= -9) {
 		return 'nmol';
 	} else {
 		return 'mol';
@@ -143,13 +143,13 @@ function getMolUnits(value) {
 function getVolUnits(value) {
 	// We want to determine optimal units (L, mL, uL, nL) for a given value in L (never return dL, because it's unconventional)
 	var order = Math.log(value) / Math.LN10;
-	if (order > 0) {
+	if (order >= 0) {
 		return 'L';
-	} else if (order > -3) {
+	} else if (order >= -3) {
 		return 'mL';
-	} else if (order > -6) {
+	} else if (order >= -6) {
 		return 'uL';
-	} else if (order > -9) {
+	} else if (order >= -9) {
 		return 'nL';
 	} else {
 		return 'L';
@@ -159,13 +159,13 @@ function getVolUnits(value) {
 function getConcUnits(value) {
 	// We want to determine optimal units (M, mM, uM, nM) for a given value in M (never return mol/m3, because it's unconventional)
 	var order = Math.log(value) / Math.LN10;
-	if (order > 0) {
+	if (order >= 0) {
 		return 'M';
-	} else if (order > -3) {
+	} else if (order >= -3) {
 		return 'mM';
-	} else if (order > -6) {
+	} else if (order >= -6) {
 		return 'uM';
-	} else if (order > -9) {
+	} else if (order >= -9) {
 		return 'nM';
 	} else {
 		return 'M';
