@@ -30,8 +30,7 @@ var options = {
 	leaveSpaceForNewRows:true,
 	syncColumnCellResize:true,
 	autoEdit:false,
-	asyncEditorLoading:false,
-	topPanelHeight:25
+	asyncEditorLoading:false
 };
 
 

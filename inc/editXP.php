@@ -96,7 +96,7 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 
 	// now all the slickgrid stuff
 	$("head").append('<link rel="stylesheet" href="js/slickgrid/slick.grid.css" type="text/css">',
-				'<link rel="stylesheet" href="css/stoich-grid.css" type="text/css">',
+				'<link rel="stylesheet" href="js/slickgrid/css/stoich-grid.css" type="text/css">',
 			    '<link rel="stylesheet" href="js/slickgrid/controls/slick.columnpicker.css" type="text/css">',
 				'<script type="text/javascript" src="js/slickgrid/lib/jquery.event.drag-2.2.js"/>',
 				'<script type="text/javascript" src="js/slickgrid/lib/jquery.event.drop-2.2.js"/>',
