@@ -37,12 +37,34 @@ $req = $bdd->prepare($sql);
 $req->execute();
 $expdata = $req->fetch();
 
-$sql = "SELECT rev_id, rev_body, rev_title FROM revisions WHERE rev_id = :revid";
+$sql = "SELECT * FROM revisions WHERE rev_id = :revid";
 $req = $bdd->prepare($sql);
 $req->execute(array(
 		'revid' => $expdata['rev_id']
 	));
 $rev_data = $req->fetch();
+
+if($expdata['type'] == 'chemsingle' || $expdata['type'] == 'chemparallel') {
+	// get reaction scheme data and get stoichiometry grid data
+	if($rev_data['rev_reaction_id'] != NULL) {
+		$sql = "SELECT * FROM reactions WHERE rxn_id = ".$rev_data['rev_reaction_id'];
+		$req = $bdd->prepare($sql);
+		$req->execute();
+		$rxn_data = $req->fetch();		
+	} else {
+		$rxn_data['rxn_mdl'] = "";
+	}
+	
+	$gridDatadb = array();
+	$sql = "SELECT * FROM rxn_stoichiometry WHERE rev_id = {$expdata['rev_id']}";
+	$req = $bdd->prepare($sql);
+	$req->execute();
+	if ($req->rowcount() != 0) {
+		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
+			$gridDatadb[] = $gridRow;
+		}
+	}
+}
 
 
 // Check id is owned by connected user to present comment div if not
@@ -79,6 +101,52 @@ echo show_tags($id, 'experiments_tags');
     <span class='align_right' id='status'>(<?php echo $expdata['status'];?>)<span>
 </div>
 <?php
+	if($expdata['type'] == 'chemsingle' || $expdata['type'] == 'chemparallel') {
+	?><div OnClick="document.location='experiments.php?mode=edit&id=<?php echo $expdata['id'];?>'"><p class="schemeView">
+		<script type='text/javascript'>
+			var gridData = <?php echo json_encode($gridDatadb);?>;
+			for (i in gridData) {
+				for(j in gridData[i]) {
+					if(gridData[i][j] === null) {
+						delete gridData[i][j];
+					}
+				}
+			}
+		
+			// these four are required by the ChemDoodle Web Components library	
+			$("head").append('<meta http-equiv="X-UA-Compatible" content="chrome=1">',
+						'<link rel="stylesheet" href="js/chemdoodleweb/ChemDoodleWeb.css" type="text/css">',
+						'<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb-libs.js"/>',
+						'<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb.js"/>');
+						
+			$("head").append('<script type="text/javascript" src="js/schemeViewer.js"/>');
+				// now all the slickgrid stuff
+			$("head").append('<link rel="stylesheet" href="js/slickgrid/slick.grid.css" type="text/css">',
+						'<link rel="stylesheet" href="css/stoich-grid.css" type="text/css">',
+					    '<link rel="stylesheet" href="js/slickgrid/controls/slick.columnpicker.css" type="text/css">',
+						'<script type="text/javascript" src="js/slickgrid/lib/jquery.event.drag-2.2.js"/>',
+						'<script type="text/javascript" src="js/slickgrid/lib/jquery.event.drop-2.2.js"/>',
+						'<script type="text/javascript" src="js/slickgrid/slick.dataview.js"/>',
+						'<script type="text/javascript" src="js/slickgrid/controls/slick.columnpicker.js"/>',
+						'<script type="text/javascript" src="js/slickgrid/plugins/slick.rowselectionmodel.js"/>',
+						'<script type="text/javascript" src="js/slickgrid/slick.core.js"/>',
+						'<script type="text/javascript" src="js/slickgrid/slick.editors.js"/>',
+						'<script type="text/javascript" src="js/slickgrid/slick.formatters.js"/>',
+						'<script type="text/javascript" src="js/slickgrid/slick.grid.js"/>',
+						'<script type="text/javascript" src="js/chem-editors.js"/>', 	
+						'<script type="text/javascript" src="js/chem-formatters.js"/>', 	
+						'<script type="text/javascript" src="js/stoic-table-view.js"/>', 	
+						'<script type="text/javascript" src="js/unit-converters.js"/>'); 
+				// put in a scheme viewer		
+			schemeViewer(<?php echo json_encode($rxn_data['rxn_mdl']);?>);
+
+			
+	 </script></p></div>
+	    
+	    	</div><h4>Stoichiometry table</h4><br />
+	<div id="stoich-table"></div><br /><h4>Experimental</h4>
+	
+<?php }
 // BODY (show only if not empty, click on it to edit
 if ($rev_data['rev_body'] != ''){
     ?>
