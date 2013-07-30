@@ -428,6 +428,13 @@ img {
     width: 650px;
 }
 
+.schemeView {
+    margin: 5px;
+    padding: 5px;
+    padding-left: 30px;
+    width: 650px;
+}
+
 .date {
     font:  14px Verdana, Arial,sans-serif;
 }

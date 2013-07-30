@@ -213,19 +213,28 @@ function showXP($id, $display) {
 // Show unique XP
     global $bdd;
     // SQL to get everything from selected id
-    $sql = "SELECT id, date, rev_id, status, locked  FROM experiments WHERE id = :id";
+    $sql = "SELECT id, date, rev_id, status, locked, type FROM experiments WHERE id = :id";
     $req = $bdd->prepare($sql);
     $req->execute(array(
         'id' => $id
     ));
     $exp_query = $req->fetch();
 	
-	$sql = "SELECT rev_id, rev_body, rev_title FROM revisions WHERE rev_id = :revid";
+	$sql = "SELECT rev_id, rev_body, rev_title, rev_reaction_id FROM revisions WHERE rev_id = :revid";
 	$req = $bdd->prepare($sql);
 	$req->execute(array(
 		'revid' => $exp_query['rev_id']
 	));
 	$rev_query = $req->fetch();
+	
+	if ($exp_query['type'] === 'chemsingle' || $exp_query['type'] === 'chemparallel') {
+		// get reaction scheme
+		$sql = "SELECT rxn_mdl FROM reactions WHERE rxn_id = {$rev_query['rev_reaction_id']}";
+		$req = $bdd->prepare($sql);
+		$req->execute();
+		$rxn_result = $req->fetch(PDO::FETCH_ASSOC);
+		$rxn_mdl = $rxn_result['rxn_mdl'];
+	}
 	
         if ($display === 'compact') {
             // COMPACT MODE //
@@ -256,6 +265,14 @@ function showXP($id, $display) {
         echo "<img class='align_right' src='themes/".$_SESSION['prefs']['theme']."/img/lock.png' alt='lock' />";
     }
     echo "<p class='title'>". stripslashes($rev_query['rev_title']) . "</p>";
+	
+	if($rxn_mdl) {
+	?>	<p class = "schemeView">
+		<script type='text/javascript'>
+			schemeViewer(<?php echo json_encode($rxn_mdl);?>);
+	</script></p>
+	
+<?php	} //endif
     echo "</section>";
         }
 }

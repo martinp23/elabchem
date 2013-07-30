@@ -27,6 +27,16 @@ if(isset($_SESSION['prefs']['theme'])) {
 require_once("themes/".$_SESSION['prefs']['theme']."/highlight.css");
 }
 ?>
+
+<script type="text/javascript">
+	$("head").append('<meta http-equiv="X-UA-Compatible" content="chrome=1">',
+				'<link rel="stylesheet" href="js/chemdoodleweb/ChemDoodleWeb.css" type="text/css">',
+				'<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb-libs.js"/>',
+				'<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb.js"/>',
+				'<script type="text/javascript" src="js/schemeViewer.js"/>');
+</script>
+
+
 <div id='submenu'>
     <form id='big_search' method='get' action='experiments.php'>
         <input id='big_search_input' type='search' name='q' size='50' placeholder='Type your search' />
