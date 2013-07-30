@@ -134,13 +134,16 @@ function search_item($type, $query, $userid) {
     }
 
 	$revids = implode(",", $results_arr_rev);
+	if(!$revids) {
+		$revids = 0;
+	}
 	$sql = "SELECT * FROM revisions WHERE rev_title LIKE '%$query%' AND rev_body LIKE '%$query%' AND rev_id IN ($revids) LIMIT 100";   
 	
 	$req = $bdd->prepare($sql);
     $req->execute();
     // put resulting ids in the results array
     while ($data = $req->fetch()) {
-        $results_arr_rev[] = $data['experiment_id'];
+        $results_arr[] = $data['experiment_id'];
     }
 
     // now we search in tags, and append the found ids to our result array
