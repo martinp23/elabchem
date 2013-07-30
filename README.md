@@ -96,13 +96,26 @@ mysql> exit
 # now we import the database structure
 $ mysql -u elabftw -p elabftw < install/elabftw.sql
 ~~~
+You will be asked for the password you put after `identified by` three lines above.
 
-*** <- Ignore this (it's to fix a markdown syntax highlighting problem)
+*<- Ignore this (it's to fix a markdown syntax highlighting problem)
 
 
 ### Graphical way with phpmyadmin
+You need to install the package `phpmyadmin` if it's not already done.
+
+~~~sh
+$ sudo apt-get install phpmyadmin
+~~~
+
+Now you will connect to the phpmyadmin panel from your browser on your computer. Type the IP address of the server followed by /phpmyadmin.
+
+Example : http://12.34.56.78/phpmyadmin
+
+Login with the root user on PhpMyAdmin panel (use the password you setup for mysql root user).
 #### 1) create a user `elabftw` with all rights on the database `elabftw`
-Login with the root user on PhpMyAdmin panel, click the `Users` tab and click Add new user.
+
+Now click the `Users` tab and click Add new user.
 
 Do like this :
 
