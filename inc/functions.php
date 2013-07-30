@@ -122,28 +122,16 @@ function search_item($type, $query, $userid) {
     $results_arr = array();
     if($type === 'xp') {
     // search in title date and body
-    $sql = "SELECT rev_id FROM experiments 
-        WHERE userid_creator = :userid AND date LIKE '%$query%' LIMIT 100";
+    $sql = "SELECT exp.id FROM experiments exp JOIN revisions rev on exp.rev_id = rev.rev_id
+    WHERE exp.userid_creator = :userid AND (exp.date LIKE '%$query%' OR rev.rev_body LIKE '%$query%' 
+    OR rev.rev_title LIKE '%$query%');"; 
     $req = $bdd->prepare($sql);
     $req->execute(array(
         'userid' => $userid
     ));
     // put resulting ids in the results array
     while ($data = $req->fetch()) {
-        $results_arr_rev[] = $data['rev_id'];
-    }
-
-	$revids = implode(",", $results_arr_rev);
-	if(!$revids) {
-		$revids = 0;
-	}
-	$sql = "SELECT * FROM revisions WHERE rev_title LIKE '%$query%' AND rev_body LIKE '%$query%' AND rev_id IN ($revids) LIMIT 100";   
-	
-	$req = $bdd->prepare($sql);
-    $req->execute();
-    // put resulting ids in the results array
-    while ($data = $req->fetch()) {
-        $results_arr[] = $data['experiment_id'];
+        $results_arr[] = $data['id'];
     }
 
     // now we search in tags, and append the found ids to our result array
