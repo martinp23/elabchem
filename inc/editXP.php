@@ -52,18 +52,18 @@ $rev_data = $req->fetch();
 if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 	// SQL to get our reaction box and probably do other stuff later...
 	if($rev_data['rev_reaction_id'] != NULL) {
-		$sql = "SELECT * FROM reactions WHERE rxn_id = ".$rev_data['rev_reaction_id'];
+		$sql = "SELECT * FROM reactions WHERE rxn_id = :rev_rxn_id";
 		$req = $bdd->prepare($sql);
-		$req->execute();
+		$req->execute(array('rev_rxn_id' => $rev_data['rev_reaction_id']));
 		$rxn_data = $req->fetch();		
 	} else {
 		$rxn_data['rxn_mdl'] = "";
 	}
 	
 	$gridDatadb = array();
-	$sql = "SELECT * FROM rxn_stoichiometry WHERE rev_id = {$exp_data['rev_id']}";
+	$sql = "SELECT * FROM rxn_stoichiometry WHERE rev_id = :revid";
 	$req = $bdd->prepare($sql);
-	$req->execute();
+	$req->execute(array('revid' => $exp_data['rev_id']));
 	if ($req->rowcount() != 0) {
 		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
 			$gridDatadb[] = $gridRow;

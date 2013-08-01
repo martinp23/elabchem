@@ -123,11 +123,12 @@ function search_item($type, $query, $userid) {
     if($type === 'xp') {
     // search in title date and body
     $sql = "SELECT exp.id FROM experiments exp JOIN revisions rev on exp.rev_id = rev.rev_id
-    WHERE exp.userid_creator = :userid AND (exp.date LIKE '%$query%' OR rev.rev_body LIKE '%$query%' 
-    OR rev.rev_title LIKE '%$query%');"; 
+    WHERE exp.userid_creator = :userid AND (exp.date LIKE '%:query%' OR rev.rev_body LIKE '%:query%' 
+    OR rev.rev_title LIKE '%:query%');"; 
     $req = $bdd->prepare($sql);
     $req->execute(array(
-        'userid' => $userid
+        'userid' => $userid,
+        'query' => $query
     ));
     // put resulting ids in the results array
     while ($data = $req->fetch()) {
@@ -135,19 +136,21 @@ function search_item($type, $query, $userid) {
     }
 
     // now we search in tags, and append the found ids to our result array
-    $sql = "SELECT item_id FROM experiments_tags WHERE userid = :userid AND tag LIKE '%$query%' LIMIT 100";
+    $sql = "SELECT item_id FROM experiments_tags WHERE userid = :userid AND tag LIKE '%:query%' LIMIT 100";
     $req = $bdd->prepare($sql);
     $req->execute(array(
-        'userid' => $userid
+        'userid' => $userid,
+        'query' => $query
     ));
     while ($data = $req->fetch()) {
         $results_arr[] = $data['item_id'];
     }
     // now we search in file comments and filenames
-    $sql = "SELECT item_id FROM uploads WHERE userid = :userid AND (comment LIKE '%$query%' OR real_name LIKE '%$query%') AND type = 'experiment' LIMIT 100";
+    $sql = "SELECT item_id FROM uploads WHERE userid = :userid AND (comment LIKE '%:query%' OR real_name LIKE '%:query%') AND type = 'experiment' LIMIT 100";
     $req = $bdd->prepare($sql);
     $req->execute(array(
-        'userid' => $userid
+        'userid' => $userid,
+        'query' => $query
     ));
     while ($data = $req->fetch()) {
         $results_arr[] = $data['item_id'];
@@ -157,27 +160,28 @@ function search_item($type, $query, $userid) {
     } elseif ($type === 'db') {
     // search in title date and body
     $sql = "SELECT id FROM items 
-        WHERE (title LIKE '%$query%' OR date LIKE '%$query%' OR body LIKE '%$query%') LIMIT 100";
+        WHERE (title LIKE '%:query%' OR date LIKE '%:query%' OR body LIKE '%:query%') LIMIT 100";
     $req = $bdd->prepare($sql);
-    $req->execute();
+    $req->execute( array('query' => $query));
     // put resulting ids in the results array
     while ($data = $req->fetch()) {
         $results_arr[] = $data['id'];
     }
     $req->closeCursor();
     // now we search in tags, and append the found ids to our result array
-    $sql = "SELECT item_id FROM items_tags WHERE tag LIKE '%$query%' LIMIT 100";
+    $sql = "SELECT item_id FROM items_tags WHERE tag LIKE '%:query%' LIMIT 100";
     $req = $bdd->prepare($sql);
     $req->execute(array(
-        'userid' => $_SESSION['userid']
+        'userid' => $_SESSION['userid'],
+        'query' => $query
     ));
     while ($data = $req->fetch()) {
         $results_arr[] = $data['item_id'];
     }
     // now we search in file comments and filenames
-    $sql = "SELECT item_id FROM uploads WHERE (comment LIKE '%$query%' OR real_name LIKE '%$query%') AND type = 'database' LIMIT 100";
+    $sql = "SELECT item_id FROM uploads WHERE (comment LIKE '%:query%' OR real_name LIKE '%:query%') AND type = 'database' LIMIT 100";
     $req = $bdd->prepare($sql);
-    $req->execute();
+    $req->execute( array('query' => $query));
     while ($data = $req->fetch()) {
         $results_arr[] = $data['item_id'];
     }
@@ -229,9 +233,9 @@ function showXP($id, $display) {
 	
 	if ($exp_query['type'] === 'chemsingle' || $exp_query['type'] === 'chemparallel') {
 		// get reaction scheme
-		$sql = "SELECT rxn_mdl FROM reactions WHERE rxn_id = {$rev_query['rev_reaction_id']}";
+		$sql = "SELECT rxn_mdl FROM reactions WHERE rxn_id = :rev_rxn_id";
 		$req = $bdd->prepare($sql);
-		$req->execute();
+		$req->execute(array('rev_rxn_id' => $rev_query['rev_reaction_id']));
 		$rxn_result = $req->fetch(PDO::FETCH_ASSOC);
 		$rxn_mdl = $rxn_result['rxn_mdl'];
 	}
@@ -435,14 +439,14 @@ function make_pdf($id, $type, $out = 'browser') {
 
     // SQL to get title, body and date
     if ($type === 'experiments') {
-    	$sql = "SELECT * FROM experiments WHERE id = $id";
+    	$sql = "SELECT * FROM experiments WHERE id = :id";
 		$req = $bdd->prepare($sql);
-        $req->execute();
+        $req->execute(array('id' => $id));
         $exp_data = $req->fetch();	
 		
-		$sql = "SELECT * FROM revisions WHERE rev_id = ".$exp_data['rev_id'];
+		$sql = "SELECT * FROM revisions WHERE rev_id = :revid";
 		$req = $bdd->prepare($sql);
-        $req->execute();
+        $req->execute(array('revid' => $exp_data['rev_id']));
         $rev_data = $req->fetch();	
 			
  	    $title = stripslashes($rev_data['rev_title']);
@@ -455,9 +459,9 @@ function make_pdf($id, $type, $out = 'browser') {
 		
     else {
     
-    $sql = "SELECT * FROM $type WHERE id = $id";
+    $sql = "SELECT * FROM $type WHERE id = :id";
     $req = $bdd->prepare($sql);
-    $req->execute();
+    $req->execute(array('id' => $id));
     $data = $req->fetch();
 	
 	
@@ -569,9 +573,9 @@ function duplicate_item($id, $type) {
     if ($type === 'experiments') {
         $elabid = generate_elabid();
         // SQL to get latest revision from the experiment we duplicate
-        $sql = "SELECT rev_id, rev_title, rev_body FROM revisions WHERE experiment_id = ".$id." ORDER BY rev_id DESC LIMIT 0,1";
+        $sql = "SELECT rev_id, rev_title, rev_body FROM revisions WHERE experiment_id = :id ORDER BY rev_id DESC LIMIT 0,1";
         $req = $bdd->prepare($sql);
-        $req->execute();
+        $req->execute(array('id' => $id));
         $data = $req->fetch();
 		
 		//now get content of latest revision and 
@@ -609,13 +613,13 @@ function duplicate_item($id, $type) {
    		$sql = "UPDATE experiments SET rev_id=LAST_INSERT_ID() WHERE id = " .$newid;
     	$req = $bdd->prepare($sql);
     	$result = $req->execute();  
-        }
+	}
 
     if ($type === 'items') {
         // SQL to get data from the item we duplicate
-        $sql = "SELECT * FROM items WHERE id = ".$id;
+        $sql = "SELECT * FROM items WHERE id = :id";
         $req = $bdd->prepare($sql);
-        $req->execute();
+        $req->execute(array('id' => $id));
         $data = $req->fetch();
 
         // SQL for duplicateDB
@@ -630,14 +634,13 @@ function duplicate_item($id, $type) {
         ));
         // END SQL main
         
-        // Get what is the experiment id we just created
-        $sql = "SELECT id FROM ".$type." WHERE userid = :userid ORDER BY id DESC LIMIT 0,1";
-        $req = $bdd->prepare($sql);
-        $req->bindParam(':userid', $_SESSION['userid']);
-        $req->execute();
-        $data = $req->fetch();
-        $newid = $data['id'];
-        }
+        // Get what is the item id we just created
+   	    $sql = "SELECT LAST_INSERT_ID();";
+	    $req = $bdd->prepare($sql);
+	    $req->execute();
+	    $data1 = $req->fetch();
+ 	    $newid = $data1['LAST_INSERT_ID()'];
+	}
 
 
 
@@ -665,9 +668,9 @@ function duplicate_item($id, $type) {
             $result_tags = true;
         }
         // LINKS
-        $linksql = "SELECT link_id FROM experiments_links WHERE item_id = ".$id;
+        $linksql = "SELECT link_id FROM experiments_links WHERE item_id = :id";
         $linkreq = $bdd->prepare($linksql);
-        $result_links = $linkreq->execute();
+        $result_links = $linkreq->execute(array('id' => $id));
         while($links = $linkreq->fetch()) {
             $sql = "INSERT INTO experiments_links (link_id, item_id) VALUES(:link_id, :item_id)";
             $req = $bdd->prepare($sql);
@@ -684,9 +687,9 @@ function duplicate_item($id, $type) {
         }
     } else { // DB
         // TAGS
-        $sql = "SELECT tag FROM items_tags WHERE item_id = ".$id;
+        $sql = "SELECT tag FROM items_tags WHERE item_id = :id";
         $req = $bdd->prepare($sql);
-        $req->execute();
+        $req->execute(array('id' => $id));
         while($tags = $req->fetch()){
             // Put them in the new one. here $newid is the new exp created
             $sql = "INSERT INTO items_tags(tag, item_id) VALUES(:tag, :item_id)";

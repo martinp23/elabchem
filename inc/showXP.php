@@ -210,11 +210,15 @@ if (isset($_GET['q'])) { // if there is a query
         FROM experiments 
         WHERE userid_creator = :userid 
         AND status <> 'deleted'
-        ORDER BY ".$order." ". $sort." 
-        LIMIT ".$limit."
-        OFFSET ".$offset;
+        ORDER BY :order :sort 
+        LIMIT :limit
+        OFFSET :offset";
     $req = $bdd->prepare($sql);
-    $req->bindParam(':userid', $_SESSION['userid']);
+	$req->bindValue('limit', (int) $limit, PDO::PARAM_INT);
+	$req->bindValue('offset', (int) $offset, PDO::PARAM_INT);
+	$req->bindValue('userid', $_SESSION['userid'], PDO::PARAM_INT);
+	$req->bindValue('order', $order, PDO::PARAM_STR);
+	$req->bindValue('sort', $sort, PDO::PARAM_STR);
     $req->execute();
     $count = $req->rowCount();
     if($count == 0) {
@@ -242,9 +246,9 @@ if (isset($_GET['q']) || isset($_GET['related'])) {
     <section class='pagination'>
     <?php
     // COUNT TOTAL NUMBER OF ITEMS
-    $sql = "SELECT COUNT(id) FROM experiments WHERE userid_creator = ".$_SESSION['userid'] ." AND status <> 'deleted'";
+    $sql = "SELECT COUNT(id) FROM experiments WHERE userid_creator = :userid AND status <> 'deleted'";
     $req = $bdd->prepare($sql);
-    $req->execute();
+    $req->execute( array('userid' => $_SESSION['userid']));
     $full = $req->fetchAll();
     $numrows = $full[0][0];
 

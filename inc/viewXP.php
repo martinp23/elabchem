@@ -32,9 +32,9 @@ if(isset($_GET['id']) && !empty($_GET['id']) && is_pos_int($_GET['id'])){
 }
 
 // SQL for viewXP
-$sql = "SELECT * FROM experiments WHERE id = ".$id;
+$sql = "SELECT * FROM experiments WHERE id = :id";
 $req = $bdd->prepare($sql);
-$req->execute();
+$req->execute( array('id' => $id));
 $expdata = $req->fetch();
 
 $sql = "SELECT * FROM revisions WHERE rev_id = :revid";
@@ -47,18 +47,18 @@ $rev_data = $req->fetch();
 if($expdata['type'] == 'chemsingle' || $expdata['type'] == 'chemparallel') {
 	// get reaction scheme data and get stoichiometry grid data
 	if($rev_data['rev_reaction_id'] != NULL) {
-		$sql = "SELECT * FROM reactions WHERE rxn_id = ".$rev_data['rev_reaction_id'];
+		$sql = "SELECT * FROM reactions WHERE rxn_id = :rev_rxn_id";
 		$req = $bdd->prepare($sql);
-		$req->execute();
+		$req->execute(array('rev_rxn_id' => $rev_data['rev_reaction_id']));
 		$rxn_data = $req->fetch();		
 	} else {
 		$rxn_data['rxn_mdl'] = "";
 	}
 	
 	$gridDatadb = array();
-	$sql = "SELECT * FROM rxn_stoichiometry WHERE rev_id = {$expdata['rev_id']}";
+	$sql = "SELECT * FROM rxn_stoichiometry WHERE rev_id = :revid";
 	$req = $bdd->prepare($sql);
-	$req->execute();
+	$req->execute(array('revid' => $expdata['rev_id']));
 	if ($req->rowcount() != 0) {
 		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
 			$gridDatadb[] = $gridRow;
@@ -159,9 +159,9 @@ echo "<br />";
 require_once('inc/display_file.php');
 
 // DISPLAY LINKED ITEMS
-$sql = "SELECT link_id, id FROM experiments_links WHERE item_id = ".$id;
+$sql = "SELECT link_id, id FROM experiments_links WHERE item_id = :id";
 $req = $bdd->prepare($sql);
-$req->execute();
+$req->execute(array('id' => $id));
 // Check there is at least one link to display
 if ($req->rowcount() != 0) {
     echo "<h4>Linked items</h4>";
