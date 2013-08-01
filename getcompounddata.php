@@ -15,19 +15,19 @@
 			$sql = "SELECT c.id, c.name as cpd_name, c.iupac_name, c.cas_number, cp.mwt, cp.formula, cp.density 
 			FROM compounds c INNER JOIN compound_properties cp 
 			ON c.id = cp.compound_id 
-			WHERE c.id={$compoundId};";
+			WHERE c.id= :cid ;";
 	        $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
-	        $req->execute();
+	        $req->execute( array('cid' => $compoundId));
 			$result = $req->fetch(PDO::FETCH_ASSOC);
 			$result['inchi'] = $inchi;
 			$result = array_filter($result);
 			$reactant_results[] = $result;			
 		} else {
 			$moleculeJson = json_encode($molecule);
-			$sql = "SELECT MOLWEIGHT({$moleculeJson}), MOLFORMULA({$moleculeJson});";
+			$sql = "SELECT MOLWEIGHT(:molecule), MOLFORMULA(:molecule);";
 	        $req = $bdd->prepare($sql);
-	        $req->execute();
-			$data = $req->fetch();
+	        $req->execute(array('molecule' => $molecule));
+			$data = $req->fetch(PDO::FETCH_ASSOC);
 			$result = array();
 			$result['mwt'] = $data[0];
 			$result['formula'] = $data[1];
@@ -47,18 +47,18 @@
 			$sql = "SELECT c.id, c.name, c.iupac_name, c.cas_number, cp.mwt, cp.formula, cp.density 
 			FROM compounds c INNER JOIN compound_properties cp 
 			ON c.id = cp.compound_id 
-			WHERE c.id={$compoundId};";
-	        $req = $bdd->prepare($sql);
-	        $req->execute();
-			$result = $req->fetch();
+			WHERE c.id= :cid;";
+	        $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
+	        $req->execute( array('cid' => $compoundId));
+			$result = $req->fetch(PDO::FETCH_ASSOC);
 			$result['inchi'] = $inchi;
 			$product_results[] = $result;			
 		} else {
 			$moleculeJson = json_encode($molecule);
-			$sql = "SELECT MOLWEIGHT({$moleculeJson}), MOLFORMULA({$moleculeJson});";
+			$sql = "SELECT MOLWEIGHT(:molecule), MOLFORMULA(:molecule);";
 	        $req = $bdd->prepare($sql);
-	        $req->execute();
-			$data = $req->fetch();
+	        $req->execute( array('molecule' => $molecule));
+			$data = $req->fetch(PDO::FETCH_ASSOC);
 			$result = array();
 			$result['mwt'] = $data[0];
 			$result['formula'] = $data[1];
@@ -71,20 +71,19 @@
 	echo json_encode(array("reactants" => $reactant_results, "products"=>$product_results));
 	
 	function getInChI($molecule,$bdd) {
-		$molecule = json_encode($molecule);
-		$sql = "SELECT MOLECULE_TO_INCHI({$molecule})";
+		$moleculeJson = json_encode($molecule);
+		$sql = "SELECT MOLECULE_TO_INCHI(:molecule)";
         $req = $bdd->prepare($sql);
-        $req->execute();
+        $req->execute(array('molecule' => $molecule));
 		$result = $req->fetch();
         return $result[0];
 		
 	};
 	
 	function findInChI($inchi,$bdd) {
-		$inchi = json_encode($inchi);
-		$sql = "SELECT compound_id from `1D_structures` WHERE inchi = {$inchi}";
+		$sql = "SELECT compound_id from `1D_structures` WHERE inchi = :inchi";
 		$req = $bdd->prepare($sql);
-        $req->execute();
+		$req->execute( array('inchi' => $inchi));
 		$results = array();
 		while ($data = $req->fetch()) {
             $results[] = $data['compound_id'];
@@ -101,17 +100,17 @@
 			$sql = "SELECT c.id, c.name, c.iupac_name, c.cas_number, cp.mwt, cp.formula 
 			FROM compounds c INNER JOIN compound_properties cp 
 			ON c.id = cp.compound_id 
-			WHERE c.id={$compoundId};";
+			WHERE c.id= :cid;";
 	        $req = $bdd->prepare($sql);
-	        $req->execute();
+	        $req->execute( array('cid' => $compoundId));
 			$result = $req->fetch();
 			$result['inchi'] = $inchi;
 			$reactant_results[] = $result;			
 		} else {
 			$moleculeJson = json_encode($molecule);
-			$sql = "SELECT MOLWEIGHT({$moleculeJson}), MOLFORMULA({$moleculeJson});";
+			$sql = "SELECT MOLWEIGHT(:molecule), MOLFORMULA(:molecule);";
 	        $req = $bdd->prepare($sql);
-	        $req->execute();
+	        $req->execute( array('molecule' => $molecule));
 			$data = $req->fetch();
 			$result['mwt'] = $data[0];
 			$result['formula'] = $data[1];
