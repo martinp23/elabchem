@@ -131,10 +131,14 @@ function updateStoichTable()
                         reactantGridData[0].equiv = 1;
                         reactantGridData[0].mol = reactantGridData[limitIndex].mol;
                         reactantGridData[0].mass = reactantGridData[0].mol * reactantGridData[0].mwt;
+                        reactantGridData[0].mol_units = getMolUnits(reactantGridData[0].mol);
+                        reactantGridData[0].mass_units = getMassUnits(reactantGridData[0].mass);
                         if(reactantGridData[0].density) {
                             reactantGridData[0].vol = reactantGridData[0].mass / reactantGridData[0].density;
+                            reactantGridData[0].vol_units = getVolUnits(reactantGridData[0].vol);
                         } else if (reactantGridData[0].conc) {
                             reactantGridData[0].vol = reactantGridData[0].mol / reactantGridData[0].conc;
+                            reactantGridData[0].vol_units = getVolUnits(reactantGridData[0].vol);
                         }
                     }
                     // now we will update our existing rows

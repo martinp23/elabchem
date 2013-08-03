@@ -16,16 +16,16 @@ function chemEditor(args) {
 				$units = $("<select><option value='g/mol'>g/mol</option><option value='kg/mol'>kg/mol</option><option value='mg/mol'>mg/mol</option><option value='g/mmol'>g/mmol</option></select>");			
 				break;
 			case "mass":
-				$units = $("<select><option value='kg'>kg</option><option value='g'>g</option><option value='mg'>mg</option><option value='ug'>ug</option><option value='ng'>ng</option></select>");			
+				$units = $("<select><option value='kg'>kg</option><option value='g'>g</option><option value='mg'>mg</option><option value='µg'>µg</option><option value='ng'>ng</option></select>");			
 				break;
 			case "mol":
-				$units = $("<select><option value='mol'>mol</option><option value='mmol'>mmol</option><option value='umol'>umol</option>option value='nmol'>nmol</option></select>");			
+				$units = $("<select><option value='mol'>mol</option><option value='mmol'>mmol</option><option value='µmol'>µmol</option>option value='nmol'>nmol</option></select>");			
 				break;
 			case "vol":
-				$units = $("<select><option value='L'>L</option><option value='dL'>dL</option><option value='mL'>mL</option><option value='uL'>uL</option><option value='nL'>nL</option></select>");			
+				$units = $("<select><option value='L'>L</option><option value='dL'>dL</option><option value='mL'>mL</option><option value='µL'>µL</option><option value='nL'>nL</option></select>");			
 				break;
 			case "conc":
-				$units = $("<select><option value='mol/m3'>mol/m3</option><option value='M'>M</option><option value='mM'>mM</option><option value='uM'>uM</option><option value='nM'>nM</option></select>");			
+				$units = $("<select><option value='mol/m3'>mol/m3</option><option value='M'>M</option><option value='mM'>mM</option><option value='µM'>µM</option><option value='nM'>nM</option></select>");			
 				break;
 			case "density":
 				$units = $("<select><option value='g/mL'>g/mL</option><option value='kg/m3'>kg/m3</option><option value='kg/L'>kg/L</option><option value='g/L'>g/L</option><option value='mg/mL'>mg/mL</option></select>");			

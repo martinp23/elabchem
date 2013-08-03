@@ -1,19 +1,20 @@
 // input value must be in common base units (g, L, mol)
 function fromSI (value, units) {
+    debugger;
 	switch (units) {
 	// mass (base: g)
 	case 'kg':
 		return value / 1000;
 	case 'mg':
 		return value * 1000;
-	case 'ug':
+	case 'µg':
 		return value * 1000000;
 	case 'ng':
 		return value * 1000000000;
 	// amount (base: mol)
 	case 'mmol':
 		return value * 1000;
-	case 'umol':
+	case 'µmol':
 		return value * 1000000;
 	case 'nmol':
 		return value * 1000000000;
@@ -29,7 +30,7 @@ function fromSI (value, units) {
 		return value * 10;
 	case 'mL':
 		return value * 1000;
-	case 'uL':
+	case 'µL':
 		return value * 1000000;
 	case 'nL':
 		return value * 1000000000;
@@ -38,7 +39,7 @@ function fromSI (value, units) {
 		return value * 1000;
 	case 'mM':
 		return value * 1000;
-	case 'uM':
+	case 'µM':
 		return value * 1000000;
 	case 'nM':
 		return value * 1000000000;
@@ -60,7 +61,7 @@ function toSI (value, units) {
 		return value * 1000;
 	case 'mg':
 		return value / 1000;
-	case 'ug':
+	case 'µg':
 		return value / 1000000;
 	case 'ng':
 		return value / 1000000000;
@@ -72,7 +73,7 @@ function toSI (value, units) {
 	// amount (base: mol)
 	case 'mmol':
 		return value / 1000;
-	case 'umol':
+	case 'µmol':
 		return value / 1000000;
 	case 'nmol':
 		return value / 1000000000;
@@ -83,7 +84,7 @@ function toSI (value, units) {
 		return value / 10;
 	case 'mL':
 		return value / 1000;
-	case 'uL':
+	case 'µL':
 		return value / 1000000;
 	case 'nL':
 		return value / 1000000000;
@@ -92,7 +93,7 @@ function toSI (value, units) {
 		return value / 1000;
 	case 'mM':
 		return value / 1000;
-	case 'uM':
+	case 'µM':
 		return value / 1000000;
 	case 'nM':
 		return value / 1000000000;
@@ -116,7 +117,7 @@ function getMassUnits(value) {
 	} else if (order >= -3) {
 		return 'mg';
 	} else if (order >= -6) {
-		return 'ug';
+		return 'µg';
 	} else if (order >= -9) {
 		return 'ng';
 	} else {
@@ -132,7 +133,7 @@ function getMolUnits(value) {
 	} else if (order >= -3) {
 		return 'mmol';
 	} else if (order >= -6) {
-		return 'umol';
+		return 'µmol';
 	} else if (order >= -9) {
 		return 'nmol';
 	} else {
@@ -148,7 +149,7 @@ function getVolUnits(value) {
 	} else if (order >= -3) {
 		return 'mL';
 	} else if (order >= -6) {
-		return 'uL';
+		return 'µL';
 	} else if (order >= -9) {
 		return 'nL';
 	} else {
@@ -164,7 +165,7 @@ function getConcUnits(value) {
 	} else if (order >= -3) {
 		return 'mM';
 	} else if (order >= -6) {
-		return 'uM';
+		return 'µM';
 	} else if (order >= -9) {
 		return 'nM';
 	} else {
