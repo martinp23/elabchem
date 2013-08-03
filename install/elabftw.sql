@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jul 29, 2013 at 10:50 PM
+-- Generation Time: Aug 03, 2013 at 10:45 PM
 -- Server version: 5.5.29-log
 -- PHP Version: 5.4.10
 
@@ -284,6 +284,48 @@ CREATE TABLE IF NOT EXISTS `revisions` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `rxn_product_table`
+--
+
+DROP TABLE IF EXISTS `rxn_product_table`;
+CREATE TABLE IF NOT EXISTS `rxn_product_table` (
+  `id` int(15) unsigned NOT NULL AUTO_INCREMENT,
+  `rxn_id` int(10) unsigned NOT NULL,
+  `rev_id` int(10) unsigned NOT NULL,
+  `row_id` int(10) unsigned NOT NULL,
+  `exp_id` int(10) unsigned NOT NULL,
+  `user_id` int(10) unsigned NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `cpd_name` text,
+  `cpd_id` int(11) unsigned DEFAULT NULL,
+  `batch_ref` varchar(50) DEFAULT NULL,
+  `mwt` decimal(8,3) unsigned DEFAULT NULL,
+  `mass` float unsigned DEFAULT NULL,
+  `mol` float unsigned DEFAULT NULL,
+  `yield` float unsigned DEFAULT NULL,
+  `colour` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `notes` text,
+  `mass_units` varchar(10) DEFAULT NULL,
+  `mol_units` varchar(10) DEFAULT NULL,
+  `inchi` text,
+  `purity` float unsigned DEFAULT NULL,
+  `nmr_ref` varchar(255) DEFAULT NULL,
+  `anal_ref1` varchar(255) DEFAULT NULL,
+  `anal_ref2` varchar(255) DEFAULT NULL,
+  `mpt` float DEFAULT NULL,
+  `alphad` float DEFAULT NULL,
+  `equiv` float unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `rxn_id` (`rxn_id`),
+  KEY `rev_id` (`rev_id`),
+  KEY `exp_id` (`exp_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `rxn_stoichiometry`
 --
 
@@ -295,7 +337,7 @@ CREATE TABLE IF NOT EXISTS `rxn_stoichiometry` (
   `row_id` int(4) unsigned NOT NULL,
   `user_id` int(10) unsigned NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `cpd_name` varchar(255) DEFAULT NULL,
+  `cpd_name` text,
   `cpd_id` int(11) unsigned DEFAULT NULL,
   `cas_number` varchar(20) DEFAULT NULL,
   `cpd_type` varchar(50) DEFAULT NULL,
@@ -321,7 +363,7 @@ CREATE TABLE IF NOT EXISTS `rxn_stoichiometry` (
   `inchi` text,
   `solvent` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `rxn_id` (`rxn_id`),
+  KEY `rxn_id` (`rxn_id`,`rev_id`,`user_id`,`cpd_id`),
   KEY `rev_id` (`rev_id`),
   KEY `user_id` (`user_id`),
   KEY `cpd_id` (`cpd_id`)
@@ -346,7 +388,6 @@ CREATE TABLE IF NOT EXISTS `uploads` (
   PRIMARY KEY (`id`),
   KEY `userid_idx` (`userid`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
 
 -- --------------------------------------------------------
 
@@ -448,7 +489,7 @@ ALTER TABLE `items`
 -- Constraints for table `items_tags`
 --
 ALTER TABLE `items_tags`
-  ADD CONSTRAINT `items_tags_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `items_tags_ibfk_3` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `reactions`
@@ -464,19 +505,30 @@ ALTER TABLE `revisions`
   ADD CONSTRAINT `revisions_ibfk_5` FOREIGN KEY (`rev_reaction_id`) REFERENCES `reactions` (`rxn_id`),
   ADD CONSTRAINT `experiment_id` FOREIGN KEY (`experiment_id`) REFERENCES `experiments` (`id`) ON UPDATE NO ACTION,
   ADD CONSTRAINT `revisions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION,
-  ADD CONSTRAINT `revisions_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON UPDATE NO ACTION;
+  ADD CONSTRAINT `revisions_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+
+--
+-- Constraints for table `rxn_product_table`
+--
+ALTER TABLE `rxn_product_table`
+  ADD CONSTRAINT `rxn_product_table_ibfk_4` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION,
+  ADD CONSTRAINT `rxn_product_table_ibfk_1` FOREIGN KEY (`rxn_id`) REFERENCES `reactions` (`rxn_id`) ON UPDATE NO ACTION,
+  ADD CONSTRAINT `rxn_product_table_ibfk_2` FOREIGN KEY (`rev_id`) REFERENCES `revisions` (`rev_id`),
+  ADD CONSTRAINT `rxn_product_table_ibfk_3` FOREIGN KEY (`exp_id`) REFERENCES `experiments` (`id`) ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `rxn_stoichiometry`
 --
 ALTER TABLE `rxn_stoichiometry`
-  ADD CONSTRAINT `rxn_stoichiometry_ibfk_4` FOREIGN KEY (`cpd_id`) REFERENCES `compounds` (`id`) ON UPDATE NO ACTION,
   ADD CONSTRAINT `rxn_stoichiometry_ibfk_1` FOREIGN KEY (`rxn_id`) REFERENCES `reactions` (`rxn_id`),
   ADD CONSTRAINT `rxn_stoichiometry_ibfk_2` FOREIGN KEY (`rev_id`) REFERENCES `revisions` (`rev_id`),
-  ADD CONSTRAINT `rxn_stoichiometry_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION;
+  ADD CONSTRAINT `rxn_stoichiometry_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION,
+  ADD CONSTRAINT `rxn_stoichiometry_ibfk_4` FOREIGN KEY (`cpd_id`) REFERENCES `compounds` (`id`) ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `uploads`
 --
 ALTER TABLE `uploads`
   ADD CONSTRAINT `uploads_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION;
+
