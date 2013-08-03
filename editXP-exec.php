@@ -45,6 +45,7 @@ $body = check_body($_POST['body']);
 $status = check_status($_POST['status']);
 $rxn = check_rxn($_POST['rxn_input']);
 $grid = $_POST['grid_input'];
+$prodGrid = $_POST['prodGrid_input'];
 
 // not sanitised! This is not committed to the db.
 $type = $_POST['type'];
@@ -100,39 +101,76 @@ if($errflag) {
 		        'rev_id' => $rev_id,
 		        'row_id' => $i,
 		        'user_id' => $_SESSION['userid'],
-		        'cpd_name' => $grid[$i]['cpd_name'],
-				'cpd_id' => $grid[$i]['cpd_id'],
-				'cas_number' => $grid[$i]['cas_number'],
-				'cpd_type' => $grid[$i]['cpd_type'],
-				'supplier' => $grid[$i]['supplier'],
-				'batch_ref' => $grid[$i]['batch_ref'],
-				'mwt' => $grid[$i]['mwt'],
-				'mass' => $grid[$i]['mass'],
-				'vol' => $grid[$i]['vol'],
-				'mol' => $grid[$i]['mol'],
-				'density' => $grid[$i]['density'],
-				'equiv' => $grid[$i]['equiv'],
-				'conc' => $grid[$i]['conc'],
-				'solvent' => $grid[$i]['solvent'],
-				'limiting' => $grid[$i]['limiting'],
-				'notes' => $grid[$i]['notes'],
-				'weightpercent' => $grid[$i]['weightpercent'],
-				'mwt_units' => $grid[$i]['mwt_units'],
-				'mass_units' => $grid[$i]['mass_units'],
-				'mol_units' => $grid[$i]['mol_units'],
-				'vol_units' => $grid[$i]['vol_units'],
-				'density_units' => $grid[$i]['density_units'],
-				'conc_units' => $grid[$i]['conc_units'],
-				'formula' => $grid[$i]['formula'],
-				'inchi' => $grid[$i]['inchi']);
-			$keys = array_keys($values);
-			for ($j=0; $j < count($values); $j++) {
-				if(!isset($values[$keys[$j]])) {
-					$values[$keys[$j]] = null;
-				}
-			}
+		        'cpd_name' => isset($grid[$i]['cpd_name']) ? $grid[$i]['cpd_name'] : null,
+		        'cpd_id' => isset($grid[$i]['cpd_id']) ? $grid[$i]['cpd_id'] : null,
+		        'cas_number' => isset($grid[$i]['cas_number']) ? $grid[$i]['cas_number'] : null,
+		        'cpd_type' => isset($grid[$i]['cpd_type']) ? $grid[$i]['cpd_type'] : null,
+		        'supplier' => isset($grid[$i]['supplier']) ? $grid[$i]['supplier'] : null,
+		        'batch_ref' => isset($grid[$i]['batch_ref']) ? $grid[$i]['batch_ref'] : null,
+		        'mwt' => isset($grid[$i]['mwt']) ? $grid[$i]['mwt'] : null,
+		        'mass' => isset($grid[$i]['mass']) ? $grid[$i]['mass'] : null,
+		        'vol' => isset($grid[$i]['vol']) ? $grid[$i]['vol'] : null,
+		        'mol' => isset($grid[$i]['mol']) ? $grid[$i]['mol'] : null,
+		        'density' => isset($grid[$i]['density']) ? $grid[$i]['density'] : null,
+		        'equiv' => isset($grid[$i]['equiv']) ? $grid[$i]['equiv'] : null,
+		        'conc' => isset($grid[$i]['conc']) ? $grid[$i]['conc'] : null,
+		        'solvent' => isset($grid[$i]['solvent']) ? $grid[$i]['solvent'] : null,
+		        'limiting' => isset($grid[$i]['limiting']) ? $grid[$i]['limiting'] : null,
+		        'notes' => isset($grid[$i]['notes']) ? $grid[$i]['notes'] : null,
+		        'weightpercent' => isset($grid[$i]['weightpercent']) ? $grid[$i]['weightpercent'] : null,
+		        'mwt_units' => isset($grid[$i]['mwt_units']) ? $grid[$i]['mwt_units'] : null,
+		        'mass_units' => isset($grid[$i]['mass_units']) ? $grid[$i]['mass_units'] : null,
+		        'mol_units' => isset($grid[$i]['mol_units']) ? $grid[$i]['mol_units'] : null,
+		        'vol_units' => isset($grid[$i]['vol_units']) ? $grid[$i]['vol_units'] : null,
+		        'density_units' => isset($grid[$i]['density_units']) ? $grid[$i]['density_units'] : null,
+		        'conc_units' => isset($grid[$i]['conc_units']) ? $grid[$i]['conc_units'] : null,
+		        'formula' => isset($grid[$i]['formula']) ? $grid[$i]['formula'] : null,
+		        'inchi' => isset($grid[$i]['inchi']) ? $grid[$i]['inchi'] : null);
+
 
 			$result = $req->execute($values);
+			
+			}
+			if(isset($prodGrid) && !is_null($prodGrid)) {
+				$prodGrid = json_decode($prodGrid,true);
+						for ($i = 0; $i < count($prodGrid); $i++) {
+							$sql = "INSERT INTO rxn_product_table(rxn_id, rev_id, row_id, exp_id, user_id, cpd_name, cpd_id, batch_ref,
+							mwt, mass, mol, equiv, notes, purity, nmr_ref, anal_ref1, anal_ref2, mpt, alphad, yield, colour, state, inchi, mass_units, mol_units) 
+							VALUES(:rxn_id, :rev_id, :row_id, :exp_id, :user_id, :cpd_name, :cpd_id, :batch_ref,
+							:mwt, :mass, :mol, :equiv, :notes, :purity, :nmr_ref, :anal_ref1, :anal_ref2, :mpt, :alphad, :yield, :colour, :state, :inchi, 
+							:mass_units, :mol_units)";
+							$req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
+							$values = array(
+						        'rxn_id' => $rxn_id,
+						        'rev_id' => $rev_id,
+						        'row_id' => $prodGrid[$i]['id'],
+						        'exp_id' => $id,
+						        'user_id' => $_SESSION['userid'],
+						        'cpd_name' => $prodGrid[$i]['cpd_name'],
+                                'cpd_id' => isset($prodGrid[$i]['cpd_id']) ? $prodGrid[$i]['cpd_id'] : null,
+                                'batch_ref' => isset($prodGrid[$i]['batch_ref']) ? $prodGrid[$i]['batch_ref'] : null,
+                                'mwt' => isset($prodGrid[$i]['mwt']) ? $prodGrid[$i]['mwt'] : null,
+                                'mass' => isset($prodGrid[$i]['mass']) ? $prodGrid[$i]['mass'] : null,
+                                'mol' => isset($prodGrid[$i]['mol']) ? $prodGrid[$i]['mol'] : null,
+                                'equiv' => isset($prodGrid[$i]['equiv']) ? $prodGrid[$i]['equiv'] : null,
+                                'notes' => isset($prodGrid[$i]['notes']) ? $prodGrid[$i]['notes'] : null,
+                                'purity' => isset($prodGrid[$i]['purity']) ? $prodGrid[$i]['purity'] : null,
+                                'mass_units' => isset($prodGrid[$i]['mass_units']) ? $prodGrid[$i]['mass_units'] : null,
+                                'mol_units' => isset($prodGrid[$i]['mol_units']) ? $prodGrid[$i]['mol_units'] : null,
+                                'nmr_ref' => isset($prodGrid[$i]['nmr_ref']) ? $prodGrid[$i]['nmr_ref'] : null,
+                                'anal_ref1' => isset($prodGrid[$i]['anal_ref1']) ? $prodGrid[$i]['anal_ref1'] : null,
+                                'anal_ref2' => isset($prodGrid[$i]['anal_ref2']) ? $prodGrid[$i]['anal_ref2'] : null,
+                                'mpt' => isset($prodGrid[$i]['mpt']) ? $prodGrid[$i]['mpt'] : null,
+                                'alphad' => isset($prodGrid[$i]['alphad']) ? $prodGrid[$i]['alphad'] : null,
+                                'yield' => isset($prodGrid[$i]['yield']) ? $prodGrid[$i]['yield'] : null,
+                                'colour' => isset($prodGrid[$i]['colour']) ? $prodGrid[$i]['colour'] : null,
+                                'state' => isset($prodGrid[$i]['state']) ? $prodGrid[$i]['state'] : null,
+                                'inchi' => isset($prodGrid[$i]['inchi']) ? $prodGrid[$i]['inchi'] : null);
+					
+				
+							$result = $req->execute($values);
+						}
+			
 		}	
 	} else {
 

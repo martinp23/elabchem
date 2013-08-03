@@ -1,6 +1,11 @@
-function buttonFormatter(row, cell, value, columnDef, dataContext) {
-	var button = "<input class='del' type='image' src='img/trash.png' id='"+ dataContext.id +"' />";
+function delButtonFormatter(row, cell, value, columnDef, dataContext) {
+	var button = "<img class='del' href='#' src='img/trash.png' id='del"+ dataContext.id +"' alt='Delete row' title='Delete' />";
 	return button;
+}
+
+function copyButtonFormatter(row, cell, value, columnDef, dataContext) {
+    var button = "<img class='del' href='#' src='themes/default/img/duplicate.png' id='del"+ dataContext.id +"' alt='Duplicate row' title='Duplicate' />";
+    return button;
 }
 
 function mwtFormatter(row, cell, value, columnDef, dataContext) {
@@ -65,5 +70,38 @@ function densityFormatter(row, cell, value, columnDef, dataContext) {
 	return result + "&nbsp;" + units;
 }
 
+function percentFormatter(row, cell, value, columnDef, dataContext) {
+    if (dataContext.yield === undefined) {
+        return "";
+    }
+    var result = Math.round(10 * value) / 10;    
+    return result + "%";
+}
 
+function massTotalsFormatter(totals, columnDef) {
+    var val = totals.sum && totals.sum[columnDef.field];
+    if (val != null) {
+        units = getMassUnits (val);
+        val = fromSI(val,units);
+        return "total: " + (Math.round(parseFloat(val)*100)/100) + " " + units;
+    }
+    return "";
+}
+        
+function molTotalsFormatter(totals, columnDef) {
+    var val = totals.sum && totals.sum[columnDef.field];
+    if (val != null) {
+        units = getMolUnits (val);
+        val = fromSI(val,units);
+        return "total: " + (Math.round(parseFloat(val)*100)/100) + " " + units;
+    }
+    return "";
+}
 
+function yieldTotalsFormatter(totals, columnDef) {
+    var val = totals.sum && totals.sum[columnDef.field];
+    if (val != null) {
+        return "total: " + (Math.round(parseFloat(val)*10)/10) + "%";
+    }
+    return "";
+}

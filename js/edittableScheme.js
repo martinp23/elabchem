@@ -1,6 +1,3 @@
-document.write("<input name='rxn_input' type='hidden' value='"+rxn+"' />");
-document.write("<input name='grid_input' type='hidden' value='' />");
-
 // changes the default JMol color of hydrogen to black so it appears on white backgrounds
 ChemDoodle.ELEMENT['H'].jmolColor = 'black';
 // darkens the default JMol color of sulfur so it appears on white backgrounds
@@ -211,7 +208,3 @@ function recalcOwnRow(gridData, gridRowIndex) {
     return gridData;
 }
 
-function preSubmit() {
-    document.editXP.rxn_input.value = rxn;
-    document.editXP.grid_input.value = JSON.stringify(grid.getData());
-}

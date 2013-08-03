@@ -1,7 +1,7 @@
 var grid;
 
 var columns = [
-	{id: "del", name: "X", field:"del", width:10, formatter:buttonFormatter, init_visible:true},
+	{id: "del", name: "", field:"del", width:10, formatter:delButtonFormatter, init_visible:true},
 	{id: "name", name: "Name", field: "cpd_name", cssClass: "cell-title", init_visible:true, editor:Slick.Editors.Text},
 	{id: "formula", name: "Formula", field: "formula", init_visible:true, editor:Slick.Editors.Text},
 	{id: "cpd_type", name: "Type", field: "cpd_type", init_visible:true, editor:chemType},

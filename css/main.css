@@ -703,3 +703,64 @@ footer p, footer p a {
 	border:2px solid white;
 	background-color:rgba(0,0,0,.5);
 }
+
+.prodDialogContainer {
+	overflow:hidden;
+	width:500px;
+	margin:10px;
+}
+
+.prodDialogMolecule {
+	float:left;
+	padding:5px;
+}
+
+.prodDialogMoleculePlaceholder {
+	float:left;
+	padding:5px;
+	width:150px;
+	text-size:150px;
+}
+
+.prodDialogInputContainer {
+	padding:5px;
+	width:300px;
+	position:relative;
+	float:right;
+}
+
+#addProductDialog {
+	display: none;
+	overflow: auto;
+	max-height: 640px
+}
+
+#addProductDialog label {
+	width:25%;
+	display:block;
+	float:left;
+	margin-bottom:7px;
+	margin-top:3px;
+}
+
+.prodDialogInputText {
+	display:block;
+	float:left;
+	position:relative;
+}
+
+.prodDialogInputTextWithUnits {
+	display:block;
+	float:left;
+	width:60%;
+}
+
+.prodDialogLoupe {
+	width:15px;
+	height:15px;
+	position:absolute;
+	z-index:1;
+	margin-left:-20px;
+	margin-top:5px;
+}
+

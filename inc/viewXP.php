@@ -136,7 +136,7 @@ echo show_tags($id, 'experiments_tags');
 						'<script type="text/javascript" src="js/chem-editors.js"/>', 	
 						'<script type="text/javascript" src="js/chem-formatters.js"/>', 	
 						'<script type="text/javascript" src="js/stoic-table-view.js"/>', 	
-						'<script type="text/javascript" src="js/unit-converters.js"/>'); 
+						'<script type="text/javascript" src="js/chemistry-functions.js"/>'); 
 				// put in a scheme viewer		
 			schemeViewer(<?php echo json_encode($rxn_data['rxn_mdl']);?>);
 

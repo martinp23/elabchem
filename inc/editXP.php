@@ -70,7 +70,15 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 		}
 	}
 		
-	
+	$prodGridData = array();
+	$sql = "SELECT * FROM rxn_product_table WHERE rev_id = :revid";
+	$req = $bdd->prepare($sql);
+	$req->execute(array('revid' => $exp_data['rev_id']));
+	if ($req->rowcount() != 0) {
+		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
+			$prodGridData[] = $gridRow;
+		}
+	}	
 	
 	// now to make our reaction box ?>
 	 <!-- first just make the grid data available -->
@@ -109,8 +117,9 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 				'<script type="text/javascript" src="js/slickgrid/slick.grid.js"/>',
 				'<script type="text/javascript" src="js/chem-editors.js"/>', 	
 				'<script type="text/javascript" src="js/chem-formatters.js"/>', 	
-				'<script type="text/javascript" src="js/stoic-table-edit.js"/>', 	
-				'<script type="text/javascript" src="js/unit-converters.js"/>'); 
+				'<script type="text/javascript" src="js/stoic-table-edit.js"/>', 
+				'<script type="text/javascript" src="js/schemeViewer.js"/>', 	
+				'<script type="text/javascript" src="js/chemistry-functions.js"/>'); 
 				
 		var rxn = <?php echo json_encode($rxn_data['rxn_mdl']);?>;
 		</script>
@@ -194,7 +203,7 @@ $status = $exp_data['status'];
 
 	<br />
 	<div class='center' id='updateStoichTableBtn'>
-		<input type="button" href"#" name="Update" onclick="updateStoichTable()" class='button' value="Update table" />
+		<input type="button" href="#" name="Update" onclick="updateStoichTable()" class='button' value="Update table" />
 	</div><br /><h4>Stoichiometry table</h4><br />
 	<div id="stoich-table"></div><br /><br />
 	<!-- Chemistry edit area smaller than generic -->
@@ -205,15 +214,386 @@ $status = $exp_data['status'];
 </textarea>
 <br /><br />
 <h4>Products</h4></br>
-<p>Todo: SlickGrid with structure(graphical),formula,mwt of product and options for ref-number, mass, 
-	colour, physical state, description, etc.</p>
-<p>This table should automatically calculate yield.</p>
-<p>We also need a way to add extra batches of each product.</p>
-<p>Calculate total yield by summing batches and products when there is more than one row.</p>
-<p>Add a link to a compound registration form to save compound info in database and get registration number.</p>
-<p>This should all be put into the database in rxn_product_grid and versioned, etc. This table is then
-	essentially a staging area before products are properly committed to the compounds tables upon registration.</p>
+  <style>
+    .cell-effort-driven {
+      text-align: center;
+    }
 
+    .slick-group-title[level='0'] {
+      font-weight: bold;
+    }
+
+    .slick-group-title[level='1'] {
+      text-decoration: underline;
+    }
+
+    .slick-group-title[level='2'] {
+      font-style: italic;
+    }
+  </style>
+  <div id='prodGrid'>
+  	<script src="js/slickgrid/slick.groupitemmetadataprovider.js"></script>
+  	<script src="js/slickgrid/slick.dataview.js"></script>	
+  	<script>
+  		var prodGridData = <?php echo json_encode($prodGridData);?>;
+		for (i in prodGridData) {
+			for(j in prodGridData[i]) {
+				if(prodGridData[i][j] === null) {
+					delete prodGridData[i][j];
+				}
+			}
+		}
+  	
+  	
+  		var dataViewProducts;
+  		var gridProducts;
+  		var dataProducts = prodGridData;
+  		var columnsProducts = [
+  			{id: "del", name: "", field:"del", width:10, formatter:delButtonFormatter, init_visible:true},
+  			{id: "copy", name: "", field:"copy", width:10, formatter:copyButtonFormatter, init_visible:true},
+  			{id: "name", name: "Name", field:"cpd_name", width:150, init_visible:true},
+  			{id: "batchref", name: "Ref.", field:"batch_ref", init_visible:true, editor:Slick.Editors.Text},
+  			{id: "mass", name: "Mass", field:"mass", groupTotalsFormatter: massTotalsFormatter, init_visible:true, editor:chemEditor, formatter:massFormatter},
+  			{id: "mwt", name: "Mol wt.", field:"mwt", init_visible:false, editor:chemEditor, formatter:mwtFormatter},
+  			{id: "mol", name: "Moles", field:"mol", groupTotalsFormatter: molTotalsFormatter, init_visible:true, editor:chemEditor, formatter:molFormatter},
+  			{id: "yield", name: "% Yield", field:"yield", groupTotalsFormatter: yieldTotalsFormatter, init_visible:true, formatter:percentFormatter},
+  			{id: "purity", name:"% Purity", field:"purity", init_visible:true, formatter:percentFormatter, editor:FloatEditor},
+  			{id: "equiv", name: "Equiv.", field:"equiv", init_visible:false, editor:FloatEditor},
+  			{id: "colour", name: "Colour", field:"colour", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "state", name: "State", field:"state", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "nmr_ref", name: "NMR ref", field:"nmr_ref", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "anal_ref1", name: "Analytical ref 1", field:"anal_ref1", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "anal_ref2", name: "Analytical ref 2", field:"anal_ref2", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "mpt", name: "Melt. pt.", field:"mpt", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "alphad", name: "&alpha;D", field:"alphad", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "notes", name: "Notes", field:"notes", init_visible:false, editor:Slick.Editors.Text}
+  		];
+  		
+  		var optionsProducts = {
+  			enableCellNavigation: true,
+  			editable: true,
+  			autoHeight: true,
+			enableColumnReorder: true,
+			autoHeight: true,
+			editable:true,
+			enableAddRow:false,
+			leaveSpaceForNewRows:false,
+			syncColumnCellResize:true,
+			autoEdit:false,
+			asyncEditorLoading:false
+
+  		};
+  		
+  		
+  		
+  		function groupByName() {
+  			dataViewProducts.setGrouping({
+  				getter: "cpd_name",
+  				formatter: function(g) {
+  					return "Product:   " + g.value;
+  				},
+  				aggregators: [
+  					new Slick.Data.Aggregators.Sum("mass"),
+  					new Slick.Data.Aggregators.Sum("mol"),
+  					new Slick.Data.Aggregators.Sum("yield")
+  				],
+  				aggregateCollapsed:false
+  			});
+  		}
+
+  		
+
+  		
+  		$(function () {
+  			
+			var visibleColumnsProducts = [];
+			for (var i = 0; i < columnsProducts.length; i++) {
+				if(columnsProducts[i].init_visible === true) {
+					visibleColumnsProducts.push(columnsProducts[i]);
+				}
+			}
+  			
+  			var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
+  			dataViewProducts = new Slick.Data.DataView({
+  				groupItemMetadataProvider: groupItemMetadataProvider,
+  				inlineFilters: true
+  			});
+  			gridProducts = new Slick.Grid("#prodGrid", dataViewProducts, visibleColumnsProducts, optionsProducts);
+  			
+  			gridProducts.registerPlugin(groupItemMetadataProvider);
+  			gridProducts.setSelectionModel(new Slick.RowSelectionModel());
+  			
+  			var columnpickerProducts = new Slick.Controls.ColumnPicker(columnsProducts, gridProducts, optionsProducts);
+  		
+  			
+			dataViewProducts.onRowCountChanged.subscribe(function (e, args) {
+				gridProducts.updateRowCount();
+				gridProducts.render();
+			});
+			
+			dataViewProducts.onRowsChanged.subscribe(function (e,args) {
+				gridProducts.invalidateRows(args.rows);
+				gridProducts.render();
+			});
+		
+		
+			gridProducts.onCellChange.subscribe(function (e, args) {
+				// if mass has been changed, update mol and yield%
+				// if mwt has been changed, update mol and yield%
+				// if equiv has been changed, updated mol and yield%
+				
+				var colName = gridProducts.getColumns()[args.cell].id;
+				if (colName === 'mass' || colName === 'mwt' || colName === 'equiv') {
+					var dataViewData = dataViewProducts.getItems();
+					dataViewProducts.beginUpdate();
+					// var dataViewIndex;
+					// for(var i=0; i<dataViewData.length; i++) {
+						// if (dataViewData[i].id === args.item.id) {
+							// dataViewIndex = i;
+						// }
+					// }
+					var dataViewIndex = dataViewProducts.getIdxById(args.item.id);
+					var reactantData = grid.getData();
+					limitIndex = getLimitIndex(reactantData);
+					dataViewData[dataViewIndex].mol = dataViewData[dataViewIndex].mass * (dataViewData[dataViewIndex].purity/100) / dataViewData[dataViewIndex].mwt;
+					dataViewData[dataViewIndex].yield = (100 * (dataViewData[dataViewIndex].mol / dataViewData[dataViewIndex].equiv)) / (reactantData[limitIndex].mol / reactantData[limitIndex].equiv);
+					dataViewProducts.setItems(dataViewData);
+					groupByName();
+					dataViewProducts.endUpdate();
+					gridProducts.invalidateAllRows();
+					gridProducts.render();
+				}
+       		});
+       		
+       		gridProducts.onClick.subscribe( function(e,args) {
+	            if(args.grid.getColumns()[args.cell].field === 'del') {
+	                dataViewProducts.deleteItem(dataViewProducts.getItem(args.row).id);
+	            } else if (args.grid.getColumns()[args.cell].field === 'copy') {
+	            	dataViewProducts.addItem(dataViewProducts.getItem(args.row));
+	            }
+	        });
+		
+		
+			dataViewProducts.beginUpdate();
+			dataViewProducts.setItems(dataProducts);
+			groupByName();
+			dataViewProducts.endUpdate();
+			
+			
+			$("#gridContainer").resizable();
+  		});
+  	
+  			
+  	</script>
+  </div>
+  
+  <div class='center' id='addProductBtn'><br />
+		<input type="button" href="#" name="addProdBtn" onclick="showAddProductDialog()" class='button' value="Add product batch" />
+	</div>
+	
+	<div id='addProductDialog' title='Add Product'><div id='productRowsContainer'></div><div id='customProduct'>
+		<section>
+			<div class='prodDialogContainer'><div class='prodDialogMoleculePlaceholder'>&nbsp;</div>			
+			<div class='prodDialogInputContainer'>
+				<label for="prodNameNew">Name:</label>
+				<input type="text" id="prodNameNew" style="width:60%;" class='prodDialogInputText' value="">
+				<br style="clear:left;">
+				<label for="prodMwtNew">Mol wt:</label>
+				<div class='prodDialogInputTextWithUnits'>
+					<input type="text" style="width:40%;" id="prodMwtNew" value=""><p class="inline">&nbsp;g/mol</p>
+				</div>
+				<br style="clear:left">
+				<label for="prodMassNew">Mass:</label>
+				<div class='prodDialogInputTextWithUnits'>
+					<input type="text" style="width:40%;display:block;float:left;" id="prodMassNew" value="">
+					<select id="massUnitsNew" style="display:block;float:left;margin-top:5px;">
+						<option>kg</option>
+						<option>g</option>
+						<option selected="selected">mg</option>
+						<option>ug</option>
+						<option>ng</option>
+					</select>
+				</div>
+				<br style="clear:left">
+				<p class="center">
+					<input type="button" href="#" name="Add new product" onclick="addBatch(document.getElementById('prodNameNew').value, document.getElementById('prodMwtNew').value, document.getElementById('prodMassNew').value, document.getElementById('massUnitsNew').value);" class="button" value="Add new product" />
+				</p>
+			</div>
+		</section>
+			
+			
+	</div>
+		</div>
+	
+<script>
+	
+	
+	  	$('#addProductDialog').dialog({ 
+	  			modal: true,
+		  		autoOpen: false,
+		  		width: 'auto',
+		  		height: 'auto',
+		  		resizable:false});
+  		function showAddProductDialog() {
+  			//first we want to get our list of products present in the scheme
+  			updateScheme();
+		    var allMolecules = rxn.split('$MOL\n'),
+	            counts = rxn.split('\n')[4],
+	            numReact = parseInt(counts.substring(0,3), 10),
+	            numProd = parseInt(counts.substring(3,6), 10);    
+	        var reactants = [];
+	        var products = [];
+	        
+            
+            var prodGridData = dataViewProducts.getItems();
+            
+    		for (var i = 1; i <= numReact; i++) {
+				reactants.push(allMolecules[i]);
+			}
+			for (var i = numReact + 1; i <= numReact + numProd; i++) {
+				products.push(allMolecules[i]);
+			}
+			
+			$.ajax({
+	            url: 'getcompounddata.php',
+	            data:{reactants:reactants, products:products},
+	            dataType: "json",
+	            productsArr: products,
+	            
+	            success: function(dbdata) {
+	            	// we're going to build a collection of "possible products" (unique by name) from the scheme and from existing entries in the product table
+	            	// then we're going to show a dialog with an element for each possible product: 
+	            	// <table><tr><td>Name</td><td rowspan="2">Add this btn</td></tr><tr><td>Picture</td></tr></table>
+	            	// Then an (expandable?) "Add new product" control where user can define name, iupac_name, mwt, 
+	            	
+	            	// first, get all of our possible products from the scheme
+	            	productsResults = [];
+	            	var prodGridData = dataViewProducts.getItems();
+	       			for (var i=0; i<dbdata.products.length; i++) {
+	       				productsResults.push({"name": dbdata.products[i].name, "mwt":dbdata.products[i].mwt, "inchi":dbdata.products[i].inchi, "cpd_id":dbdata.products[i].id, "cas_number":dbdata.products[i].cas_number, "mdl":this.productsArr[i]});
+		       			
+		       			for (var j=0; j<prodGridData.length; j++) {
+		       				if(prodGridData[j].inchi === productsResults[i].inchi) {
+		       					// if this is satisfied, our product already exists once in the table. The name from the table should therefore be correct, so let's use it.
+		       					productsResults[i].name = prodGridData[j].name;
+		       					productsResults[i].namefixed = true;
+		       				}
+		       				else {
+		       					productsResults[i].namefixed = false;
+		       				}
+		       			}
+		       		}
+	       			
+	       			// now let's go through our existing products (prodGridData) by name, and if they're missing from the "possible products", add their data.
+	       			// this is for products which may not have a structure attached, for whatever reason.
+	       			
+	       			for (var i=0; i<prodGridData.length; i++) {
+	       				var foundName = false;
+	       				for (var j=0; j<productsResults.length; j++) {
+	       					if(productsResults[j].name === prodGridData[i].name) {
+	       						foundName = true;
+	       					}
+	       				}
+	       				if(!foundName) {
+	       					productsResults.push({"name": prodGridData[i].name, "mwt": prodGridData[i].mwt})
+	       					productsResults[productsResults.length-1].namefixed = true;
+	       				}
+	       			}
+	       			// at this point we should have an array of objects in productsResults which describes all the *known* possible products of the reaction
+	       			$('#productRowsContainer').empty();
+	       			for(var i=0; i<productsResults.length; i++) {
+		       			if (productsResults[i]['mdl']) {
+		       				// we need to make a structure viewer and have that on left of form
+			       			var viewerName = 'productViewer' + i;
+							var code = "<section><div class='prodDialogContainer'><div class='prodDialogMolecule'>";
+							code += "<canvas id='" + viewerName + "'></canvas>";
+							code += "<input type='image' href='#' src='img/loupe-15px.png' class='prodDialogLoupe' title='Get name from structure using PubChem' alt='Try to get name from structure using PubChem' onClick=\"getNameFromInchi(document.getElementById('prodName"+i+ "'), '" + productsResults[i]['inchi']+ "');\"/></div>";
+						} else {
+							// if no structure, we're just going to have empty space
+		       				var code = "<section><div class='prodDialogContainer'><div class='prodDialogMoleculePlaceholder'>&nbsp;</div>";
+						}	
+							
+						// now make the fields for the rest of the form.	
+						code += "<div class='prodDialogInputContainer'>";
+						// first product name. If the name is already in the table, the field is disabled and read-only. Otherwise, they can change it.
+						code += "<label for='prodName"+i+ "'>Name:</label>";
+						code += "<input type='text' id='prodName"+i+"' style='width:60%' class='prodDialogInputText' value='" + productsResults[i]['name'] +"' ";
+						if(productsResults[i]['namefixed']) {
+							code +=	"disabled='disabled' ";
+						}
+						code +=	"/><br style='clear:right;'/>";
+						// now molecular weight. The field is always disabled.
+						code += "<label for='prodMwt"+i+ "'>Mol wt:</label>";
+						code += "<div class='prodDialogInputTextWithUnits'><input type='text' style='width:40%;'  id='prodMwt"+i + "' value='" + productsResults[i]['mwt'] + " ' disabled='disabled' /><p class='inline'>&nbsp;g/mol</p></div>";
+						code += "<br style='clear:right'/>";
+						// now mass. This requires user input. Units are selectable and default at 'mg'.
+						code += "<label for='prodMass"+i+ "'>Mass:</label>";
+						code += "<div class='prodDialogInputTextWithUnits'><input type='text' style='width:40%;display:block;float:left;'  id='prodMass"+i + "' value=''/><select id='massUnits"+i+"' style='display:block;float:left;margin-top:5px;'><option>kg</option><option>g</option><option selected='selected'>mg</option><option>ug</option><option>ng</option></select></div>";
+						code += "<br style='clear:right'/>";
+						code += "<p class='center'><input type='button' href='#' name='Add batch' onClick=\"addBatch(document.getElementById('prodName"+i+"').value, document.getElementById('prodMwt"+i+"').value, document.getElementById('prodMass"+i+"').value, document.getElementById('massUnits"+i+"').value,'"+productsResults[i]['inchi']+"');\" class='button' value='Add Batch'/></p>";
+						code +="</div></div></section>";
+						$('#productRowsContainer').append(code);
+							
+						if(productsResults[i]['mdl']) {
+							// if we have a structure (ie need a viewer), we now need to initialise the viewer component. 
+							// This must be done now because the canvas needs to be present in the document. We just added it in the .append().
+	  						this[viewerName] = new ChemDoodle.ViewerCanvas(viewerName, 150, 150);
+							this[viewerName].loadMolecule(ChemDoodle.readMOL(productsResults[i]['mdl']));
+						 }
+		       		}
+
+		  			$('#addProductDialog').dialog('open');
+		  			return false;
+	            }
+	        });
+	            	
+
+  		}
+  		function closeDialog() {
+  			$('#addProductDialog').dialog('close');
+  			return false;  			
+  		}
+  		
+  		function getNameFromInchi(nameEl, inchi) {
+	  		$.ajax({
+		        url: 'chemIdResolv.php',
+		        data:{structId:inchi, representation:'iupac_name'},
+		        
+		        success: function(iupacname) {
+		            if(iupacname) {
+		            	nameEl.value = iupacname;
+		            } else {
+		            	alert("Name not found.");
+		            }
+		        }
+	    	});
+  		}
+  		
+  		function addBatch(name, mwt, mass, massunits, inchi) {
+  			closeDialog();
+  			mass = toSI(mass, massunits);
+  			mol = mass / mwt;
+  			molunits = getMolUnits(mol);
+  			// get index of limiting reagent from main stoichiometry grid
+  			reactantData = grid.getData();
+  			limitIndex = getLimitIndex(reactantData);
+  			yield = 100 * mol / (reactantData[limitIndex].mol / reactantData[limitIndex].equiv);
+  			dataProducts.push({name:name, mwt:mwt, mass:mass, mass_units:massunits, purity:100, inchi:inchi, yield:yield, mol:mol, mol_units:molunits, id:dataProducts.length+1, equiv:1});
+  			dataViewProducts.beginUpdate();
+  			dataViewProducts.setItems(dataProducts);
+  			groupByName();
+  			dataViewProducts.endUpdate();
+  			
+  		}
+	
+	
+	
+	
+</script><br />
+<input name='rxn_input' type='hidden' value='' />
+<input name='grid_input' type='hidden' value='' />
+<input name='prodGrid_input' type='hidden' value='' />
+<hr class='flourishes'>
 	<?php 
 	// non-chemistry experiment section
 } else {
@@ -233,6 +613,16 @@ $status = $exp_data['status'];
     <input type="submit" name="Submit" onclick="preSubmit();" class='button' value="Save and go back" />
 </div>
 </form><!-- end editXP form -->
+
+<script>		
+
+function preSubmit() {
+		    document.editXP.rxn_input.value = rxn || '';
+		    document.editXP.grid_input.value = JSON.stringify(grid.getData()) || '';
+		    document.editXP.prodGrid_input.value = JSON.stringify(dataViewProducts.getItems()) || '';
+		}
+		
+		</script>
 
 <?php
 // FILE UPLOAD
