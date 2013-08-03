@@ -27,7 +27,7 @@
 			$sql = "SELECT MOLWEIGHT(:molecule), MOLFORMULA(:molecule);";
 	        $req = $bdd->prepare($sql);
 	        $req->execute(array('molecule' => $molecule));
-			$data = $req->fetch(PDO::FETCH_ASSOC);
+			$data = $req->fetch();
 			$result = array();
 			$result['mwt'] = $data[0];
 			$result['formula'] = $data[1];
@@ -58,7 +58,7 @@
 			$sql = "SELECT MOLWEIGHT(:molecule), MOLFORMULA(:molecule);";
 	        $req = $bdd->prepare($sql);
 	        $req->execute( array('molecule' => $molecule));
-			$data = $req->fetch(PDO::FETCH_ASSOC);
+			$data = $req->fetch();
 			$result = array();
 			$result['mwt'] = $data[0];
 			$result['formula'] = $data[1];
@@ -88,10 +88,10 @@
 		while ($data = $req->fetch()) {
             $results[] = $data['compound_id'];
         };
-		if(count($results == 1)) {
+		if(count($results) == 1) {
 			return $results[0];
 		} else {
-			return;
+			return false;
 		};
 	};
 	

@@ -173,10 +173,11 @@ $(function() {
 		}
 
 		function updateWholeTable() {
+		    var limitIndex = getLimitIndex(allData);
 			for(var i=0; i<allData.length; i++) {
 				if(limitIndex !== i) {
 					// first update moles
-					allData[i].mol = allData[args.row].mol * allData[i].equiv / allData[args.row].equiv;
+					allData[i].mol = allData[limitIndex].mol * allData[i].equiv / allData[limitIndex].equiv;
 					// then mass and vol
 					allData[i].mass = allData[i].mol * allData[i].mwt;
 					if (allData[i].density != null) {
