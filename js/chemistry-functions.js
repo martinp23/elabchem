@@ -172,15 +172,3 @@ function getConcUnits(value) {
 	}
 }
 
-function iupacFromInchi(inchi) {
-    debugger;
-    $.ajax({
-        url: 'chemIdResolv.php',
-        data:{structId:inchi, representation:'iupac_name'},
-        
-        success: function(dbdata) {
-            debugger;
-            alert(dbdata);
-        }
-    });
-}

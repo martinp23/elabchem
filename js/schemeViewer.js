@@ -43,7 +43,6 @@ function moleculeViewer(molecule, height, width) {
     
     this[viewerName].emptyMessage = "No molecule defined";
 
-       debugger;
     if(molecule) {
         this[viewerName].loadMolecule(ChemDoodle.readMOL(molecule));
     }
