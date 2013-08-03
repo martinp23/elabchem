@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS `compound_properties` (
   `density` float unsigned DEFAULT NULL,
   PRIMARY KEY (`compound_id`),
   KEY `compound_id` (`compound_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -252,7 +252,7 @@ CREATE TABLE IF NOT EXISTS `reactions` (
   PRIMARY KEY (`rxn_id`),
   KEY `user_id` (`user_id`,`experiment_id`),
   KEY `experiment_id` (`experiment_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -321,7 +321,7 @@ CREATE TABLE IF NOT EXISTS `rxn_product_table` (
   KEY `rev_id` (`rev_id`),
   KEY `exp_id` (`exp_id`),
   KEY `user_id` (`user_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
