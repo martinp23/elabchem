@@ -70,6 +70,11 @@ $order = $_SESSION['prefs']['order'];
 $sort = $_SESSION['prefs']['sort'];
 $limit = $_SESSION['prefs']['limit'];
 
+if($sort !== 'asc' && $sort !== 'desc') {
+	$sort = 'desc';
+}
+$order = check_title($order);
+
 // OFFSET
 if ((!isset($_GET['offset'])) || (empty($_GET['offset']))) {
     $offset = '0';
@@ -210,15 +215,13 @@ if (isset($_GET['q'])) { // if there is a query
         FROM experiments 
         WHERE userid_creator = :userid 
         AND status <> 'deleted'
-        ORDER BY :order :sort 
+        ORDER BY {$order} {$sort}
         LIMIT :limit
         OFFSET :offset";
     $req = $bdd->prepare($sql);
 	$req->bindValue('limit', (int) $limit, PDO::PARAM_INT);
 	$req->bindValue('offset', (int) $offset, PDO::PARAM_INT);
 	$req->bindValue('userid', $_SESSION['userid'], PDO::PARAM_INT);
-	$req->bindValue('order', $order, PDO::PARAM_STR);
-	$req->bindValue('sort', $sort, PDO::PARAM_STR);
     $req->execute();
     $count = $req->rowCount();
     if($count == 0) {
