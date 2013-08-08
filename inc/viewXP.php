@@ -1,7 +1,8 @@
 <?php
 /********************************************************************************
 *                                                                               *
-*   Copyright 2012 Nicolas CARPi (nicolas.carpi@gmail.com)                      *
+*   Copyright 2012-2013 Nicolas CARPi (nicolas.carpi@gmail.com),				*
+*  				   Martin Peeks (martinp23@gmail.com)                           *
 *   http://www.elabftw.net/                                                     *
 *                                                                               *
 ********************************************************************************/

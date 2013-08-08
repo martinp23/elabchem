@@ -60,6 +60,7 @@ $finish = $time;
 $total_time = round(($finish - $start), 4);
 echo "Page generated in ".$total_time." seconds.<br />";
 ?>
+<p><a href="legal.php">Legal</a></p> <br />
 <section class='align_right'>
 </section>
 </footer>
