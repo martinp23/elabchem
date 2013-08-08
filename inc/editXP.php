@@ -423,7 +423,6 @@ $status = $exp_data['status'];
 			dataViewProducts.endUpdate();
 			
 			
-			$("#gridContainer").resizable();
   		});
   	
   			
