@@ -329,17 +329,18 @@ $(document).ready(function(){
 	$("a.trigger").click(function(){
 		$('div.toggle_container').slideToggle(1);
 	});
-	$("a.trigger").mouseover(function(){
-		$('div.create-choices').slideUp();
-	});
-	$("a.trigger1").mouseover(function(){
-		$('div.create-choices').slideDown();
-		$('div.toggle_container').slideUp();
-	});
-	$("#top-wrapper").mouseleave(function(){
-		$('div.create-choices').slideUp();
-	});
-	
+	<?php if($ini_arr['chemistry']) { ?>
+		$("a.trigger").mouseover(function(){
+			$('div.create-choices').slideUp();
+		});
+		$("a.trigger1").mouseover(function(){
+			$('div.create-choices').slideDown();
+			$('div.toggle_container').slideUp();
+		});
+		$("#top-wrapper").mouseleave(function(){
+			$('div.create-choices').slideUp();
+		});
+	<?php } ?>
 });
 // ANIMATE RUNNING ICON
 function changeSrc(theme){

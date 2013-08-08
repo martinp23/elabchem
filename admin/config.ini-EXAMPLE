@@ -29,6 +29,9 @@ link_href = http://github.com/NicolasCARPi/elabftw/wiki
 ; activate debug mode or not (on/off)
 debug = off
 
+; activate chemistry functions (on/off)
+chemistry = on
+
 ; proxy setting (change it to proxy.company.com:3128 or leave blank if you're not behind a proxy)
 proxy =
 
