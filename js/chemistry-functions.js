@@ -1,6 +1,5 @@
 // input value must be in common base units (g, L, mol)
 function fromSI (value, units) {
-    debugger;
 	switch (units) {
 	// mass (base: g)
 	case 'kg':
