@@ -61,6 +61,7 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 	}
 	
 	$gridDatadb = array();
+	$gridColumns = array();
 	$sql = "SELECT * FROM rxn_stoichiometry WHERE rev_id = :revid";
 	$req = $bdd->prepare($sql);
 	$req->execute(array('revid' => $exp_data['rev_id']));
@@ -68,9 +69,13 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
 			$gridDatadb[] = $gridRow;
 		}
+		$gridColumns = $gridDatadb[0]['columns'];
+		unset($gridDatadb[0]['columns']);
+		
 	}
 		
 	$prodGridData = array();
+	$prodGridColumns = array();
 	$sql = "SELECT * FROM rxn_product_table WHERE rev_id = :revid";
 	$req = $bdd->prepare($sql);
 	$req->execute(array('revid' => $exp_data['rev_id']));
@@ -78,6 +83,8 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
 			$prodGridData[] = $gridRow;
 		}
+		$prodGridColumns = $prodGridData[0]['columns'];
+		unset($prodGridData[0]['columns']);
 	}	
 	
 	// now to make our reaction box ?>
@@ -90,6 +97,12 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 				}
 			}
 		}
+		var visibleColumnsNW = [];
+		
+		<?php if($gridColumns) { ?>
+  			visibleColumnsNW = JSON.parse('<?php echo $gridColumns;?>');
+  		<?php } ?>
+  
 		
 	// these four are required by the ChemDoodle Web Components library	
 	$("head").append('<meta http-equiv="X-UA-Compatible" content="chrome=1">',
@@ -236,19 +249,7 @@ $status = $exp_data['status'];
   	<script src="js/slickgrid/slick.dataview.js"></script>	
   	<script>
   		var prodGridData = <?php echo json_encode($prodGridData);?>;
-		for (i in prodGridData) {
-			for(j in prodGridData[i]) {
-				if(prodGridData[i][j] === null) {
-					delete prodGridData[i][j];
-				}
-			}
-		}
-  	
-  	
-  		var dataViewProducts;
-  		var gridProducts;
-  		var dataProducts = prodGridData;
-  		var columnsProducts = [
+	  	var	columnsProducts = [
   			{id: "del", name: "", field:"del", width:10, formatter:delButtonFormatter, init_visible:true},
   			{id: "copy", name: "", field:"copy", width:10, formatter:copyButtonFormatter, init_visible:true},
   			{id: "name", name: "Name", field:"cpd_name", width:150, init_visible:true},
@@ -268,7 +269,54 @@ $status = $exp_data['status'];
   			{id: "alphad", name: "&alpha;D", field:"alphad", init_visible:false, editor:Slick.Editors.Text},
   			{id: "notes", name: "Notes", field:"notes", init_visible:false, editor:Slick.Editors.Text}
   		];
+  		var visibleColumnsProducts = [];
+  		var visibleColumnsProductsNW = [];
+  		<?php if($prodGridColumns) { ?>
+  			visibleColumnsProductsNW = JSON.parse('<?php echo $prodGridColumns;?>');
+  		<?php } ?>
   		
+  		if(visibleColumnsProductsNW.length === 0) {
+  			// if we have no names\widths for columns from the database, use the defaults
+  			for (var i = 0; i < columnsProducts.length; i++) {
+				if(columnsProducts[i].init_visible === true) {
+					visibleColumnsProducts.push(columnsProducts[i]);
+				}
+			}
+		} else {
+			var found;
+	        //otherwise, use what the database tells us
+	        for (var i=0; i<columnsProducts.length; i++) {
+	            found = false;
+	            for (var j=0; j<visibleColumnsProductsNW.length; j++) {
+	                if(columnsProducts[i].id === visibleColumnsProductsNW[j].id) {
+	                    found = true;
+	                    columnsProducts[i].width = visibleColumnsProductsNW[j].width;
+	                }
+	            }
+	            if (found) {
+	                visibleColumnsProducts.push(columnsProducts[i]);
+	            }
+        }
+		}
+  		
+  		
+  		
+		for (i in prodGridData) {
+			for(j in prodGridData[i]) {
+				if(prodGridData[i][j] === null) {
+					delete prodGridData[i][j];
+				}
+			}
+		}
+  	
+  	
+  		var dataViewProducts;
+  		var gridProducts;
+  		var dataProducts = prodGridData;
+  		
+
+	  	
+  	
   		var optionsProducts = {
   			enableCellNavigation: true,
   			editable: true,
@@ -305,14 +353,7 @@ $status = $exp_data['status'];
 
   		
   		$(function () {
-  			
-			var visibleColumnsProducts = [];
-			for (var i = 0; i < columnsProducts.length; i++) {
-				if(columnsProducts[i].init_visible === true) {
-					visibleColumnsProducts.push(columnsProducts[i]);
-				}
-			}
-  			
+
   			var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
   			dataViewProducts = new Slick.Data.DataView({
   				groupItemMetadataProvider: groupItemMetadataProvider,
@@ -593,6 +634,8 @@ $status = $exp_data['status'];
 <input name='rxn_input' type='hidden' value='' />
 <input name='grid_input' type='hidden' value='' />
 <input name='prodGrid_input' type='hidden' value='' />
+<input name='grid_columns' type='hidden' value='' />
+<input name='prodGrid_columns' type='hidden' value='' />
 <hr class='flourishes'>
 	<?php 
 	// non-chemistry experiment section
@@ -617,12 +660,26 @@ $status = $exp_data['status'];
 <script>		
 
 function preSubmit() {
-		    document.editXP.rxn_input.value = rxn || '';
-		    document.editXP.grid_input.value = JSON.stringify(grid.getData()) || '';
-		    document.editXP.prodGrid_input.value = JSON.stringify(dataViewProducts.getItems()) || '';
-		}
-		
-		</script>
+    document.editXP.rxn_input.value = rxn || '';
+    document.editXP.grid_input.value = JSON.stringify(grid.getData()) || '';
+    document.editXP.prodGrid_input.value = JSON.stringify(dataViewProducts.getItems()) || '';
+    gridColumns = grid.getColumns();
+    prodGridColumns = gridProducts.getColumns();
+    
+    gridColumnsNW = [];
+    for (var i = 0; i<gridColumns.length; i++) {
+    	gridColumnsNW.push({id:gridColumns[i].id, width:gridColumns[i].width})
+    }
+    
+    prodGridColumnsNW = [];
+    for (var i = 0; i<prodGridColumns.length; i++) {
+    	prodGridColumnsNW.push({id:prodGridColumns[i].id, width:prodGridColumns[i].width})
+    }		    
+    document.editXP.grid_columns.value = JSON.stringify(gridColumnsNW) || '';
+    document.editXP.prodGrid_columns.value = JSON.stringify(prodGridColumnsNW) || '';		    
+}
+
+</script>
 
 <?php
 // FILE UPLOAD

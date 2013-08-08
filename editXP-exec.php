@@ -46,6 +46,8 @@ $status = check_status($_POST['status']);
 $rxn = check_rxn($_POST['rxn_input']);
 $grid = $_POST['grid_input'];
 $prodGrid = $_POST['prodGrid_input'];
+$gridColumns = $_POST['grid_columns'];
+$prodGridColumns = $_POST['prodGrid_columns'];
 
 // not sanitised! This is not committed to the db.
 $type = $_POST['type'];
@@ -90,11 +92,19 @@ if($errflag) {
 	//	$bdd->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 	    $grid = json_decode($grid,true);
 		for ($i = 0; $i < count($grid); $i++) {
-			$sql = "INSERT INTO rxn_stoichiometry(rxn_id, rev_id, row_id, user_id, cpd_name, cpd_id, cas_number, cpd_type, supplier, batch_ref,
-			mwt, mass, vol, mol, density, equiv, conc, solvent, limiting, notes, weightpercent, mwt_units, mass_units, mol_units, vol_units,
-			density_units, conc_units, formula, inchi) VALUES(:rxn_id, :rev_id, :row_id, :user_id, :cpd_name, :cpd_id, :cas_number, :cpd_type, :supplier, :batch_ref,
-			:mwt, :mass, :vol, :mol, :density, :equiv, :conc, :solvent, :limiting, :notes, :weightpercent, :mwt_units, :mass_units, :mol_units, :vol_units,
-			:density_units, :conc_units, :formula, :inchi)";
+			if ($i === 0) {
+				$sql = "INSERT INTO rxn_stoichiometry(rxn_id, rev_id, row_id, user_id, cpd_name, cpd_id, cas_number, cpd_type, supplier, batch_ref,
+				mwt, mass, vol, mol, density, equiv, conc, solvent, limiting, notes, weightpercent, mwt_units, mass_units, mol_units, vol_units,
+				density_units, conc_units, formula, inchi, columns) VALUES(:rxn_id, :rev_id, :row_id, :user_id, :cpd_name, :cpd_id, :cas_number, :cpd_type, :supplier, :batch_ref,
+				:mwt, :mass, :vol, :mol, :density, :equiv, :conc, :solvent, :limiting, :notes, :weightpercent, :mwt_units, :mass_units, :mol_units, :vol_units,
+				:density_units, :conc_units, :formula, :inchi, :columns)";
+			} else {
+				$sql = "INSERT INTO rxn_stoichiometry(rxn_id, rev_id, row_id, user_id, cpd_name, cpd_id, cas_number, cpd_type, supplier, batch_ref,
+				mwt, mass, vol, mol, density, equiv, conc, solvent, limiting, notes, weightpercent, mwt_units, mass_units, mol_units, vol_units,
+				density_units, conc_units, formula, inchi) VALUES(:rxn_id, :rev_id, :row_id, :user_id, :cpd_name, :cpd_id, :cas_number, :cpd_type, :supplier, :batch_ref,
+				:mwt, :mass, :vol, :mol, :density, :equiv, :conc, :solvent, :limiting, :notes, :weightpercent, :mwt_units, :mass_units, :mol_units, :vol_units,
+				:density_units, :conc_units, :formula, :inchi)";
+			}
 			$req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
 			$values = array(
 		        'rxn_id' => $rxn_id,
@@ -126,6 +136,11 @@ if($errflag) {
 		        'conc_units' => isset($grid[$i]['conc_units']) ? $grid[$i]['conc_units'] : null,
 		        'formula' => isset($grid[$i]['formula']) ? $grid[$i]['formula'] : null,
 		        'inchi' => isset($grid[$i]['inchi']) ? $grid[$i]['inchi'] : null);
+			
+			if($i === 0) {
+				$values['columns'] = $gridColumns;
+			}
+				
 
 
 			$result = $req->execute($values);
@@ -134,11 +149,19 @@ if($errflag) {
 			if(isset($prodGrid) && !is_null($prodGrid)) {
 				$prodGrid = json_decode($prodGrid,true);
 						for ($i = 0; $i < count($prodGrid); $i++) {
-							$sql = "INSERT INTO rxn_product_table(rxn_id, rev_id, row_id, exp_id, user_id, cpd_name, cpd_id, batch_ref,
-							mwt, mass, mol, equiv, notes, purity, nmr_ref, anal_ref1, anal_ref2, mpt, alphad, yield, colour, state, inchi, mass_units, mol_units) 
-							VALUES(:rxn_id, :rev_id, :row_id, :exp_id, :user_id, :cpd_name, :cpd_id, :batch_ref,
-							:mwt, :mass, :mol, :equiv, :notes, :purity, :nmr_ref, :anal_ref1, :anal_ref2, :mpt, :alphad, :yield, :colour, :state, :inchi, 
-							:mass_units, :mol_units)";
+							if($i === 0) {
+								$sql = "INSERT INTO rxn_product_table(rxn_id, rev_id, row_id, exp_id, user_id, cpd_name, cpd_id, batch_ref,
+								mwt, mass, mol, equiv, notes, purity, nmr_ref, anal_ref1, anal_ref2, mpt, alphad, yield, colour, state, inchi, mass_units, mol_units, columns) 
+								VALUES(:rxn_id, :rev_id, :row_id, :exp_id, :user_id, :cpd_name, :cpd_id, :batch_ref,
+								:mwt, :mass, :mol, :equiv, :notes, :purity, :nmr_ref, :anal_ref1, :anal_ref2, :mpt, :alphad, :yield, :colour, :state, :inchi, 
+								:mass_units, :mol_units, :columns)";
+							} else {
+								$sql = "INSERT INTO rxn_product_table(rxn_id, rev_id, row_id, exp_id, user_id, cpd_name, cpd_id, batch_ref,
+								mwt, mass, mol, equiv, notes, purity, nmr_ref, anal_ref1, anal_ref2, mpt, alphad, yield, colour, state, inchi, mass_units, mol_units) 
+								VALUES(:rxn_id, :rev_id, :row_id, :exp_id, :user_id, :cpd_name, :cpd_id, :batch_ref,
+								:mwt, :mass, :mol, :equiv, :notes, :purity, :nmr_ref, :anal_ref1, :anal_ref2, :mpt, :alphad, :yield, :colour, :state, :inchi, 
+								:mass_units, :mol_units)";								
+							}
 							$req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
 							$values = array(
 						        'rxn_id' => $rxn_id,
@@ -166,7 +189,9 @@ if($errflag) {
                                 'colour' => isset($prodGrid[$i]['colour']) ? $prodGrid[$i]['colour'] : null,
                                 'state' => isset($prodGrid[$i]['state']) ? $prodGrid[$i]['state'] : null,
                                 'inchi' => isset($prodGrid[$i]['inchi']) ? $prodGrid[$i]['inchi'] : null);
-					
+							if($i === 0) {
+								$values['columns'] = $prodGridColumns;
+							}				
 				
 							$result = $req->execute($values);
 						}
