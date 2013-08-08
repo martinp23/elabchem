@@ -764,3 +764,14 @@ footer p, footer p a {
 	margin-top:5px;
 }
 
+.slick-group-title[level='0'] {
+  font-weight: bold;
+}
+
+.slick-group-title[level='1'] {
+  text-decoration: underline;
+}
+
+.slick-group-title[level='2'] {
+  font-style: italic;
+}

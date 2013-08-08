@@ -56,6 +56,7 @@ if($expdata['type'] == 'chemsingle' || $expdata['type'] == 'chemparallel') {
 	}
 	
 	$gridDatadb = array();
+	$gridColumns = array();
 	$sql = "SELECT * FROM rxn_stoichiometry WHERE rev_id = :revid";
 	$req = $bdd->prepare($sql);
 	$req->execute(array('revid' => $expdata['rev_id']));
@@ -63,7 +64,22 @@ if($expdata['type'] == 'chemsingle' || $expdata['type'] == 'chemparallel') {
 		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
 			$gridDatadb[] = $gridRow;
 		}
+		$gridColumns = $gridDatadb[0]['columns'];
+		unset($gridDatadb[0]['columns']);
 	}
+	
+	$prodGridData = array();
+	$prodGridColumns = array();
+	$sql = "SELECT * FROM rxn_product_table WHERE rev_id = :revid";
+	$req = $bdd->prepare($sql);
+	$req->execute(array('revid' => $expdata['rev_id']));
+	if ($req->rowcount() != 0) {
+		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
+			$prodGridData[] = $gridRow;
+		}
+		$prodGridColumns = $prodGridData[0]['columns'];
+		unset($prodGridData[0]['columns']);
+	}	
 }
 
 
@@ -112,7 +128,13 @@ echo show_tags($id, 'experiments_tags');
 					}
 				}
 			}
-		
+			
+			var visibleColumnsNW = [];
+	
+			<?php if($gridColumns) { ?>
+	  			visibleColumnsNW = JSON.parse('<?php echo $gridColumns;?>');
+	  		<?php } ?>
+				
 			// these four are required by the ChemDoodle Web Components library	
 			$("head").append('<meta http-equiv="X-UA-Compatible" content="chrome=1">',
 						'<link rel="stylesheet" href="js/chemdoodleweb/ChemDoodleWeb.css" type="text/css">',
@@ -133,6 +155,8 @@ echo show_tags($id, 'experiments_tags');
 						'<script type="text/javascript" src="js/slickgrid/slick.editors.js"/>',
 						'<script type="text/javascript" src="js/slickgrid/slick.formatters.js"/>',
 						'<script type="text/javascript" src="js/slickgrid/slick.grid.js"/>',
+						'<script type="text/javascript" src="js/slickgrid/slick.groupitemmetadataprovider.js"/>',
+						'<script type="text/javascript" src="js/slickgrid/slick.dataview.js"/>',
 						'<script type="text/javascript" src="js/chem-editors.js"/>', 	
 						'<script type="text/javascript" src="js/chem-formatters.js"/>', 	
 						'<script type="text/javascript" src="js/stoic-table-view.js"/>', 	
@@ -140,18 +164,145 @@ echo show_tags($id, 'experiments_tags');
 				// put in a scheme viewer		
 			schemeViewer(<?php echo json_encode($rxn_data['rxn_mdl']);?>);
 
-			
+
 	 </script></p></div>
 	    
 	    	</div><h4>Stoichiometry table</h4><br />
-	<div id="stoich-table"></div><br /><h4>Experimental</h4>
+	    
+	<div id="stoich-table"></div><br />
+	<h4>Experimental</h4>
+
 	
 <?php }
 // BODY (show only if not empty, click on it to edit
 if ($rev_data['rev_body'] != ''){
     ?>
     <div OnClick="document.location='experiments.php?mode=edit&id=<?php echo $expdata['id'];?>'" class='txt'><?php echo stripslashes($rev_data['rev_body']);?></div>
-<?php
+
+<?php if(($expdata['type'] == 'chemsingle' || $expdata['type'] == 'chemparallel') && count($prodGridData) > 0) { ?>
+
+<br /><br />
+<h4>Products</h4></br>
+  <div id='prodGrid'>
+
+  	<script>
+  		var prodGridData = JSON.parse('<?php echo json_encode($prodGridData);?>');
+	  	var	columnsProducts = [
+  			{id: "name", name: "Name", field:"cpd_name", width:150, init_visible:true},
+  			{id: "batchref", name: "Ref.", field:"batch_ref", init_visible:true, editor:Slick.Editors.Text},
+  			{id: "mass", name: "Mass", field:"mass", groupTotalsFormatter: massTotalsFormatter, init_visible:true, editor:chemEditor, formatter:massFormatter},
+  			{id: "mwt", name: "Mol wt.", field:"mwt", init_visible:false, editor:chemEditor, formatter:mwtFormatter},
+  			{id: "mol", name: "Moles", field:"mol", groupTotalsFormatter: molTotalsFormatter, init_visible:true, editor:chemEditor, formatter:molFormatter},
+  			{id: "yield", name: "% Yield", field:"yield", groupTotalsFormatter: yieldTotalsFormatter, init_visible:true, formatter:percentFormatter},
+  			{id: "purity", name:"% Purity", field:"purity", init_visible:true, formatter:percentFormatter, editor:FloatEditor},
+  			{id: "equiv", name: "Equiv.", field:"equiv", init_visible:false, editor:FloatEditor},
+  			{id: "colour", name: "Colour", field:"colour", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "state", name: "State", field:"state", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "nmr_ref", name: "NMR ref", field:"nmr_ref", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "anal_ref1", name: "Analytical ref 1", field:"anal_ref1", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "anal_ref2", name: "Analytical ref 2", field:"anal_ref2", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "mpt", name: "Melt. pt.", field:"mpt", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "alphad", name: "&alpha;D", field:"alphad", init_visible:false, editor:Slick.Editors.Text},
+  			{id: "notes", name: "Notes", field:"notes", init_visible:false, editor:Slick.Editors.Text}
+  		];
+  		var visibleColumnsProducts = [];
+  		var visibleColumnsProductsNW = [];
+  		<?php if($prodGridColumns) { ?>
+  			visibleColumnsProductsNW = JSON.parse('<?php echo $prodGridColumns;?>');
+  		<?php } ?>
+  		
+  		if(visibleColumnsProductsNW.length === 0) {
+  			// if we have no names\widths for columns from the database, use the defaults
+  			for (var i = 0; i < columnsProducts.length; i++) {
+				if(columnsProducts[i].init_visible === true) {
+					visibleColumnsProducts.push(columnsProducts[i]);
+				}
+			}
+		} else {
+			var found;
+	        //otherwise, use what the database tells us
+	        for (var i=0; i<columnsProducts.length; i++) {
+	            found = false;
+	            for (var j=0; j<visibleColumnsProductsNW.length; j++) {
+	                if(columnsProducts[i].id === visibleColumnsProductsNW[j].id) {
+	                    found = true;
+	                    columnsProducts[i].width = visibleColumnsProductsNW[j].width;
+	                }
+	            }
+	            if (found) {
+	                visibleColumnsProducts.push(columnsProducts[i]);
+	            }
+        	}
+		}
+		for (i in prodGridData) {
+			for(j in prodGridData[i]) {
+				if(prodGridData[i][j] === null) {
+					delete prodGridData[i][j];
+				}
+			}
+		}
+  	
+  	
+  		var dataViewProducts;
+  		var gridProducts;
+  		var dataProducts = prodGridData;
+
+  	
+  		var optionsProducts = {
+  			enableCellNavigation: true,
+  			editable: false,
+  			autoHeight: true,
+			enableColumnReorder: false,
+			enableAddRow:false,
+			leaveSpaceForNewRows:false,
+			syncColumnCellResize:true,
+			autoEdit:false,
+			asyncEditorLoading:false
+  		};
+  		
+  		
+  		
+  		function groupByName() {
+  			dataViewProducts.setGrouping({
+  				getter: "cpd_name",
+  				formatter: function(g) {
+  					return "Product:   " + g.value;
+  				},
+  				aggregators: [
+  					new Slick.Data.Aggregators.Sum("mass"),
+  					new Slick.Data.Aggregators.Sum("mol"),
+  					new Slick.Data.Aggregators.Sum("yield")
+  				],
+  				aggregateCollapsed:false
+  			});
+  		}
+  		
+  		$(function () {
+
+  			var groupItemMetadataProvider = new Slick.Data.GroupItemMetadataProvider();
+  			dataViewProducts = new Slick.Data.DataView({
+  				groupItemMetadataProvider: groupItemMetadataProvider,
+  				inlineFilters: true
+  			});
+  			dataViewProducts.setItems(dataProducts);
+  			gridProducts = new Slick.Grid("#prodGrid", dataViewProducts, visibleColumnsProducts, optionsProducts);
+  			
+  			gridProducts.registerPlugin(groupItemMetadataProvider);
+  			gridProducts.setSelectionModel(new Slick.RowSelectionModel());
+  			
+			dataViewProducts.beginUpdate();
+			groupByName();
+			dataViewProducts.endUpdate();
+			gridProducts.invalidate();
+			gridProducts.render();
+			
+  		});
+  		
+  		</script>
+  	</div>
+
+
+<?php }
 }
 echo "<br />";
 

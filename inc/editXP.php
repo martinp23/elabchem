@@ -70,8 +70,7 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 			$gridDatadb[] = $gridRow;
 		}
 		$gridColumns = $gridDatadb[0]['columns'];
-		unset($gridDatadb[0]['columns']);
-		
+		unset($gridDatadb[0]['columns']);		
 	}
 		
 	$prodGridData = array();
@@ -128,13 +127,15 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 				'<script type="text/javascript" src="js/slickgrid/slick.editors.js"/>',
 				'<script type="text/javascript" src="js/slickgrid/slick.formatters.js"/>',
 				'<script type="text/javascript" src="js/slickgrid/slick.grid.js"/>',
+				'<script type="text/javascript" src="js/slickgrid/slick.groupitemmetadataprovider.js"/>',
+				'<script type="text/javascript" src="js/slickgrid/slick.dataview.js"/>',
 				'<script type="text/javascript" src="js/chem-editors.js"/>', 	
 				'<script type="text/javascript" src="js/chem-formatters.js"/>', 	
 				'<script type="text/javascript" src="js/stoic-table-edit.js"/>', 
 				'<script type="text/javascript" src="js/schemeViewer.js"/>', 	
 				'<script type="text/javascript" src="js/chemistry-functions.js"/>'); 
-				
-		var rxn = <?php echo json_encode($rxn_data['rxn_mdl']);?>;
+								
+		var rxn = <?php echo json_encode((isset($rxn_data['rxn_mdl'])) ? $rxn_data['rxn_mdl'] : '');?>;
 		</script>
 	<?php 
 	
@@ -227,28 +228,11 @@ $status = $exp_data['status'];
 </textarea>
 <br /><br />
 <h4>Products</h4></br>
-  <style>
-    .cell-effort-driven {
-      text-align: center;
-    }
 
-    .slick-group-title[level='0'] {
-      font-weight: bold;
-    }
-
-    .slick-group-title[level='1'] {
-      text-decoration: underline;
-    }
-
-    .slick-group-title[level='2'] {
-      font-style: italic;
-    }
-  </style>
   <div id='prodGrid'>
-  	<script src="js/slickgrid/slick.groupitemmetadataprovider.js"></script>
-  	<script src="js/slickgrid/slick.dataview.js"></script>	
+
   	<script>
-  		var prodGridData = <?php echo json_encode($prodGridData);?>;
+  		var prodGridData = JSON.parse('<?php echo json_encode($prodGridData);?>');
 	  	var	columnsProducts = [
   			{id: "del", name: "", field:"del", width:10, formatter:delButtonFormatter, init_visible:true},
   			{id: "copy", name: "", field:"copy", width:10, formatter:copyButtonFormatter, init_visible:true},
@@ -322,8 +306,6 @@ $status = $exp_data['status'];
   			editable: true,
   			autoHeight: true,
 			enableColumnReorder: true,
-			autoHeight: true,
-			editable:true,
 			enableAddRow:false,
 			leaveSpaceForNewRows:false,
 			syncColumnCellResize:true,
