@@ -50,7 +50,7 @@ function chemEditor(args) {
     };
     
     this.handleUnitChange = function(e) {
-          $value.val(fromSI(siValue, $units.val()));
+      //    $value.val(fromSI(siValue, $units.val()));
     };
     
     this.destroy = function () {
