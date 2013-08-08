@@ -578,7 +578,7 @@ $status = $exp_data['status'];
   			reactantData = grid.getData();
   			limitIndex = getLimitIndex(reactantData);
   			yield = 100 * mol / (reactantData[limitIndex].mol / reactantData[limitIndex].equiv);
-  			dataProducts.push({name:name, mwt:mwt, mass:mass, mass_units:massunits, purity:100, inchi:inchi, yield:yield, mol:mol, mol_units:molunits, id:dataProducts.length+1, equiv:1});
+  			dataProducts.push({cpd_name:name, mwt:mwt, mass:mass, mass_units:massunits, purity:100, inchi:inchi, yield:yield, mol:mol, mol_units:molunits, id:dataProducts.length+1, equiv:1});
   			dataViewProducts.beginUpdate();
   			dataViewProducts.setItems(dataProducts);
   			groupByName();
