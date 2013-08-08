@@ -38,12 +38,12 @@ $data = $req->fetch();
 ?>
 <script src="js/tinymce/tinymce.min.js"></script>
 <div id='accordion'>
-<h3><a href='#infos'>PERSONNAL INFORMATIONS</a></h3>
+<h3><a href='#infos'>PERSONAL INFORMATION</a></h3>
 <div>
 <div>
 <form name="profileForm" method="post" action="ucp-exec.php">
 <input type='hidden' name='main'>
-      <p>Enter your current password to change personnal infos <input id='currpass' name="currpass" type="password" /></div>
+      <p>Enter your current password to change personal info <input id='currpass' name="currpass" type="password" /></div>
 <br />
 <div class='innerinnerdiv'>
       New password <input name="newpass" type="password" /><br />
@@ -114,7 +114,7 @@ if ($_SESSION['prefs']['sort'] === 'asc'){
 </form>
 </div>
 
-<h3><a href='#experiments'>EXPERIMENTS TEMPLATES</a></h3>
+<h3><a href='#experiments'>EXPERIMENT TEMPLATES</a></h3>
 <div>
 <div id='tpl'>
 <?php // SQL TO GET TEMPLATES
