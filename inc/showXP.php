@@ -36,20 +36,19 @@ require_once("themes/".$_SESSION['prefs']['theme']."/highlight.css");
 				'<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb.js"/>',
 				'<script type="text/javascript" src="js/schemeViewer.js"/>');
 </script>
-
-
+<div id='top-wrapper'>
 <div id='submenu'>
     <form id='big_search' method='get' action='experiments.php'>
         <input id='big_search_input' type='search' name='q' size='50' placeholder='Type your search' />
     </form>
     <br />
-    <a href="create_item.php?type=exp"><img src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/create.gif" alt="" /> Create experiment</a> | 
+    <a href="create_item.php?type=exp" class='trigger1'><img src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/create.gif" alt="" /> Create experiment</a> | 
     <a href='#' class='trigger'><img src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/duplicate.png" alt="" /> Create from template</a> |
     <a onmouseover="changeSrc('<?php echo $_SESSION['prefs']['theme'];?>')" onmouseout="stopAnim('<?php echo $_SESSION['prefs']['theme'];?>')" href='experiments.php?mode=show&q=runningonly'><img id='runningimg' src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/running.fix.png" alt="running" /> Show running experiments</a>
 </div><!-- end submenu -->
 <div class='toggle_container'><ul>
 <?php // SQL to get user's templates
-$sql = "SELECT id, name FROM experiments_templates WHERE userid = :userid";
+$sql = "SELECT id, name, exp_type FROM experiments_templates WHERE userid = :userid";
 $tplreq = $bdd->prepare($sql);
 $tplreq->execute(array(
     'userid' => $_SESSION['userid']
@@ -57,13 +56,17 @@ $tplreq->execute(array(
 $count_tpl = $tplreq->rowCount();
 if ($count_tpl > 0) {
     while ($tpl = $tplreq->fetch()) {
-        echo "<li class='inline'><a href='create_item.php?type=exp&tpl=".$tpl['id']."' class='templates'>".$tpl['name']."</a></li> ";
+        echo "<li class='inline'><a href='create_item.php?type=exp&exp_type=".$tpl['exp_type']."&tpl=".$tpl['id']."' class='templates'>".$tpl['name']."</a></li> ";
     }
 } else { // user has no templates
     echo "You do not have any templates yet. Go to <a href='ucp.php'>your control panel</a> to make one !";
 }
 ?>
-</ul></div><br />
+</ul></div>
+<div class='create-choices'><ul>
+	<li><a href='create_item.php?type=exp' class='templates'>Generic</a></li>
+	<li><a href='create_item.php?type=exp&exp_type=chemsingle' class='templates'>Synthetic chemistry</a></li>
+</ul></div></div><br />
 <?php
 // VIEWING PREFS //
 $display = $_SESSION['prefs']['display'];
@@ -322,9 +325,21 @@ echo "key('".$_SESSION['prefs']['shortcuts']['create']."', function(){location.h
 // TOGGLE DIV
 $(document).ready(function(){
 	$(".toggle_container").hide();
+	$(".create-choices").hide();
 	$("a.trigger").click(function(){
 		$('div.toggle_container').slideToggle(1);
 	});
+	$("a.trigger").mouseover(function(){
+		$('div.create-choices').slideUp();
+	});
+	$("a.trigger1").mouseover(function(){
+		$('div.create-choices').slideDown();
+		$('div.toggle_container').slideUp();
+	});
+	$("#top-wrapper").mouseleave(function(){
+		$('div.create-choices').slideUp();
+	});
+	
 });
 // ANIMATE RUNNING ICON
 function changeSrc(theme){
