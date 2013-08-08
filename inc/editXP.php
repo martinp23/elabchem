@@ -397,6 +397,8 @@ $status = $exp_data['status'];
 					var reactantData = grid.getData();
 					limitIndex = getLimitIndex(reactantData);
 					dataViewData[dataViewIndex].mol = dataViewData[dataViewIndex].mass * (dataViewData[dataViewIndex].purity/100) / dataViewData[dataViewIndex].mwt;
+					dataViewData[dataViewIndex].mass_units = getMassUnits(dataViewData[dataViewIndex].mass);
+					dataViewData[dataViewIndex].mol_units = getMolUnits(dataViewData[dataViewIndex].mol);
 					dataViewData[dataViewIndex].yield = (100 * (dataViewData[dataViewIndex].mol / dataViewData[dataViewIndex].equiv)) / (reactantData[limitIndex].mol / reactantData[limitIndex].equiv);
 					dataViewProducts.setItems(dataViewData);
 					groupByName();

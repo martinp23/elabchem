@@ -113,6 +113,9 @@ $(function() {
                 allData[args.row].equiv = allData[args.row].mol / allData[limitIndex].mol / allData[limitIndex].equiv;
                 volFromMass();
                 updateWholeTable();
+                if(limitIndex === args.row) {
+                    updateProdTable(limitIndex, allData);
+                }
                 break;
            case "mwt":
                 // mwt has been changed. This means we need to update mass, and possibly vol. 
@@ -126,12 +129,18 @@ $(function() {
 				volFromMass();
 				allData[args.row].equiv = allData[args.row].mol / allData[limitIndex].mol / allData[limitIndex].equiv;
 				updateWholeTable();
+				if(limitIndex === args.row) {
+                    updateProdTable(limitIndex, allData);
+                }
 				break;
 			case "equiv":
 				allData[args.row].mol = allData[args.row].equiv *    allData[limitIndex].mol / allData[limitIndex].equiv;
 				massFromMolMwt();
 				volFromMass();
 				updateWholeTable();
+				if(limitIndex === args.row) {
+				    updateProdTable(limitIndex, allData);
+				}
 				break;
 			case "vol":
 				// vol has been changed. Density/concentration is constant so we need to change mass and then mol, equiv, etc.
@@ -143,7 +152,10 @@ $(function() {
 					allData[args.row].mass = args.item.vol * args.item.density;
 					allData[args.row].mol = allData[args.row].mass / allData[args.row].mwt;
 				}
-				updateWholeTable();				
+				updateWholeTable();	
+                if(limitIndex === args.row) {
+                    updateProdTable(limitIndex, allData);
+                }			
 				break;
 			case "conc":
 				// conc has been changed. We just need to update vol to have same amount (mol)
@@ -169,6 +181,7 @@ $(function() {
 					}
 				}
 				limitIndex = args.row;
+				updateProdTable(limitIndex, allData);
 				break;
 			case "wtpercent":
 				// wtpercent changed. We still need some number of moles, so update mass accordingly
@@ -233,6 +246,25 @@ $(function() {
                     return i;
                 }
             }
+		}
+		
+		function updateProdTable(limitIndex, reactantData) {
+		    // this will only work if there's a another slickgrid called prodGrid.
+		    if(!prodGrid) {
+		        return;
+		    }
+		    else {
+		        for(var i=0; i<dataProducts.length; i++) {
+		            dataProducts[i].yield = 100 * dataProducts[i].mol / (reactantData[limitIndex].mol / reactantData[limitIndex].equiv);
+		        }
+		    }
+		    dataViewProducts.beginUpdate();
+            dataViewProducts.setItems(dataProducts);
+            groupByName();
+            dataViewProducts.endUpdate();
+            gridProducts.invalidateAllRows();
+            gridProducts.render();
+            return;
 		}
     });
 });
