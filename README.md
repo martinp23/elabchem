@@ -188,7 +188,7 @@ and openbabel:  http://openbabel.org/wiki/Main_Page
 
 ## Debian Wheezy
 ~~~ sh
-$ sudo apt-get install gcc cmake libmysqlclient-dev libopenbabel-dev openbabel subversion
+$ sudo apt-get install gcc cmake libmysqlclient-dev libopenbabel-dev openbabel subversion build-essential
 $ svn co https://mychem.svn.sourceforge.net/svnroot/mychem/mychem3@351 mychem
 $ cd mychem
 $ mkdir build
@@ -198,6 +198,9 @@ $ make
 $ sudo make install
 $ mysql -u root -p < ../src/mychemdb.sql
 ~~~
+
+On a new Wheezy install, you may need to pass the following flags to cmake:
+-DOPENBABEL2_INCLUDE_DIR=/usr/include/openbabel-2.0 -DOPENBABEL2_LIBRARIES=/usr/lib/libopenbabel.so
 
 To check installation in mysql, either use the tests provided in the mychem package or:
 ~~~ mysql
