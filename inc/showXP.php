@@ -42,7 +42,7 @@ require_once("themes/".$_SESSION['prefs']['theme']."/highlight.css");
         <input id='big_search_input' type='search' name='q' size='50' placeholder='Type your search' />
     </form>
     <br />
-    <a href="create_item.php?type=exp" class='trigger1'><img src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/create.gif" alt="" /> Create experiment</a> | 
+    <a href="create_item.php?type=exp" class='trigger1' id='exp_create'><img src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/create.gif" alt="" /> Create experiment</a> | 
     <a href='#' class='trigger'><img src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/duplicate.png" alt="" /> Create from template</a> |
     <a onmouseover="changeSrc('<?php echo $_SESSION['prefs']['theme'];?>')" onmouseout="stopAnim('<?php echo $_SESSION['prefs']['theme'];?>')" href='experiments.php?mode=show&q=runningonly'><img id='runningimg' src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/running.fix.png" alt="running" /> Show running experiments</a>
 </div><!-- end submenu -->
@@ -330,10 +330,15 @@ $(document).ready(function(){
 		$('div.toggle_container').slideToggle(1);
 	});
 	<?php if($ini_arr['chemistry']) { ?>
+		$("#exp_create").attr('href', '#');
 		$("a.trigger").mouseover(function(){
 			$('div.create-choices').slideUp();
 		});
 		$("a.trigger1").mouseover(function(){
+			$('div.create-choices').slideDown();
+			$('div.toggle_container').slideUp();
+		});
+		$("a.trigger1").click(function(){
 			$('div.create-choices').slideDown();
 			$('div.toggle_container').slideUp();
 		});
