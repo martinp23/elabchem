@@ -181,6 +181,7 @@ CREATE TABLE IF NOT EXISTS `experiments_templates` (
   `body` text,
   `name` varchar(255) NOT NULL,
   `userid` int(10) unsigned DEFAULT NULL,
+  `exp_type` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `userid_idx` (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
