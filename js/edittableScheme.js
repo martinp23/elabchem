@@ -143,7 +143,7 @@ function updateStoichTable()
                     
                     //first we will add our compounds. New compounds come last in the newCompounds array.
                     for(i=numAddedCompounds-1; i >= 0; i--) {
-                        debugger;
+
                         reactantGridData.unshift(newCompounds[newCompounds.length-1-i]);
                         limitIndex = getLimitIndex(reactantGridData);
                         if(limitIndex === undefined) {

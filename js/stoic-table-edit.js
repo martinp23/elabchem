@@ -124,7 +124,6 @@ $(function() {
         });
         
         grid.onBeforeEditCell.subscribe(function(e,args) {
-            debugger;
             
             if (args.item && args.item.cpd_type === 'Solvent' && (args.column.id === 'conc' || args.column.id === 'limiting' || args.column.id === 'wtpercent'|| args.column.id === 'solvent')) {
                 return false;
@@ -174,7 +173,6 @@ $(function() {
 				}
 				break;
 			case "vol":
-			debugger;
 				// vol has been changed. Density/concentration is constant so we need to change mass and then mol, equiv, etc.
 				// concentration takes precedance over density
 				if ( args.item.conc != undefined ) {
