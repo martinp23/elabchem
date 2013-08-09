@@ -123,10 +123,17 @@ $(function() {
             }
         });
         
+        grid.onBeforeEditCell.subscribe(function(e,args) {
+            debugger;
+            
+            if (args.item && args.item.cpd_type === 'Solvent' && (args.column.id === 'conc' || args.column.id === 'limiting' || args.column.id === 'wtpercent'|| args.column.id === 'solvent')) {
+                return false;
+          }
+        });
+        
         grid.onCellChange.subscribe(function (e, args) {
             var allData = grid.getData(),
                 limitIndex = getLimitIndex(allData);
-
             switch (grid.getColumns()[args.cell].id) {
             case "mass":
                 // now we need to update the table to reflect changes in entered mass
@@ -167,6 +174,7 @@ $(function() {
 				}
 				break;
 			case "vol":
+			debugger;
 				// vol has been changed. Density/concentration is constant so we need to change mass and then mol, equiv, etc.
 				// concentration takes precedance over density
 				if ( args.item.conc != undefined ) {
@@ -176,6 +184,7 @@ $(function() {
 					allData[args.row].mass = args.item.vol * args.item.density;
 					allData[args.row].mol = allData[args.row].mass / allData[args.row].mwt;
 				}
+				allData[args.row].equiv = allData[args.row].mol / allData[limitIndex].mol / allData[limitIndex].equiv;
 				updateWholeTable();	
                 if(limitIndex === args.row) {
                     updateProdTable(limitIndex, allData);
@@ -215,16 +224,14 @@ $(function() {
                 break;
             }
             
+            
         grid.setData(allData);
         grid.render();
 		
 		function volFromMass() {
 			if (args.item.density != undefined) {
 				allData[args.row].vol = args.item.mass /args.item.density;
-				if(!allData[args.row].vol_units) {
-					// if units not already set, make them something sensible
-					allData[args.row].vol_units = getVolUnits(allData[args.row].vol);
-				}
+                allData[args.row].vol_units = getVolUnits(allData[args.row].vol);
 			}
 		}
 

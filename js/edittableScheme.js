@@ -143,6 +143,7 @@ function updateStoichTable()
                     
                     //first we will add our compounds. New compounds come last in the newCompounds array.
                     for(i=numAddedCompounds-1; i >= 0; i--) {
+                        debugger;
                         reactantGridData.unshift(newCompounds[newCompounds.length-1-i]);
                         limitIndex = getLimitIndex(reactantGridData);
                         if(limitIndex === undefined) {
@@ -175,7 +176,7 @@ function updateStoichTable()
                         reactantGridData[gridRowIndex].inchi = newCompounds[i].inchi;
                         reactantGridData[gridRowIndex].cpd_name = newCompounds[i].cpd_name;
                         reactantGridData[gridRowIndex].cas_number = newCompounds[i].cas_number;
-                        if(newCompouds[i].density) {
+                        if(newCompounds[i].density !== undefined) {
                             reactantGridData[gridRowIndex].density = newCompounds[i].density;
                         }
                         reactantGridData[gridRowIndex].cpd_type = "Reactant";

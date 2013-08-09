@@ -74,6 +74,9 @@ function concFormatter(row, cell, value, columnDef, dataContext) {
 	if (isNaN(dataContext.conc)) {
 		return "";
 	}
+	if (dataContext.cpd_type === 'Solvent') {
+        return "";
+    }
 	var units = dataContext.conc_units || "M",
         result = Math.round(100 * fromSI(dataContext.conc, units)) / 100;	
 	return result + "&nbsp;" + units;
@@ -83,6 +86,9 @@ function wtpercentFormatter(row, cell, value, columnDef, dataContext) {
 	if (dataContext.wtpercent === undefined) {
 		return "";
 	}
+    if (dataContext.cpd_type === 'Solvent') {
+        return "";
+    }
 	return dataContext.wtpercent + "&nbsp;%";
 }
 
@@ -97,6 +103,9 @@ function densityFormatter(row, cell, value, columnDef, dataContext) {
 
 function percentFormatter(row, cell, value, columnDef, dataContext) {
     if (dataContext.yield === undefined) {
+        return "";
+    }
+    if (dataContext.cpd_type === 'Solvent') {
         return "";
     }
     var result = Math.round(10 * value) / 10;    
