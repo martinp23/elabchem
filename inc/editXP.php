@@ -103,41 +103,44 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
   			visibleColumnsNW = JSON.parse('<?php echo $gridColumns;?>');
   		<?php } ?>
   
-		
-	// these four are required by the ChemDoodle Web Components library	
-	$("head").append('<meta http-equiv="X-UA-Compatible" content="chrome=1">',
-				'<link rel="stylesheet" href="js/chemdoodleweb/ChemDoodleWeb.css" type="text/css">',
-				'<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb-libs.js"/>',
-				'<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb.js"/>');
-					
-	// these three are required by the SketcherCanvas plugin
-	$("head").append('<link rel="stylesheet" href="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.css" type="text/css">',
-				'<script type="text/javascript" src="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.min.js"/>',
-				'<script type="text/javascript" src="js/chemdoodleweb/sketcher/ChemDoodleWeb-sketcher.js"/>');
-
-	// now all the slickgrid stuff
-	$("head").append('<link rel="stylesheet" href="js/slickgrid/slick.grid.css" type="text/css">',
-				'<link rel="stylesheet" href="js/slickgrid/css/stoich-grid.css" type="text/css">',
-			    '<link rel="stylesheet" href="js/slickgrid/controls/slick.columnpicker.css" type="text/css">',
-				'<script type="text/javascript" src="js/slickgrid/lib/jquery.event.drag-2.2.js"/>',
-				'<script type="text/javascript" src="js/slickgrid/lib/jquery.event.drop-2.2.js"/>',
-				'<script type="text/javascript" src="js/slickgrid/slick.dataview.js"/>',
-				'<script type="text/javascript" src="js/slickgrid/controls/slick.columnpicker.js"/>',
-				'<script type="text/javascript" src="js/slickgrid/plugins/slick.rowselectionmodel.js"/>',
-				'<script type="text/javascript" src="js/slickgrid/slick.core.js"/>',
-				'<script type="text/javascript" src="js/slickgrid/slick.editors.js"/>',
-				'<script type="text/javascript" src="js/slickgrid/slick.formatters.js"/>',
-				'<script type="text/javascript" src="js/slickgrid/slick.grid.js"/>',
-				'<script type="text/javascript" src="js/slickgrid/slick.groupitemmetadataprovider.js"/>',
-				'<script type="text/javascript" src="js/slickgrid/slick.dataview.js"/>',
-				'<script type="text/javascript" src="js/chem-editors.js"/>', 	
-				'<script type="text/javascript" src="js/chem-formatters.js"/>', 	
-				'<script type="text/javascript" src="js/stoic-table-edit.js"/>', 
-				'<script type="text/javascript" src="js/schemeViewer.js"/>', 	
-				'<script type="text/javascript" src="js/chemistry-functions.js"/>'); 
-								
-		var rxn = <?php echo json_encode((isset($rxn_data['rxn_mdl'])) ? $rxn_data['rxn_mdl'] : '');?>;
+				var rxn = <?php echo json_encode((isset($rxn_data['rxn_mdl'])) ? $rxn_data['rxn_mdl'] : '');?>;
 		</script>
+		
+		<!-- stylesheets extra -->
+				<meta http-equiv="X-UA-Compatible" content="chrome=1">
+				<link rel="stylesheet" href="js/chemdoodleweb/ChemDoodleWeb.css" type="text/css">
+    			<link rel="stylesheet" href="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.css" type="text/css">
+				<link rel="stylesheet" href="js/slickgrid/slick.grid.css" type="text/css">
+                <link rel="stylesheet" href="js/slickgrid/css/stoich-grid.css" type="text/css">
+                <link rel="stylesheet" href="js/slickgrid/controls/slick.columnpicker.css" type="text/css">
+	    <!-- these are required by the ChemDoodle Web Components library -->
+                <script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb-libs.js"></script>
+                <script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb.js"></script>
+                    
+    <!-- these are required by the SketcherCanvas plugin -->
+                <script type="text/javascript" src="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.min.js"></script>
+                <script type="text/javascript" src="js/chemdoodleweb/sketcher/ChemDoodleWeb-sketcher.js"></script>
+
+    <!-- now all the slickgrid stuff-->
+
+                <script type="text/javascript" src="js/slickgrid/lib/jquery.event.drag-2.2.js"></script>
+                <script type="text/javascript" src="js/slickgrid/lib/jquery.event.drop-2.2.js"></script>
+                <script type="text/javascript" src="js/slickgrid/slick.dataview.js"></script>
+                <script type="text/javascript" src="js/slickgrid/controls/slick.columnpicker.js"></script>
+                <script type="text/javascript" src="js/slickgrid/plugins/slick.rowselectionmodel.js"></script>
+                <script type="text/javascript" src="js/slickgrid/slick.core.js"></script>
+                <script type="text/javascript" src="js/slickgrid/slick.editors.js"></script>
+                <script type="text/javascript" src="js/slickgrid/slick.formatters.js"></script>
+                <script type="text/javascript" src="js/slickgrid/slick.grid.js"></script>
+                <script type="text/javascript" src="js/slickgrid/slick.groupitemmetadataprovider.js"></script>
+                <script type="text/javascript" src="js/slickgrid/slick.dataview.js"></script>
+                <script type="text/javascript" src="js/chem-editors.js"></script>    
+                <script type="text/javascript" src="js/chem-formatters.js"></script>     
+                <script type="text/javascript" src="js/stoic-table-edit.js"></script> 
+                <script type="text/javascript" src="js/schemeViewer.js"></script>    
+                <script type="text/javascript" src="js/chemistry-functions.js"></script> 
+								
+
 	<?php 
 	
 	

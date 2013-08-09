@@ -29,13 +29,13 @@ require_once("themes/".$_SESSION['prefs']['theme']."/highlight.css");
 }
 ?>
 
-<script type="text/javascript">
-	$("head").append('<meta http-equiv="X-UA-Compatible" content="chrome=1">',
-				'<link rel="stylesheet" href="js/chemdoodleweb/ChemDoodleWeb.css" type="text/css">',
-				'<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb-libs.js"/>',
-				'<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb.js"/>',
-				'<script type="text/javascript" src="js/schemeViewer.js"/>');
-</script>
+
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<link rel="stylesheet" href="js/chemdoodleweb/ChemDoodleWeb.css" type="text/css">
+	<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb-libs.js"></script>
+	<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb.js"></script>
+	<script type="text/javascript" src="js/schemeViewer.js"></script>
+
 <div id='top-wrapper'>
 <div id='submenu'>
     <form id='big_search' method='get' action='experiments.php'>
