@@ -56,6 +56,7 @@ echo "<p style='text-align:center'>".$ini_arr['lab_name']." powered by <a href='
 	<li><a href="http://jquery.com/">jQuery</a> (<a href="https://github.com/jquery/jquery">source</a>) (<a href="http://opensource.org/licenses/MIT">MIT License</a>)</li>
 	<li><a href="http://web.chemdoodle.com/">ChemDoodle Web</a> (<a href="http://web.chemdoodle.com/installation/download">download</a>) (<a href="https://www.gnu.org/licenses/gpl.html">GPL v3.0 License</a>)</li> 
 	<li><a href="https://github.com/mleibman/SlickGrid/wiki">SlickGrid</a> (<a href="https://github.com/mleibman/SlickGrid">source</a>) (<a href="http://opensource.org/licenses/MIT">MIT License</a>)</li>
+	<li><a href="http://openbabel.org/wiki/Main_Page">OpenBabel</a></li>
 	</ul>
 </p>
 
