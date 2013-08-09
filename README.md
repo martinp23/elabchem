@@ -188,7 +188,7 @@ and openbabel:  http://openbabel.org/wiki/Main_Page
 
 ## Debian Wheezy
 ~~~ sh
-$ sudo apt-get install gcc cmake libmysqlclient-dev libopenbabel-dev openbabel subversion build-essential
+$ sudo apt-get install gcc cmake libmysqlclient-dev libopenbabel-dev openbabel subversion build-essential php5-curl
 $ svn co https://mychem.svn.sourceforge.net/svnroot/mychem/mychem3@351 mychem
 $ cd mychem
 $ mkdir build
