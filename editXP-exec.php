@@ -50,6 +50,15 @@ $prodGrid = $_POST['prodGrid_input'];
 $gridColumns = $_POST['grid_columns'];
 $prodGridColumns = $_POST['prodGrid_columns'];
 
+$rxnChanged = check_bool($_POST['rxn_changed']);
+$gridChanged = check_bool($_POST['grid_changed']);
+$prodGridChanged = check_bool($_POST['prodGrid_changed']);
+$gridColumnsChanged = check_bool($_POST['gridColumns_changed']);
+$prodGridColumnsChanged = check_bool($_POST['prodGridColumns_changed']);
+$bodyChanged = check_bool($_POST['body_changed']);
+$titleChanged = check_bool($_POST['title_changed']);
+$oldid = $_POST['oldid'];
+
 // not sanitised! This is not committed to the db.
 $type = $_POST['type'];
 
@@ -66,20 +75,132 @@ if($errflag) {
     exit();
 }
 
+// if nothing is changed, we can just return.
+if(!$rxnChanged && !$gridChanged && !$prodGridChanged && !$bodyChanged && !$titleChanged && !$gridColumnsChanged && !$prodGridColumnsChanged) {
+	unset($_SESSION['new_title']);
+    unset($_SESSION['new_date']);
+    unset($_SESSION['status']);
+    unset($_SESSION['errors']);
+    header("location: experiments.php?mode=view&id=$id");
+}
+
 // SQL for editXP
+//first we want to get the oldid rev info
+$sql = "SELECT * from revisions WHERE rev_id = :revid";
+$req = $bdd->prepare($sql);
+$result = $req->execute(array('revid' => $oldid));
+$oldrev = $req->fetch(PDO::FETCH_ASSOC);
+$bdd->beginTransaction();
 
     if($type === 'chemsingle' || $type === 'chemparallel') {
-    	// do things slightly differently for chemistry expts
-		$sql = "INSERT INTO reactions(user_id, experiment_id, rxn_mdl) VALUES(:userid, :expid, :rxn)";
-		$req = $bdd->prepare($sql);
-		$result = $req->execute(array(
-			'userid' => $_SESSION['userid'],
-			'expid' => $id,
-			'rxn'	=> $rxn ));
+    	$stoicTableRev;
+		$prodTableRev;
+		$rxn_id;
+    	if($rxnChanged) {
+	    	// do things slightly differently for chemistry expts
+			$sql = "INSERT INTO reactions(user_id, experiment_id, rxn_mdl) VALUES(:userid, :expid, :rxn)";
+			$req = $bdd->prepare($sql);
+			$result = $req->execute(array(
+				'userid' => $_SESSION['userid'],
+				'expid' => $id,
+				'rxn'	=> $rxn ));
+				
+			$rxn_id = $bdd->lastInsertId();
+		} else {
+			$rxn_id = $oldrev['rev_reaction_id'];
+		}
+		 if($gridChanged) {
+		 	// tables are stored by row in the stoichiometry table, tied back to an experiment id (exp_id) and an incrementing revision of the table
+		 	// this table_rev_id is distinct from the actual revision id, so that we don't save multiple copies of the table when the user isn't 
+		 	// changing it between edits.
+		 	
+		 	$stoicTableRev = $oldrev['rev_stoictab_id']+1;
+			$grid = json_decode($grid, true);
+			for ($i = 0; $i < count($grid); $i++) {
+				$sql = "INSERT INTO rxn_stoichiometry(exp_id, table_rev_id, row_id, cpd_name, cpd_id, cas_number, cpd_type, supplier, batch_ref,
+				mwt, mass, vol, mol, density, equiv, conc, solvent, limiting, notes, weightpercent, mwt_units, mass_units, mol_units, vol_units,
+				density_units, conc_units, formula, inchi) VALUES(:exp_id, :table_rev_id, :row_id, :cpd_name, :cpd_id, :cas_number, :cpd_type, :supplier, :batch_ref,
+				:mwt, :mass, :vol, :mol, :density, :equiv, :conc, :solvent, :limiting, :notes, :weightpercent, :mwt_units, :mass_units, :mol_units, :vol_units,
+				:density_units, :conc_units, :formula, :inchi)";
+				$req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
+				$values = array(
+			        'exp_id' => $id,
+			        'table_rev_id' => $stoicTableRev,
+			        'row_id' => $i,
+			        'cpd_name' => isset($grid[$i]['cpd_name']) ? $grid[$i]['cpd_name'] : null,
+			        'cpd_id' => isset($grid[$i]['cpd_id']) ? $grid[$i]['cpd_id'] : null,
+			        'cas_number' => isset($grid[$i]['cas_number']) ? $grid[$i]['cas_number'] : null,
+			        'cpd_type' => isset($grid[$i]['cpd_type']) ? $grid[$i]['cpd_type'] : null,
+			        'supplier' => isset($grid[$i]['supplier']) ? $grid[$i]['supplier'] : null,
+			        'batch_ref' => isset($grid[$i]['batch_ref']) ? $grid[$i]['batch_ref'] : null,
+			        'mwt' => isset($grid[$i]['mwt']) ? $grid[$i]['mwt'] : null,
+			        'mass' => isset($grid[$i]['mass']) ? $grid[$i]['mass'] : null,
+			        'vol' => isset($grid[$i]['vol']) ? $grid[$i]['vol'] : null,
+			        'mol' => isset($grid[$i]['mol']) ? $grid[$i]['mol'] : null,
+			        'density' => isset($grid[$i]['density']) ? $grid[$i]['density'] : null,
+			        'equiv' => isset($grid[$i]['equiv']) ? $grid[$i]['equiv'] : null,
+			        'conc' => isset($grid[$i]['conc']) ? $grid[$i]['conc'] : null,
+			        'solvent' => isset($grid[$i]['solvent']) ? $grid[$i]['solvent'] : null,
+			        'limiting' => isset($grid[$i]['limiting']) ? $grid[$i]['limiting'] : null,
+			        'notes' => isset($grid[$i]['notes']) ? $grid[$i]['notes'] : null,
+			        'weightpercent' => isset($grid[$i]['weightpercent']) ? $grid[$i]['weightpercent'] : null,
+			        'mwt_units' => isset($grid[$i]['mwt_units']) ? $grid[$i]['mwt_units'] : null,
+			        'mass_units' => isset($grid[$i]['mass_units']) ? $grid[$i]['mass_units'] : null,
+			        'mol_units' => isset($grid[$i]['mol_units']) ? $grid[$i]['mol_units'] : null,
+			        'vol_units' => isset($grid[$i]['vol_units']) ? $grid[$i]['vol_units'] : null,
+			        'density_units' => isset($grid[$i]['density_units']) ? $grid[$i]['density_units'] : null,
+			        'conc_units' => isset($grid[$i]['conc_units']) ? $grid[$i]['conc_units'] : null,
+			        'formula' => isset($grid[$i]['formula']) ? $grid[$i]['formula'] : null,
+			        'inchi' => isset($grid[$i]['inchi']) ? $grid[$i]['inchi'] : null);
+				$result = $req->execute($values);		 
+			}	
+		 } else {
+		 	$stoicTableRev = $oldrev['rev_stoictab_id'];
+		 }
+		if($prodGridChanged) {
+			$prodGrid = json_decode($prodGrid,true);
+			$prodTableRev = $oldrev['rev_prodtab_id']+1;
+				for ($i = 0; $i < count($prodGrid); $i++) {
+					$sql = "INSERT INTO rxn_product_table(table_rev_id, row_id, exp_id, cpd_name, cpd_id, batch_ref,
+					mwt, mass, mol, equiv, notes, purity, nmr_ref, anal_ref1, anal_ref2, mpt, alphad, yield, colour, state, inchi, mass_units, mol_units) 
+					VALUES(:table_rev_id, :row_id, :exp_id, :cpd_name, :cpd_id, :batch_ref,
+					:mwt, :mass, :mol, :equiv, :notes, :purity, :nmr_ref, :anal_ref1, :anal_ref2, :mpt, :alphad, :yield, :colour, :state, :inchi, 
+					:mass_units, :mol_units)";								
+					$req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
+					$values = array(
+						'table_rev_id' => $prodTableRev,
+				        'row_id' => $prodGrid[$i]['id'],
+				        'exp_id' => $id,
+				        'cpd_name' => $prodGrid[$i]['cpd_name'],
+                        'cpd_id' => isset($prodGrid[$i]['cpd_id']) ? $prodGrid[$i]['cpd_id'] : null,
+                        'batch_ref' => isset($prodGrid[$i]['batch_ref']) ? $prodGrid[$i]['batch_ref'] : null,
+                        'mwt' => isset($prodGrid[$i]['mwt']) ? $prodGrid[$i]['mwt'] : null,
+                        'mass' => isset($prodGrid[$i]['mass']) ? $prodGrid[$i]['mass'] : null,
+                        'mol' => isset($prodGrid[$i]['mol']) ? $prodGrid[$i]['mol'] : null,
+                        'equiv' => isset($prodGrid[$i]['equiv']) ? $prodGrid[$i]['equiv'] : null,
+                        'notes' => isset($prodGrid[$i]['notes']) ? $prodGrid[$i]['notes'] : null,
+                        'purity' => isset($prodGrid[$i]['purity']) ? $prodGrid[$i]['purity'] : null,
+                        'mass_units' => isset($prodGrid[$i]['mass_units']) ? $prodGrid[$i]['mass_units'] : null,
+                        'mol_units' => isset($prodGrid[$i]['mol_units']) ? $prodGrid[$i]['mol_units'] : null,
+                        'nmr_ref' => isset($prodGrid[$i]['nmr_ref']) ? $prodGrid[$i]['nmr_ref'] : null,
+                        'anal_ref1' => isset($prodGrid[$i]['anal_ref1']) ? $prodGrid[$i]['anal_ref1'] : null,
+                        'anal_ref2' => isset($prodGrid[$i]['anal_ref2']) ? $prodGrid[$i]['anal_ref2'] : null,
+                        'mpt' => isset($prodGrid[$i]['mpt']) ? $prodGrid[$i]['mpt'] : null,
+                        'alphad' => isset($prodGrid[$i]['alphad']) ? $prodGrid[$i]['alphad'] : null,
+                        'yield' => isset($prodGrid[$i]['yield']) ? $prodGrid[$i]['yield'] : null,
+                        'colour' => isset($prodGrid[$i]['colour']) ? $prodGrid[$i]['colour'] : null,
+                        'state' => isset($prodGrid[$i]['state']) ? $prodGrid[$i]['state'] : null,
+                        'inchi' => isset($prodGrid[$i]['inchi']) ? $prodGrid[$i]['inchi'] : null);
+		
+					$result = $req->execute($values);
+				}
+			} else {
+				$prodTableRev = $oldrev['rev_prodtab_id'];
+			}
 			
-		$rxn_id = $bdd->lastInsertId();
-			
-		$sql = "INSERT INTO revisions(user_id, experiment_id, rev_notes, rev_body, rev_title, rev_reaction_id) VALUES(:userid, :expid, :notes, :body, :title, :rxn_id)";
+		$sql = "INSERT INTO revisions(user_id, experiment_id, rev_notes, rev_body, rev_title, rev_reaction_id, rev_stoictab_id, rev_prodtab_id, 
+		rev_stoictab_col, rev_prodtab_col) VALUES(:userid, :expid, :notes, :body, :title, :rxn_id, :stoicTableRev, :prodTableRev, :stoicCol, 
+		:prodCol)";
 	    $req = $bdd->prepare($sql);
 	    $result = $req->execute(array(
 	        'title' => $title,
@@ -87,117 +208,13 @@ if($errflag) {
 	        'notes' => "TODO",
 	        'body' => $body,
 	        'rxn_id' => $rxn_id,
+	        'stoicTableRev' => $stoicTableRev,
+	        'prodTableRev' => $prodTableRev,
+	        'stoicCol' => $gridColumns,
+	        'prodCol' => $prodGridColumns,
 	        'userid' => $_SESSION['userid']));
-	    $rev_id = $bdd->lastInsertId();    
-		
-	//	$bdd->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-	    $grid = json_decode($grid,true);
-		for ($i = 0; $i < count($grid); $i++) {
-			if ($i === 0) {
-				$sql = "INSERT INTO rxn_stoichiometry(rxn_id, rev_id, row_id, user_id, cpd_name, cpd_id, cas_number, cpd_type, supplier, batch_ref,
-				mwt, mass, vol, mol, density, equiv, conc, solvent, limiting, notes, weightpercent, mwt_units, mass_units, mol_units, vol_units,
-				density_units, conc_units, formula, inchi, columns) VALUES(:rxn_id, :rev_id, :row_id, :user_id, :cpd_name, :cpd_id, :cas_number, :cpd_type, :supplier, :batch_ref,
-				:mwt, :mass, :vol, :mol, :density, :equiv, :conc, :solvent, :limiting, :notes, :weightpercent, :mwt_units, :mass_units, :mol_units, :vol_units,
-				:density_units, :conc_units, :formula, :inchi, :columns)";
-			} else {
-				$sql = "INSERT INTO rxn_stoichiometry(rxn_id, rev_id, row_id, user_id, cpd_name, cpd_id, cas_number, cpd_type, supplier, batch_ref,
-				mwt, mass, vol, mol, density, equiv, conc, solvent, limiting, notes, weightpercent, mwt_units, mass_units, mol_units, vol_units,
-				density_units, conc_units, formula, inchi) VALUES(:rxn_id, :rev_id, :row_id, :user_id, :cpd_name, :cpd_id, :cas_number, :cpd_type, :supplier, :batch_ref,
-				:mwt, :mass, :vol, :mol, :density, :equiv, :conc, :solvent, :limiting, :notes, :weightpercent, :mwt_units, :mass_units, :mol_units, :vol_units,
-				:density_units, :conc_units, :formula, :inchi)";
-			}
-			$req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
-			$values = array(
-		        'rxn_id' => $rxn_id,
-		        'rev_id' => $rev_id,
-		        'row_id' => $i,
-		        'user_id' => $_SESSION['userid'],
-		        'cpd_name' => isset($grid[$i]['cpd_name']) ? $grid[$i]['cpd_name'] : null,
-		        'cpd_id' => isset($grid[$i]['cpd_id']) ? $grid[$i]['cpd_id'] : null,
-		        'cas_number' => isset($grid[$i]['cas_number']) ? $grid[$i]['cas_number'] : null,
-		        'cpd_type' => isset($grid[$i]['cpd_type']) ? $grid[$i]['cpd_type'] : null,
-		        'supplier' => isset($grid[$i]['supplier']) ? $grid[$i]['supplier'] : null,
-		        'batch_ref' => isset($grid[$i]['batch_ref']) ? $grid[$i]['batch_ref'] : null,
-		        'mwt' => isset($grid[$i]['mwt']) ? $grid[$i]['mwt'] : null,
-		        'mass' => isset($grid[$i]['mass']) ? $grid[$i]['mass'] : null,
-		        'vol' => isset($grid[$i]['vol']) ? $grid[$i]['vol'] : null,
-		        'mol' => isset($grid[$i]['mol']) ? $grid[$i]['mol'] : null,
-		        'density' => isset($grid[$i]['density']) ? $grid[$i]['density'] : null,
-		        'equiv' => isset($grid[$i]['equiv']) ? $grid[$i]['equiv'] : null,
-		        'conc' => isset($grid[$i]['conc']) ? $grid[$i]['conc'] : null,
-		        'solvent' => isset($grid[$i]['solvent']) ? $grid[$i]['solvent'] : null,
-		        'limiting' => isset($grid[$i]['limiting']) ? $grid[$i]['limiting'] : null,
-		        'notes' => isset($grid[$i]['notes']) ? $grid[$i]['notes'] : null,
-		        'weightpercent' => isset($grid[$i]['weightpercent']) ? $grid[$i]['weightpercent'] : null,
-		        'mwt_units' => isset($grid[$i]['mwt_units']) ? $grid[$i]['mwt_units'] : null,
-		        'mass_units' => isset($grid[$i]['mass_units']) ? $grid[$i]['mass_units'] : null,
-		        'mol_units' => isset($grid[$i]['mol_units']) ? $grid[$i]['mol_units'] : null,
-		        'vol_units' => isset($grid[$i]['vol_units']) ? $grid[$i]['vol_units'] : null,
-		        'density_units' => isset($grid[$i]['density_units']) ? $grid[$i]['density_units'] : null,
-		        'conc_units' => isset($grid[$i]['conc_units']) ? $grid[$i]['conc_units'] : null,
-		        'formula' => isset($grid[$i]['formula']) ? $grid[$i]['formula'] : null,
-		        'inchi' => isset($grid[$i]['inchi']) ? $grid[$i]['inchi'] : null);
-			
-			if($i === 0) {
-				$values['columns'] = $gridColumns;
-			}
-				
-
-
-			$result = $req->execute($values);
-			
-			}
-			if(isset($prodGrid) && !is_null($prodGrid)) {
-				$prodGrid = json_decode($prodGrid,true);
-						for ($i = 0; $i < count($prodGrid); $i++) {
-							if($i === 0) {
-								$sql = "INSERT INTO rxn_product_table(rxn_id, rev_id, row_id, exp_id, user_id, cpd_name, cpd_id, batch_ref,
-								mwt, mass, mol, equiv, notes, purity, nmr_ref, anal_ref1, anal_ref2, mpt, alphad, yield, colour, state, inchi, mass_units, mol_units, columns) 
-								VALUES(:rxn_id, :rev_id, :row_id, :exp_id, :user_id, :cpd_name, :cpd_id, :batch_ref,
-								:mwt, :mass, :mol, :equiv, :notes, :purity, :nmr_ref, :anal_ref1, :anal_ref2, :mpt, :alphad, :yield, :colour, :state, :inchi, 
-								:mass_units, :mol_units, :columns)";
-							} else {
-								$sql = "INSERT INTO rxn_product_table(rxn_id, rev_id, row_id, exp_id, user_id, cpd_name, cpd_id, batch_ref,
-								mwt, mass, mol, equiv, notes, purity, nmr_ref, anal_ref1, anal_ref2, mpt, alphad, yield, colour, state, inchi, mass_units, mol_units) 
-								VALUES(:rxn_id, :rev_id, :row_id, :exp_id, :user_id, :cpd_name, :cpd_id, :batch_ref,
-								:mwt, :mass, :mol, :equiv, :notes, :purity, :nmr_ref, :anal_ref1, :anal_ref2, :mpt, :alphad, :yield, :colour, :state, :inchi, 
-								:mass_units, :mol_units)";								
-							}
-							$req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
-							$values = array(
-						        'rxn_id' => $rxn_id,
-						        'rev_id' => $rev_id,
-						        'row_id' => $prodGrid[$i]['id'],
-						        'exp_id' => $id,
-						        'user_id' => $_SESSION['userid'],
-						        'cpd_name' => $prodGrid[$i]['cpd_name'],
-                                'cpd_id' => isset($prodGrid[$i]['cpd_id']) ? $prodGrid[$i]['cpd_id'] : null,
-                                'batch_ref' => isset($prodGrid[$i]['batch_ref']) ? $prodGrid[$i]['batch_ref'] : null,
-                                'mwt' => isset($prodGrid[$i]['mwt']) ? $prodGrid[$i]['mwt'] : null,
-                                'mass' => isset($prodGrid[$i]['mass']) ? $prodGrid[$i]['mass'] : null,
-                                'mol' => isset($prodGrid[$i]['mol']) ? $prodGrid[$i]['mol'] : null,
-                                'equiv' => isset($prodGrid[$i]['equiv']) ? $prodGrid[$i]['equiv'] : null,
-                                'notes' => isset($prodGrid[$i]['notes']) ? $prodGrid[$i]['notes'] : null,
-                                'purity' => isset($prodGrid[$i]['purity']) ? $prodGrid[$i]['purity'] : null,
-                                'mass_units' => isset($prodGrid[$i]['mass_units']) ? $prodGrid[$i]['mass_units'] : null,
-                                'mol_units' => isset($prodGrid[$i]['mol_units']) ? $prodGrid[$i]['mol_units'] : null,
-                                'nmr_ref' => isset($prodGrid[$i]['nmr_ref']) ? $prodGrid[$i]['nmr_ref'] : null,
-                                'anal_ref1' => isset($prodGrid[$i]['anal_ref1']) ? $prodGrid[$i]['anal_ref1'] : null,
-                                'anal_ref2' => isset($prodGrid[$i]['anal_ref2']) ? $prodGrid[$i]['anal_ref2'] : null,
-                                'mpt' => isset($prodGrid[$i]['mpt']) ? $prodGrid[$i]['mpt'] : null,
-                                'alphad' => isset($prodGrid[$i]['alphad']) ? $prodGrid[$i]['alphad'] : null,
-                                'yield' => isset($prodGrid[$i]['yield']) ? $prodGrid[$i]['yield'] : null,
-                                'colour' => isset($prodGrid[$i]['colour']) ? $prodGrid[$i]['colour'] : null,
-                                'state' => isset($prodGrid[$i]['state']) ? $prodGrid[$i]['state'] : null,
-                                'inchi' => isset($prodGrid[$i]['inchi']) ? $prodGrid[$i]['inchi'] : null);
-							if($i === 0) {
-								$values['columns'] = $prodGridColumns;
-							}				
-				
-							$result = $req->execute($values);
-						}
-			
-		}	
+	    $rev_id = $bdd->lastInsertId();   
+	
 	} else {
 
 	$sql = "INSERT INTO revisions(user_id, experiment_id, rev_notes, rev_body, rev_title) VALUES(:userid, :expid, :notes, :body, :title)";
@@ -225,7 +242,9 @@ if($errflag) {
 	    'revid' => $rev_id,
 	    'userid' => $_SESSION['userid'],
 	    'id' => $id
-));
+	));
+	
+	$result = $bdd->commit();
 
 
 // Check if insertion is successful

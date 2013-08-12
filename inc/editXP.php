@@ -41,7 +41,8 @@ $req = $bdd->prepare($sql);
 $req->execute();
 $exp_data = $req->fetch();
 
-$sql = "SELECT rev_id, rev_body, rev_title, rev_reaction_id FROM revisions WHERE rev_id = :revid";
+$sql = "SELECT rev_id, rev_body, rev_title, rev_reaction_id, rev_stoictab_id, rev_prodtab_id, rev_stoictab_col, rev_prodtab_col
+		 FROM revisions WHERE rev_id = :revid";
 $req = $bdd->prepare($sql);
 $req->execute(array(
 		'revid' => $exp_data['rev_id']
@@ -51,43 +52,43 @@ $rev_data = $req->fetch();
 
 // Do some chemistry-specific stuff
 if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
-	// SQL to get our reaction box and probably do other stuff later...
+	// SQL to get our reaction box and content of slickgrids.
 	if($rev_data['rev_reaction_id'] != NULL) {
-		$sql = "SELECT * FROM reactions WHERE rxn_id = :rev_rxn_id";
+		$sql = "SELECT rxn_mdl FROM reactions WHERE rxn_id = :rev_rxn_id";
 		$req = $bdd->prepare($sql);
 		$req->execute(array('rev_rxn_id' => $rev_data['rev_reaction_id']));
 		$rxn_data = $req->fetch();		
-	} else {
-		$rxn_data['rxn_mdl'] = "";
-	}
+	} 
 	
 	$gridDatadb = array();
 	$gridColumns = array();
-	$sql = "SELECT * FROM rxn_stoichiometry WHERE rev_id = :revid";
+	$sql = "SELECT * FROM rxn_stoichiometry WHERE exp_id = :exp_id AND table_rev_id = :tableid";
 	$req = $bdd->prepare($sql);
-	$req->execute(array('revid' => $exp_data['rev_id']));
+	$req->execute(array(
+		'exp_id' => $id,
+		'tableid' => $rev_data['rev_stoictab_id']));
 	if ($req->rowcount() != 0) {
 		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
 			$gridDatadb[] = $gridRow;
-		}
-		$gridColumns = $gridDatadb[0]['columns'];
-		unset($gridDatadb[0]['columns']);		
+		}	
 	}
+	$gridColumns = $rev_data['rev_stoictab_col'];
 		
 	$prodGridData = array();
 	$prodGridColumns = array();
-	$sql = "SELECT * FROM rxn_product_table WHERE rev_id = :revid";
+	$sql = "SELECT * FROM rxn_product_table WHERE exp_id = :exp_id AND table_rev_id = :tableid";
 	$req = $bdd->prepare($sql);
-	$req->execute(array('revid' => $exp_data['rev_id']));
+	$req->execute(array(
+		'exp_id' => $id,
+		'tableid' => $rev_data['rev_prodtab_id']));
 	if ($req->rowcount() != 0) {
 		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
 			$prodGridData[] = $gridRow;
 		}
-		$prodGridColumns = $prodGridData[0]['columns'];
-		unset($prodGridData[0]['columns']);
 	}	
+	$prodGridColumns = $rev_data['rev_prodtab_col'];
 	
-	// now to make our reaction box ?>
+	 ?>
 	 <!-- first just make the grid data available -->
 	<script type="text/javascript">var gridData = <?php echo json_encode($gridDatadb);?>;
 		for (i in gridData) {
@@ -97,13 +98,15 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 				}
 			}
 		}
+		gridData;
+		var gridDataOrig = JSON.stringify(gridData);
 		var visibleColumnsNW = [];
-		
 		<?php if($gridColumns) { ?>
-  			visibleColumnsNW = JSON.parse('<?php echo $gridColumns;?>');
+  			visibleColumnsNW = JSON.parse(<?php echo $gridColumns;?>);
   		<?php } ?>
-  
+
 				var rxn = <?php echo json_encode((isset($rxn_data['rxn_mdl'])) ? $rxn_data['rxn_mdl'] : '');?>;
+				var rxnOrig = rxn;
 		</script>
 		
 		<!-- stylesheets extra -->
@@ -237,6 +240,7 @@ $status = $exp_data['status'];
 
   	<script>
   		var prodGridData = JSON.parse('<?php echo json_encode($prodGridData);?>');
+  		var prodGridDataOrig = JSON.stringify(prodGridData);
 	  	var	columnsProducts = [
   			{id: "del", name: "", field:"del", width:10, formatter:delButtonFormatter, init_visible:true},
   			{id: "copy", name: "", field:"copy", width:10, formatter:copyButtonFormatter, init_visible:true},
@@ -260,7 +264,7 @@ $status = $exp_data['status'];
   		var visibleColumnsProducts = [];
   		var visibleColumnsProductsNW = [];
   		<?php if($prodGridColumns) { ?>
-  			visibleColumnsProductsNW = JSON.parse('<?php echo $prodGridColumns;?>');
+  			visibleColumnsProductsNW = JSON.parse(<?php echo $prodGridColumns;?>);
   		<?php } ?>
   		
   		if(visibleColumnsProductsNW.length === 0) {
@@ -571,7 +575,7 @@ $status = $exp_data['status'];
 		       		}
 
 		  			$('#addProductDialog').dialog('open');
-		  			return false;
+		  			return;
 	            }
 	        });
 	            	
@@ -579,7 +583,7 @@ $status = $exp_data['status'];
   		}
   		function closeDialog() {
   			$('#addProductDialog').dialog('close');
-  			return false;  			
+  			return;  			
   		}
   		
   		function getNameFromInchi(nameEl, inchi) {
@@ -623,6 +627,11 @@ $status = $exp_data['status'];
 <input name='prodGrid_input' type='hidden' value='' />
 <input name='grid_columns' type='hidden' value='' />
 <input name='prodGrid_columns' type='hidden' value='' />
+<input name='rxn_changed' id='rxn_changed' type='hidden' value='0' />
+<input name='grid_changed' id='grid_changed' type='hidden' value='0' />
+<input name='prodGrid_changed' id='prodGrid_changed' type='hidden' value='0' />
+<!-- <input name='gridColumns_changed' id='gridColumns_changed' type='hidden' value='0' />
+<input name='prodGridColumns_changed' id='prodGridColumns_changed' type='hidden' value='0' /> -->
 <hr class='flourishes'>
 	<?php 
 	// non-chemistry experiment section
@@ -639,6 +648,11 @@ $status = $exp_data['status'];
 	//end if
 }?>
 <!-- SUBMIT BUTTON -->
+<input name='oldid' type='hidden' value='<?php echo $exp_data['rev_id'];?>' />
+<input name='body_changed' type='hidden' value='0' />
+<input name='title_changed' type='hidden' value='0' />
+
+
 <div class='center' id='saveButton'>
     <input type="submit" name="Submit" onclick="preSubmit();" class='button' value="Save and go back" />
 </div>
@@ -647,23 +661,59 @@ $status = $exp_data['status'];
 <script>		
 
 function preSubmit() {
-    document.editXP.rxn_input.value = rxn || '';
-    document.editXP.grid_input.value = JSON.stringify(grid.getData()) || '';
-    document.editXP.prodGrid_input.value = JSON.stringify(dataViewProducts.getItems()) || '';
-    gridColumns = grid.getColumns();
-    prodGridColumns = gridProducts.getColumns();
-    
-    gridColumnsNW = [];
-    for (var i = 0; i<gridColumns.length; i++) {
-    	gridColumnsNW.push({id:gridColumns[i].id, width:gridColumns[i].width})
+
+	<?php if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') { ?>
+		rxn = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), reactionCanvas.getShapes()) || '';
+		if(rxnOrig !== rxn) {
+			document.editXP.rxn_changed.value = '1';
+	    	document.editXP.rxn_input.value = rxn;
+	    }
+	    var gridDataNew = JSON.stringify(grid.getData()) || '';
+	    if (gridDataOrig !== gridDataNew) {
+	    	document.editXP.grid_changed.value = '1';
+	    	document.editXP.grid_input.value = gridDataNew;
+	    }
+	    var prodGridDataNew = JSON.stringify(dataViewProducts.getItems()) || '';
+	    if (prodGridDataOrig !== prodGridDataNew) {
+	    	document.editXP.prodGrid_changed.value = '1';
+	    	document.editXP.prodGrid_input.value = prodGridDataNew;
+	    }
+	    
+	    var gridColumns = grid.getColumns();
+	    var prodGridColumns = gridProducts.getColumns();
+	    
+	    var gridColumnsNW = [];
+	    for (var i = 0; i<gridColumns.length; i++) {
+	    	gridColumnsNW.push({id:gridColumns[i].id, width:gridColumns[i].width})
+	    }
+	    
+	    var prodGridColumnsNW = [];
+	    for (var i = 0; i<prodGridColumns.length; i++) {
+	    	prodGridColumnsNW.push({id:prodGridColumns[i].id, width:prodGridColumns[i].width})
+	    }
+	    
+	   
+	    gridColumnsNW = JSON.stringify(gridColumnsNW);
+	    prodGridColumnsNW = JSON.stringify(prodGridColumnsNW);
+	    if(gridColumnsNW !== JSON.stringify(visibleColumnsNW)) {	
+	    	document.editXP.gridColumns_changed.value = '1';	   
+	    } 
+	   // }
+	    if(prodGridColumnsNW !== JSON.stringify(visibleColumnsProductsNW)) {
+	    	document.editXP.prodGridColumns_changed.value = '1';
+	    }
+	    	document.editXP.grid_columns.value = JSON.stringify(gridColumnsNW);	    	
+	    	document.editXP.prodGrid_columns.value = JSON.stringify(prodGridColumnsNW);
+	  //  }		    
+    <?php } ?>
+    if(document.editXP.body_area.value !== '<?php echo stripslashes($rev_data['rev_body']); ?>') {
+    	document.editXP.body_changed.value = '1';
     }
     
-    prodGridColumnsNW = [];
-    for (var i = 0; i<prodGridColumns.length; i++) {
-    	prodGridColumnsNW.push({id:prodGridColumns[i].id, width:prodGridColumns[i].width})
-    }		    
-    document.editXP.grid_columns.value = JSON.stringify(gridColumnsNW) || '';
-    document.editXP.prodGrid_columns.value = JSON.stringify(prodGridColumnsNW) || '';		    
+    if(document.editXP.title.value !== '<?php echo stripslashes($rev_data['rev_title']); ?>') {
+    	document.editXP.title.value = '1';
+    }
+    return;
 }
 
 </script>

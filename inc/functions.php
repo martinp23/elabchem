@@ -455,6 +455,15 @@ function check_status($input) {
     }
 }
 
+function check_bool($input) {
+	if((isset($input)) && (!empty($input)) && ($input === '1')){
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 
 function make_pdf($id, $type, $out = 'browser') {
     // make a pdf

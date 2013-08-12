@@ -58,29 +58,31 @@ if($expdata['type'] == 'chemsingle' || $expdata['type'] == 'chemparallel') {
 	
 	$gridDatadb = array();
 	$gridColumns = array();
-	$sql = "SELECT * FROM rxn_stoichiometry WHERE rev_id = :revid";
+	$sql = "SELECT * FROM rxn_stoichiometry WHERE exp_id = :exp_id AND table_rev_id = :tableid";
 	$req = $bdd->prepare($sql);
-	$req->execute(array('revid' => $expdata['rev_id']));
+	$req->execute(array(
+		'exp_id' => $id,
+		'tableid' => $rev_data['rev_stoictab_id']));
 	if ($req->rowcount() != 0) {
 		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
 			$gridDatadb[] = $gridRow;
-		}
-		$gridColumns = $gridDatadb[0]['columns'];
-		unset($gridDatadb[0]['columns']);
+		}	
 	}
-	
+	$gridColumns = $rev_data['rev_stoictab_col'];
+		
 	$prodGridData = array();
 	$prodGridColumns = array();
-	$sql = "SELECT * FROM rxn_product_table WHERE rev_id = :revid";
+	$sql = "SELECT * FROM rxn_product_table WHERE exp_id = :exp_id AND table_rev_id = :tableid";
 	$req = $bdd->prepare($sql);
-	$req->execute(array('revid' => $expdata['rev_id']));
+	$req->execute(array(
+		'exp_id' => $id,
+		'tableid' => $rev_data['rev_prodtab_id']));
 	if ($req->rowcount() != 0) {
 		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
 			$prodGridData[] = $gridRow;
 		}
-		$prodGridColumns = $prodGridData[0]['columns'];
-		unset($prodGridData[0]['columns']);
 	}	
+	$prodGridColumns = $rev_data['rev_prodtab_col'];
 }
 
 
@@ -209,7 +211,7 @@ if ($rev_data['rev_body'] != ''){
   		var visibleColumnsProducts = [];
   		var visibleColumnsProductsNW = [];
   		<?php if($prodGridColumns) { ?>
-  			visibleColumnsProductsNW = JSON.parse('<?php echo $prodGridColumns;?>');
+  			visibleColumnsProductsNW = JSON.parse(<?php echo $prodGridColumns;?>);
   		<?php } ?>
   		
   		if(visibleColumnsProductsNW.length === 0) {
