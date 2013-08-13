@@ -61,7 +61,7 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 	} 
 	
 	$gridDatadb = array();
-	$gridColumns = array();
+	
 	$sql = "SELECT * FROM rxn_stoichiometry WHERE exp_id = :exp_id AND table_rev_id = :tableid";
 	$req = $bdd->prepare($sql);
 	$req->execute(array(
@@ -75,7 +75,6 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 	$gridColumns = $rev_data['rev_stoictab_col'];
 		
 	$prodGridData = array();
-	$prodGridColumns = array();
 	$sql = "SELECT * FROM rxn_product_table WHERE exp_id = :exp_id AND table_rev_id = :tableid";
 	$req = $bdd->prepare($sql);
 	$req->execute(array(
@@ -630,8 +629,8 @@ $status = $exp_data['status'];
 <input name='rxn_changed' id='rxn_changed' type='hidden' value='0' />
 <input name='grid_changed' id='grid_changed' type='hidden' value='0' />
 <input name='prodGrid_changed' id='prodGrid_changed' type='hidden' value='0' />
-<!-- <input name='gridColumns_changed' id='gridColumns_changed' type='hidden' value='0' />
-<input name='prodGridColumns_changed' id='prodGridColumns_changed' type='hidden' value='0' /> -->
+<input name='gridColumns_changed' id='gridColumns_changed' type='hidden' value='0' />
+<input name='prodGridColumns_changed' id='prodGridColumns_changed' type='hidden' value='0' />
 <hr class='flourishes'>
 	<?php 
 	// non-chemistry experiment section
@@ -661,7 +660,7 @@ $status = $exp_data['status'];
 <script>		
 
 function preSubmit() {
-
+debugger;
 	<?php if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') { ?>
 		rxn = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), reactionCanvas.getShapes()) || '';
 		if(rxnOrig !== rxn) {
@@ -692,9 +691,7 @@ function preSubmit() {
 	    	prodGridColumnsNW.push({id:prodGridColumns[i].id, width:prodGridColumns[i].width})
 	    }
 	    
-	   
-	    gridColumnsNW = JSON.stringify(gridColumnsNW);
-	    prodGridColumnsNW = JSON.stringify(prodGridColumnsNW);
+	  
 	    if(gridColumnsNW !== JSON.stringify(visibleColumnsNW)) {	
 	    	document.editXP.gridColumns_changed.value = '1';	   
 	    } 
@@ -702,8 +699,8 @@ function preSubmit() {
 	    if(prodGridColumnsNW !== JSON.stringify(visibleColumnsProductsNW)) {
 	    	document.editXP.prodGridColumns_changed.value = '1';
 	    }
-	    	document.editXP.grid_columns.value = JSON.stringify(gridColumnsNW);	    	
-	    	document.editXP.prodGrid_columns.value = JSON.stringify(prodGridColumnsNW);
+    	document.editXP.grid_columns.value = JSON.stringify(gridColumnsNW);	    	
+    	document.editXP.prodGrid_columns.value = JSON.stringify(prodGridColumnsNW);
 	  //  }		    
     <?php } ?>
     if(document.editXP.body_area.value !== '<?php echo stripslashes($rev_data['rev_body']); ?>') {
