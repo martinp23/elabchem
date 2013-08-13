@@ -660,7 +660,6 @@ $status = $exp_data['status'];
 <script>		
 
 function preSubmit() {
-debugger;
 	<?php if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') { ?>
 		rxn = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), reactionCanvas.getShapes()) || '';
 		if(rxnOrig !== rxn) {
