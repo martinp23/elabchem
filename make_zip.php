@@ -60,32 +60,62 @@ if(isset($_GET['id']) && !empty($_GET['id'])) {
     $zipname = kdate().".export.elabftw";
 
     $zipfile = 'uploads/export/'.$zipname."-".hash("sha512", uniqid(rand(), true)).".zip";
-
+    $useChemistry = false;
     $zip = new ZipArchive;
     $res = $zip->open($zipfile, ZipArchive::CREATE);
     if ($res === true) {
         foreach($id_arr as $id) {
             // MAIN LOOP
             ////////////////
-
+          
             // SQL to get title, body and date
-            $sql = "SELECT title, body, date, " .$useridref." FROM ".$table." WHERE id = $id";
-            $req = $bdd->prepare($sql);
-            $req->execute();
-            $data = $req->fetch();
+            
+            if ($table === 'experiments') {
+                $sql = "SELECT * FROM experiments WHERE id = :id";
+                $req = $bdd->prepare($sql);
+                $req->execute(array('id' => $id));
+                $exp_data = $req->fetch();  
+                
+                $sql = "SELECT * FROM revisions WHERE rev_id = :revid";
+                $req = $bdd->prepare($sql);
+                $req->execute(array('revid' => $exp_data['rev_id']));
+                $rev_data = $req->fetch();  
+                    
+                $title = stripslashes($rev_data['rev_title']);
+                $clean_title = preg_replace('/[^A-Za-z0-9]/', ' ', $title);
+                $date = $exp_data['date'];
+                // the name of the pdf is needed in make_zip
+                $clean_title = $date."-".preg_replace('/[^A-Za-z0-9]/', ' ', $title);
+                $body = stripslashes($rev_data['rev_body']);
+                $elabid = $exp_data['elabid'];
+                // name of the folder
+                // folder begin with date for experiments
+                $folder = $date."-".$clean_title;
+                
+                if ($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
+                    $useChemistry = true;
+                    // get reaction scheme
+                    $sql = "SELECT rxn_image FROM reactions WHERE rxn_id = :rev_rxn_id";
+                    $req = $bdd->prepare($sql);
+                    $req->execute(array('rev_rxn_id' => $rev_data['rev_reaction_id']));
+                    $rxn_result = $req->fetch(PDO::FETCH_ASSOC);
+                    $rxn_image = $rxn_result['rxn_image'];
+                }
+                $req->closeCursor();   
+            } else {
+                $sql = "SELECT title, body, date, " .$useridref." FROM ".$table." WHERE id = $id";
+                $req = $bdd->prepare($sql);
+                $req->execute();
+                $data = $req->fetch();
                 $title = stripslashes($data['title']);
                 // make a title without special char for folder inside .zip
                 $clean_title = preg_replace('/[^A-Za-z0-9]/', ' ', $title);
                 $date = $data['date'];
                 // name of the folder
-                // folder begin with date for experiments
-                if($table == 'experiments') {
-                    $folder = $date."-".$clean_title;
-                } else {
-                   $folder = $clean_title;
-                }
+
                 $body = stripslashes($data['body']);
-            $req->closeCursor();
+                $req->closeCursor();
+            }
 
             // SQL to get firstname + lastname
             $sql = "SELECT firstname,lastname FROM users WHERE userid = ".$_SESSION['userid'];
@@ -138,8 +168,13 @@ if(isset($_GET['id']) && !empty($_GET['id'])) {
         </style>";
                 $html .= "<section id='container'>Date : ".$date."<br />
             <span style='text-align: right;'>By : ".$firstname." ".$lastname."</span><br />
-            <div style='text-align: center;'><font size='10'>".$title."</font></span></div><br /><br />
-            ".$body."<br />";
+            <div style='text-align: center;'><font size='10'>".$title."</font></span></div><br /><br />";
+            
+                if($useChemistry) {
+                    $html .= "<img style='border:1px solid black;' src='".  str_replace('uploads/internal', 'html_files', $rxn_image) ."'/><br /><br />";
+                    $zip->addFile($rxn_image, $folder."/html_files/". str_replace('uploads/internal/', '', $rxn_image));
+                }
+                $html .= $body."<br />";
                 // files attached ?
                 $filenb = count($real_name);
                 if ($filenb > 0){
