@@ -258,11 +258,11 @@ function showXP($id, $display) {
 	
 	if ($exp_query['type'] === 'chemsingle' || $exp_query['type'] === 'chemparallel') {
 		// get reaction scheme
-		$sql = "SELECT rxn_mdl FROM reactions WHERE rxn_id = :rev_rxn_id";
+		$sql = "SELECT rxn_image FROM reactions WHERE rxn_id = :rev_rxn_id";
 		$req = $bdd->prepare($sql);
 		$req->execute(array('rev_rxn_id' => $rev_query['rev_reaction_id']));
 		$rxn_result = $req->fetch(PDO::FETCH_ASSOC);
-		$rxn_mdl = $rxn_result['rxn_mdl'];
+		$rxn_image = $rxn_result['rxn_image'];
 	}
 	
         if ($display === 'compact') {
@@ -295,11 +295,9 @@ function showXP($id, $display) {
     }
     echo "<p class='title'>". stripslashes($rev_query['rev_title']) . "</p>";
 	
-	if($rxn_mdl) {
+	if($rxn_image) {
 	?>	<p class = "schemeView">
-		<script type='text/javascript'>
-			schemeViewer(<?php echo json_encode($rxn_mdl);?>);
-	</script></p>
+		<img style="border:1px solid black;" src='<?php echo $rxn_image;?>' />  </p>
 	
 <?php	} //endif
     echo "</section>";

@@ -139,13 +139,9 @@ echo show_tags($id, 'experiments_tags');
 	  			visibleColumnsNW = JSON.parse('<?php echo $gridColumns;?>');
 	  		<?php } ?> </script>	
             <meta http-equiv="X-UA-Compatible" content="chrome=1">
-            <link rel="stylesheet" href="js/chemdoodleweb/ChemDoodleWeb.css" type="text/css">
             <link rel="stylesheet" href="js/slickgrid/slick.grid.css" type="text/css">
             <link rel="stylesheet" href="js/slickgrid/css/stoich-grid.css" type="text/css">
             <link rel="stylesheet" href="js/slickgrid/controls/slick.columnpicker.css" type="text/css">
-            <script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb-libs.js"></script>
-            <script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb.js"></script>      
-            <script type="text/javascript" src="js/schemeViewer.js"></script>
             <script type="text/javascript" src="js/slickgrid/lib/jquery.event.drag-2.2.js"></script>
             <script type="text/javascript" src="js/slickgrid/lib/jquery.event.drop-2.2.js"></script>
             <script type="text/javascript" src="js/slickgrid/slick.dataview.js"></script>
@@ -161,14 +157,9 @@ echo show_tags($id, 'experiments_tags');
             <script type="text/javascript" src="js/chem-formatters.js"></script>     
             <script type="text/javascript" src="js/stoic-table-view.js"></script>    
             <script type="text/javascript" src="js/chemistry-functions.js"></script>
-						
-			<script type='text/javascript'>
-
-				// put in a scheme viewer		
-			schemeViewer(<?php echo json_encode($rxn_data['rxn_mdl']);?>);
-
-
-	 </script></p></div>
+			
+			<img style="border:1px solid black;" src="<?php echo $rxn_data['rxn_image'];?>" />			
+</p></div>
 	    
 	    	</div><h4>Stoichiometry table</h4><br />
 	    

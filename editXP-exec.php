@@ -58,6 +58,7 @@ $prodGridColumnsChanged = check_bool($_POST['prodGridColumns_changed']);
 $bodyChanged = check_bool($_POST['body_changed']);
 $titleChanged = check_bool($_POST['title_changed']);
 $oldid = $_POST['oldid'];
+$rxn_png = $_POST['rxn_png'];
 
 // not sanitised! This is not committed to the db.
 $type = $_POST['type'];
@@ -97,14 +98,21 @@ $bdd->beginTransaction();
 		$prodTableRev;
 		$rxn_id;
     	if($rxnChanged) {
-	    	// do things slightly differently for chemistry expts
-			$sql = "INSERT INTO reactions(user_id, experiment_id, rxn_mdl) VALUES(:userid, :expid, :rxn)";
+    		
+			// first save our png of the reaction scheme
+			$pngData = base64_decode(substr($rxn_png, strpos($rxn_png, ",")+1));
+			$pngFileName = 'uploads/internal/rxn-scheme-' . $id . '-' . substr(md5(microtime()),rand(0,26),10) . '.png';
+			$fp = fopen($pngFileName, 'wb');
+			fwrite($fp, $pngData);
+			fclose($fp);
+			// then continue database insert
+			$sql = "INSERT INTO reactions(user_id, experiment_id, rxn_mdl, rxn_image) VALUES(:userid, :expid, :rxn, :rxn_image)";
 			$req = $bdd->prepare($sql);
 			$result = $req->execute(array(
 				'userid' => $_SESSION['userid'],
 				'expid' => $id,
-				'rxn'	=> $rxn ));
-				
+				'rxn'	=> $rxn,
+				'rxn_image' => $pngFileName ));	
 			$rxn_id = $bdd->lastInsertId();
 		} else {
 			$rxn_id = $oldrev['rev_reaction_id'];

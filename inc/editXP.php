@@ -89,7 +89,9 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 	
 	 ?>
 	 <!-- first just make the grid data available -->
-	<script type="text/javascript">var gridData = <?php echo json_encode($gridDatadb);?>;
+	<script type="text/javascript">
+	var gridData = <?php echo  json_encode($gridDatadb) ;?>;
+	
 		for (i in gridData) {
 			for(j in gridData[i]) {
 				if(gridData[i][j] === null) {
@@ -101,7 +103,7 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 		var gridDataOrig = JSON.stringify(gridData);
 		var visibleColumnsNW = [];
 		<?php if($gridColumns) { ?>
-  			visibleColumnsNW = JSON.parse(<?php echo $gridColumns;?>);
+  			visibleColumnsNW = JSON.parse(<?php echo "'" . $gridColumns . "'";?>);
   		<?php } ?>
 
 				var rxn = <?php echo json_encode((isset($rxn_data['rxn_mdl'])) ? $rxn_data['rxn_mdl'] : '');?>;
@@ -263,7 +265,7 @@ $status = $exp_data['status'];
   		var visibleColumnsProducts = [];
   		var visibleColumnsProductsNW = [];
   		<?php if($prodGridColumns) { ?>
-  			visibleColumnsProductsNW = JSON.parse(<?php echo $prodGridColumns;?>);
+  			visibleColumnsProductsNW = JSON.parse(<?php echo "'" . $prodGridColumns . "'";?>);
   		<?php } ?>
   		
   		if(visibleColumnsProductsNW.length === 0) {
@@ -622,6 +624,7 @@ $status = $exp_data['status'];
 	
 </script><br />
 <input name='rxn_input' type='hidden' value='' />
+<input name='rxn_png' type='hidden' value='' />
 <input name='grid_input' type='hidden' value='' />
 <input name='prodGrid_input' type='hidden' value='' />
 <input name='grid_columns' type='hidden' value='' />
@@ -665,6 +668,10 @@ function preSubmit() {
 		if(rxnOrig !== rxn) {
 			document.editXP.rxn_changed.value = '1';
 	    	document.editXP.rxn_input.value = rxn;
+	    	reactionCanvas.lasso.empty();
+	    	reactionCanvas.repaint(false);
+	    	document.editXP.rxn_png.value = document.getElementById('reaction').toDataURL("image/png");
+	    	reactionCanvas.repaint();
 	    }
 	    var gridDataNew = JSON.stringify(grid.getData()) || '';
 	    if (gridDataOrig !== gridDataNew) {
