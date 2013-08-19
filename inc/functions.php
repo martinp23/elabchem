@@ -487,6 +487,15 @@ function make_pdf($id, $type, $out = 'browser') {
    	    $clean_title = $date."-".preg_replace('/[^A-Za-z0-9]/', ' ', $title);
         $body = stripslashes($rev_data['rev_body']);
  	    $elabid = $exp_data['elabid'];
+        
+        if ($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
+            // get reaction scheme
+            $sql = "SELECT rxn_image FROM reactions WHERE rxn_id = :rev_rxn_id";
+            $req = $bdd->prepare($sql);
+            $req->execute(array('rev_rxn_id' => $rev_data['rev_reaction_id']));
+            $rxn_result = $req->fetch(PDO::FETCH_ASSOC);
+            $rxn_image = $rxn_result['rxn_image'];
+        }
     }
 		
     else {
@@ -524,8 +533,11 @@ function make_pdf($id, $type, $out = 'browser') {
     // build content of page
     $content = "<h1>".$title."</h1><br />
         Date : ".$date."<br />
-        <em>Keywords : ".$tags."</em><br />
-        <hr>".$body."<br /><br />
+        <em>Keywords : ".$tags."</em><br />";
+        if (isset($rxn_image)) {
+            $content .= "<img src='". $rxn_image ."'/>";
+        }
+        $content .= "<hr>".$body."<br /><br />
         <hr>Made by : ".$firstname." ".$lastname."<br /><br />";
     // QR CODE
     if (!empty($_SERVER['HTTPS'])) {
