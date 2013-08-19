@@ -30,14 +30,7 @@ require_once('inc/head.php');
 require_once('inc/menu.php');
 require_once('inc/info_box.php');
 ?>
-<!-- load schemeviewer stuff for results -->
-<script type="text/javascript">
-	$("head").append('<meta http-equiv="X-UA-Compatible" content="chrome=1">',
-				'<link rel="stylesheet" href="js/chemdoodleweb/ChemDoodleWeb.css" type="text/css">',
-				'<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb-libs.js"/>',
-				'<script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb.js"/>',
-				'<script type="text/javascript" src="js/schemeViewer.js"/>');
-</script>
+
 <!-- Advanced Search page begin -->
 <div class='item'>
     <div class='align_left'>
