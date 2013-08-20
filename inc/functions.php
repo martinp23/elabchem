@@ -462,6 +462,180 @@ function check_bool($input) {
 	}
 }
 
+function get_html_table($gridDatadb, $gridColumns) {
+    // now construct a 2D array for stoichiometry data, extracting the data 
+    // from gridDatadb that we will want to display, based on gridColumns
+    $rowIndex = 0;
+    $filteredGridData = array();
+    foreach($gridDatadb as $row) {
+        for($j = 0; $j < count($row); $j++) {
+            $filteredGridData[$rowIndex] = array();
+            for($i = 0; $i < count($gridColumns); $i++) {
+                if(isset($row[$gridColumns[$i]['id']])) {
+                    $filteredGridData[$rowIndex][$gridColumns[$i]['id']] = $row[$gridColumns[$i]['id']];   
+                    if(isset($row[$gridColumns[$i]['id'].'_units'])) {
+                        // if we have a "value_units" preference set, let's change our value to  a string correctly
+                        // formatted for display.
+                        $filteredGridData[$rowIndex][$gridColumns[$i]['id']] = round(fromSI($filteredGridData[$rowIndex][$gridColumns[$i]['id']], $row[$gridColumns[$i]['id'].'_units']),2). ' '.$row[$gridColumns[$i]['id'].'_units'];
+                    }
+                   // change "limiting" to a checkbox
+                   if($gridColumns[$i]['id'] === 'limiting') {
+                       if($filteredGridData[$rowIndex]['limiting'] == 1) {
+                           $filteredGridData[$rowIndex]['limiting'] = '&#10004;';
+                       } else {
+                           $filteredGridData[$rowIndex]['limiting'] = '';
+                       }
+                   }
+                }
+                
+            }
+        }
+    $rowIndex++;
+    }
+    
+    // now remove columns from $gridColumns for which there is no data in any rows of $filteredGridData
+    
+    for($i = count($gridColumns); $i >= 0; $i--) {
+        $keepColumn = false;
+        for($j =0; $j < count($filteredGridData); $j++) {
+            if(isset($filteredGridData[$j][$gridColumns[$i]['id']])) {
+                $keepColumn = true;
+            }
+        }
+        if(!$keepColumn) {
+            unset($gridColumns[$i]);
+        }
+    }
+    // need to rebase array after unsetting elements
+    $gridColumns = array_values($gridColumns);
+    // now $gridColumns is a list of all of the columns we want in our table
+    // and $filteredGridData is all of the corresponding data, organised as table rows
+    // it just remains to construct the html for the table.
+    
+    $table = '<table style="border:1px solid black;border-collapse:collapse;"><tr>';
+    for($i = 0; $i < count($gridColumns); $i++) {
+        if($i !== count($gridColumns)-1) {
+            $table .= '<th style="border-right:1px solid black;border-bottom:1px solid black;padding:3px">'.getColNameFromId($gridColumns[$i]['id']).'</th>';
+        } else {
+            $table .= '<th style="border-bottom:1px solid black;padding:3px">'.getColNameFromId($gridColumns[$i]['id']).'</th>';            
+        }
+    }
+    $table .= '</tr>';
+    
+    foreach($filteredGridData as $row) {
+        $table .= '<tr>';
+        for($i = 0; $i < count($gridColumns); $i++) {
+            if($i !== count($gridColumns)-1) {
+                $table .= '<td style="border-right:1px solid black;padding:3px">';
+            } else {
+                $table .= '<td style="padding:3px">';                
+            }
+            $table .= isset($row[$gridColumns[$i]['id']]) ? $row[$gridColumns[$i]['id']] : '';
+            $table .= '</td>';
+        }
+        $table .= '</tr>';
+    }
+    
+    $table .= '</table>';
+    return $table;
+}
+
+function getColNameFromId($id) {
+    switch ($id) {
+        case 'cpd_name':
+            return "Name";
+        case 'cpd_type':
+            return "Type";
+        case 'mwt':
+            return "Mol. wt.";
+        case 'mol':
+            return "Moles";
+        case 'vol':
+            return "Volume";
+        case 'conc':
+            return "Conc.";       
+        case 'equiv':
+            return "Type";
+        case 'wtpercent':
+            return "w/w %";   
+        case 'cas_number':
+            return "CAS number"; 
+        case 'batch_ref':
+            return "Batch ref";  
+        case 'batchref':
+            return "Ref.";
+        case 'yield':
+            return '% Yield';
+        case 'purity':
+            return '% purity';
+        case 'nmr_ref':
+            return 'NMR ref.';
+        case 'anal_ref1':
+            return "Analytical ref. 1";
+        case 'anal_ref2':
+            return "Analytical ref. 2"; 
+        case 'mpt':
+            return "Melt. pt.";         
+        case 'alphad':
+            return "&alpha;D";                    
+        default:
+            return ucfirst($id);                 
+   }
+}
+
+function fromSI($value, $units) {
+    switch ($units) {
+        // mass (base: g)
+        case 'kg':
+            return $value / 1000;
+        case 'mg':
+            return $value * 1000;
+        case 'µg':
+            return $value * 1000000;
+        case 'ng':
+            return $value * 1000000000;
+        // amount (base: mol)
+        case 'mmol':
+            return $value * 1000;
+        case 'µmol':
+            return $value * 1000000;
+        case 'nmol':
+            return $value * 1000000000;
+        // mol weight (base: g/mol)
+        case 'kg/mol':
+            return $value / 1000;
+        case 'mg/mol':
+            return $value * 1000;
+        // Volume (base: L)
+        case 'm3':
+            return $value / 1000;
+        case 'dL':
+            return $value * 10;
+        case 'mL':
+            return $value * 1000;
+        case 'µL':
+            return $value * 1000000;
+        case 'nL':
+            return $value * 1000000000;
+        // Concentration (SI: mol/L or M)
+        case 'mol/m3':
+            return $value * 1000;
+        case 'mM':
+            return $value * 1000;
+        case 'µM':
+            return $value * 1000000;
+        case 'nM':
+            return $value * 1000000000;
+        // Density (SI: g/L)
+        case 'kg/L':
+            return $value / 1000;
+        case 'g/mL':
+            return $value / 1000;
+        default:
+            return $value; // in SI unit
+    }
+    
+}
 
 function make_pdf($id, $type, $out = 'browser') {
     // make a pdf
@@ -495,6 +669,44 @@ function make_pdf($id, $type, $out = 'browser') {
             $req->execute(array('rev_rxn_id' => $rev_data['rev_reaction_id']));
             $rxn_result = $req->fetch(PDO::FETCH_ASSOC);
             $rxn_image = $rxn_result['rxn_image'];
+            
+                // get stoichiometry grid data from db
+            $gridDatadb = array();
+            $gridColumns = array();
+            $sql = "SELECT * FROM rxn_stoichiometry WHERE exp_id = :exp_id AND table_rev_id = :tableid";
+            $req = $bdd->prepare($sql);
+            $req->execute(array(
+                'exp_id' => $rev_data['experiment_id'],
+                'tableid' => $rev_data['rev_stoictab_id']));
+            if ($req->rowcount() != 0) {
+                while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
+                    $gridDatadb[] = $gridRow;
+                }   
+            }
+            $gridColumns = json_decode($rev_data['rev_stoictab_col'],1);
+                    
+            // get product grid data from db
+            $prodGridData = array();
+            $prodGridColumns = array();
+            $sql = "SELECT * FROM rxn_product_table WHERE exp_id = :exp_id AND table_rev_id = :tableid";
+            $req = $bdd->prepare($sql);
+            $req->execute(array(
+                'exp_id' => $id,
+                'tableid' => $rev_data['rev_prodtab_id']));
+            if ($req->rowcount() != 0) {
+                while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
+                    // for($i=0;$i < count($gridRow); $i++) {
+                        // if(!isset($gridRow[$i])) {
+                            // unset($gridRow[$i]);
+                        // } 
+                    // }
+                    $prodGridData[] = $gridRow;
+                }
+            }   
+            $prodGridColumns = json_decode($rev_data['rev_prodtab_col'],1);
+            
+            $stoicTable = get_html_table($gridDatadb, $gridColumns);
+            $prodTable = get_html_table($prodGridData, $prodGridColumns);
         }
     }
 		
@@ -535,10 +747,17 @@ function make_pdf($id, $type, $out = 'browser') {
         Date : ".$date."<br />
         <em>Keywords : ".$tags."</em><br />";
         if (isset($rxn_image)) {
-            $content .= "<img src='". $rxn_image ."'/>";
+            $content .= "<div align=center><img align=center src='". $rxn_image ."'/></div><hr>";
+        } else
+            $content .= "<hr>";
+        if (isset($stoicTable)) {
+            $content .= "<h4>Stoichiometry table:</h4>".$stoicTable."<br/>";
         }
-        $content .= "<hr>".$body."<br /><br />
-        <hr>Made by : ".$firstname." ".$lastname."<br /><br />";
+        $content .= "<div style='border:1px solid black; padding:5px; padding-bottom:20px;'>".$body."</div>";
+        if (isset($prodTable)) {
+            $content .= "<h4>Product table:</h4>".$prodTable . "<br /><br />";
+        }
+        $content .= "<hr>Made by : ".$firstname." ".$lastname."<br /><br />";
     // QR CODE
     if (!empty($_SERVER['HTTPS'])) {
         $protocol = 'https://';

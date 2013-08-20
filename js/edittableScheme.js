@@ -27,7 +27,6 @@
 ChemDoodle.ELEMENT['H'].jmolColor = 'black';
 // darkens the default JMol color of sulfur so it appears on white backgrounds
 ChemDoodle.ELEMENT['S'].jmolColor = '#B9A130';
-
 var reactionCanvas = new ChemDoodle.SketcherCanvas('reaction', 600, 200, {useServices:false});
 reactionCanvas.specs.atoms_displayTerminalCarbonLabels_2D = true;
 // sets atom labels to be colored by JMol colors, which are easy to recognize
@@ -114,7 +113,6 @@ function updateStoichTable()
                     }
                 }
                 
-                
                 // if we have the same number of "missing matches" as we do new compounds, the user has probably edited 
                 // (an) existing compound(s). So we should update what we can and recalculate the grid.
                 if( newCompounds.length == missingRows.length && numCompoundsInTable === numReact) {
@@ -123,6 +121,7 @@ function updateStoichTable()
                         // put dbdata[i] into reactantGridData[i];
                         // then do the updating stuff based on change to mwt and to density.
                         reactantGridData[missingRows[i]].mwt = newCompounds[i].mwt;
+                        reactantGridData[missingRows[i]].mwt_units = newCompounds[i].mwt_units;
                         reactantGridData[missingRows[i]].formula = newCompounds[i].formula;
                         reactantGridData[missingRows[i]].inchi = newCompounds[i].inchi;
                         reactantGridData[missingRows[i]].cpd_name = newCompounds[i].cpd_name || "";
@@ -172,6 +171,7 @@ function updateStoichTable()
                     for (i=0; i<missingRows.length; i++) {
                         var gridRowIndex = missingRows[i]+numAddedCompounds;
                         reactantGridData[gridRowIndex].mwt = newCompounds[i].mwt;
+                        reactantGridData[gridRowIndex].mwt_units = newCompounds[i].mwt_units;
                         reactantGridData[gridRowIndex].formula = newCompounds[i].formula;
                         reactantGridData[gridRowIndex].inchi = newCompounds[i].inchi;
                         reactantGridData[gridRowIndex].cpd_name = newCompounds[i].cpd_name;
@@ -202,7 +202,7 @@ function updateStoichTable()
                     }
                 }
                 grid.setData(reactantGridData);
-                grid.render();  
+                grid.render();
             }
         });
 }

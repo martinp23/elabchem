@@ -245,7 +245,7 @@ $status = $exp_data['status'];
 	  	var	columnsProducts = [
   			{id: "del", name: "", field:"del", width:10, formatter:delButtonFormatter, init_visible:true},
   			{id: "copy", name: "", field:"copy", width:10, formatter:copyButtonFormatter, init_visible:true},
-  			{id: "name", name: "Name", field:"cpd_name", width:150, init_visible:true},
+  			{id: "cpd_name", name: "Name", field:"cpd_name", width:150, init_visible:true},
   			{id: "batchref", name: "Ref.", field:"batch_ref", init_visible:true, editor:Slick.Editors.Text},
   			{id: "mass", name: "Mass", field:"mass", groupTotalsFormatter: massTotalsFormatter, init_visible:true, editor:chemEditor, formatter:massFormatter},
   			{id: "mwt", name: "Mol wt.", field:"mwt", init_visible:false, editor:chemEditor, formatter:mwtFormatter},
@@ -503,12 +503,12 @@ $status = $exp_data['status'];
 	            	productsResults = [];
 	            	var prodGridData = dataViewProducts.getItems();
 	       			for (var i=0; i<dbdata.products.length; i++) {
-	       				productsResults.push({"name": dbdata.products[i].name, "mwt":dbdata.products[i].mwt, "inchi":dbdata.products[i].inchi, "cpd_id":dbdata.products[i].id, "cas_number":dbdata.products[i].cas_number, "mdl":this.productsArr[i]});
+	       				productsResults.push({"cpd_name": dbdata.products[i].name, "mwt":dbdata.products[i].mwt, "inchi":dbdata.products[i].inchi, "cpd_id":dbdata.products[i].id, "cas_number":dbdata.products[i].cas_number, "mdl":this.productsArr[i]});
 		       			
 		       			for (var j=0; j<prodGridData.length; j++) {
 		       				if(prodGridData[j].inchi === productsResults[i].inchi) {
 		       					// if this is satisfied, our product already exists once in the table. The name from the table should therefore be correct, so let's use it.
-		       					productsResults[i].name = prodGridData[j].name;
+		       					productsResults[i].cpd_name = prodGridData[j].cpd_name;
 		       					productsResults[i].namefixed = true;
 		       				}
 		       				else {
@@ -523,12 +523,12 @@ $status = $exp_data['status'];
 	       			for (var i=0; i<prodGridData.length; i++) {
 	       				var foundName = false;
 	       				for (var j=0; j<productsResults.length; j++) {
-	       					if(productsResults[j].name === prodGridData[i].name) {
+	       					if(productsResults[j].cpd_name === prodGridData[i].cpd_name) {
 	       						foundName = true;
 	       					}
 	       				}
 	       				if(!foundName) {
-	       					productsResults.push({"name": prodGridData[i].name, "mwt": prodGridData[i].mwt})
+	       					productsResults.push({"cpd_name": prodGridData[i].cpd_name, "mwt": prodGridData[i].mwt})
 	       					productsResults[productsResults.length-1].namefixed = true;
 	       				}
 	       			}
@@ -550,7 +550,7 @@ $status = $exp_data['status'];
 						code += "<div class='prodDialogInputContainer'>";
 						// first product name. If the name is already in the table, the field is disabled and read-only. Otherwise, they can change it.
 						code += "<label for='prodName"+i+ "'>Name:</label>";
-						code += "<input type='text' id='prodName"+i+"' style='width:60%' class='prodDialogInputText' value='" + productsResults[i]['name'] +"' ";
+						code += "<input type='text' id='prodName"+i+"' style='width:60%' class='prodDialogInputText' value='" + productsResults[i]['cpd_name'] +"' ";
 						if(productsResults[i]['namefixed']) {
 							code +=	"disabled='disabled' ";
 						}

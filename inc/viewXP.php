@@ -182,7 +182,7 @@ if ($rev_data['rev_body'] != ''){
   	<script>
   		var prodGridData = JSON.parse('<?php echo json_encode($prodGridData);?>');
 	  	var	columnsProducts = [
-  			{id: "name", name: "Name", field:"cpd_name", width:150, init_visible:true},
+  			{id: "cpd_name", name: "Name", field:"cpd_name", width:150, init_visible:true},
   			{id: "batchref", name: "Ref.", field:"batch_ref", init_visible:true, editor:Slick.Editors.Text},
   			{id: "mass", name: "Mass", field:"mass", groupTotalsFormatter: massTotalsFormatter, init_visible:true, editor:chemEditor, formatter:massFormatter},
   			{id: "mwt", name: "Mol wt.", field:"mwt", init_visible:false, editor:chemEditor, formatter:mwtFormatter},
@@ -202,7 +202,7 @@ if ($rev_data['rev_body'] != ''){
   		var visibleColumnsProducts = [];
   		var visibleColumnsProductsNW = [];
   		<?php if($prodGridColumns) { ?>
-  			visibleColumnsProductsNW = JSON.parse(<?php echo $prodGridColumns;?>);
+  			visibleColumnsProductsNW = JSON.parse(<?php echo "'".$prodGridColumns."'";?>);
   		<?php } ?>
   		
   		if(visibleColumnsProductsNW.length === 0) {

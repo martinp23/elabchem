@@ -26,7 +26,7 @@ var grid;
 var visibleColumns = [];
 
 var columns = [
-	{id: "name", name: "Name", field: "cpd_name", width:175, cssClass: "cell-title", init_visible:true, editor:Slick.Editors.Text},
+	{id: "cpd_name", name: "Name", field: "cpd_name", width:175, cssClass: "cell-title", init_visible:true, editor:Slick.Editors.Text},
 	{id: "formula", name: "Formula", field: "formula", init_visible:true, editor:Slick.Editors.Text},
 	{id: "cpd_type", name: "Type", field: "cpd_type", init_visible:true, editor:chemType},
 	{id: "mwt", name: "Mol. wt.", field: "mwt", init_visible:true, editor:chemEditor, formatter:mwtFormatter},

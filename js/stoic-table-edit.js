@@ -27,7 +27,7 @@ var visibleColumns = [];
 
 var columns = [
     {id: "del", name: "", field:"del", width:10, formatter:delButtonFormatter, init_visible:true},
-    {id: "name", name: "Name", field: "cpd_name", cssClass: "cell-title", init_visible:true, editor:Slick.Editors.Text},
+    {id: "cpd_name", name: "Name", field: "cpd_name", cssClass: "cell-title", init_visible:true, editor:Slick.Editors.Text},
     {id: "formula", name: "Formula", field: "formula", init_visible:true, editor:Slick.Editors.Text},
     {id: "cpd_type", name: "Type", field: "cpd_type", init_visible:true, editor:chemType},
     {id: "mwt", name: "Mol. wt.", field: "mwt", init_visible:true, editor:chemEditor, formatter:mwtFormatter},
@@ -124,7 +124,6 @@ $(function() {
         });
         
         grid.onBeforeEditCell.subscribe(function(e,args) {
-            
             if (args.item && args.item.cpd_type === 'Solvent' && (args.column.id === 'conc' || args.column.id === 'limiting' || args.column.id === 'wtpercent'|| args.column.id === 'solvent')) {
                 return false;
           }

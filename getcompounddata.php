@@ -43,6 +43,7 @@
 	        $req->execute( array('cid' => $compoundId));
 			$result = $req->fetch(PDO::FETCH_ASSOC);
 			$result['inchi'] = $inchi;
+            $result['mwt_units'] = 'g/mol';
 			$result = array_filter($result);
 			$reactant_results[] = $result;			
 		} else {
@@ -58,6 +59,7 @@
 			$result['cpd_name'] = null;
 			$result['density'] = null;
 			$result['cas_number'] = null;
+            $result['mwt_units'] = 'g/mol';
 			$reactant_results[] = $result;		
 		};
 	};
@@ -75,6 +77,7 @@
 	        $req->execute( array('cid' => $compoundId));
 			$result = $req->fetch(PDO::FETCH_ASSOC);
 			$result['inchi'] = $inchi;
+            $result['mwt_units'] = 'g/mol';
 			$product_results[] = $result;			
 		} else {
 			$moleculeJson = json_encode($molecule);
@@ -86,6 +89,7 @@
 			$result['mwt'] = $data[0];
 			$result['formula'] = $data[1];
 			$result['inchi'] = $inchi;
+            $result['mwt_units'] = 'g/mol';
 			$product_results[] = $result;		
 		};
 	};	
@@ -118,30 +122,5 @@
 		};
 	};
 	
-	function getReactantInfo($compoundId,$molecule) {
-		if ($compoundId) {
-			$sql = "SELECT c.id, c.name, c.iupac_name, c.cas_number, cp.mwt, cp.formula 
-			FROM compounds c INNER JOIN compound_properties cp 
-			ON c.id = cp.compound_id 
-			WHERE c.id= :cid;";
-	        $req = $bdd->prepare($sql);
-	        $req->execute( array('cid' => $compoundId));
-			$result = $req->fetch();
-			$result['inchi'] = $inchi;
-			$reactant_results[] = $result;			
-		} else {
-			$moleculeJson = json_encode($molecule);
-			$sql = "SELECT MOLWEIGHT(:molecule), MOLFORMULA(:molecule);";
-	        $req = $bdd->prepare($sql);
-	        $req->execute( array('molecule' => $molecule));
-			$data = $req->fetch();
-			$result['mwt'] = $data[0];
-			$result['formula'] = $data[1];
-			$result['inchi'] = $inchi;
-			$reactant_results[] = $result;		
-			// We need to generate mwt and formula
-		};
-		return $reactant_results;
-	};
-	
+
 ?>
