@@ -258,6 +258,33 @@ CREATE TABLE IF NOT EXISTS `reactions` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `rel_exp_structure_prod`
+--
+
+DROP TABLE IF EXISTS `rel_exp_structure_prod`;
+CREATE TABLE IF NOT EXISTS `rel_exp_structure_prod` (
+  `rel_id` int(10) NOT NULL AUTO_INCREMENT,
+  `exp_id` int(10) NOT NULL,
+  `cpd_id` int(11) NOT NULL,
+  PRIMARY KEY (`rel_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rel_exp_structure_react`
+--
+
+DROP TABLE IF EXISTS `rel_exp_structure_react`;
+CREATE TABLE IF NOT EXISTS `rel_exp_structure_react` (
+  `rel_id` int(10) NOT NULL AUTO_INCREMENT,
+  `exp_id` int(10) NOT NULL,
+  `cpd_id` int(11) NOT NULL,
+  PRIMARY KEY (`rel_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+--
 -- Table structure for table `revisions`
 --
 

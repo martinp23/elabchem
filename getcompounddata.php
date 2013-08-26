@@ -24,6 +24,7 @@
 *                                                                               *
 ********************************************************************************/
 	require_once('inc/connect.php');
+    require_once('inc/functions.php');
 	
 	$reactants = $_REQUEST['reactants'];
 	$products = $_REQUEST['products'];
@@ -97,30 +98,6 @@
 	
 	echo json_encode(array("reactants" => $reactant_results, "products"=>$product_results));
 	
-	function getInChI($molecule,$bdd) {
-		$moleculeJson = json_encode($molecule);
-		$sql = "SELECT MOLECULE_TO_INCHI(:molecule)";
-        $req = $bdd->prepare($sql);
-        $req->execute(array('molecule' => $molecule));
-		$result = $req->fetch();
-        return $result[0];
-		
-	};
-	
-	function findInChI($inchi,$bdd) {
-		$sql = "SELECT compound_id from `1D_structures` WHERE inchi = :inchi";
-		$req = $bdd->prepare($sql);
-		$req->execute( array('inchi' => $inchi));
-		$results = array();
-		while ($data = $req->fetch()) {
-            $results[] = $data['compound_id'];
-        };
-		if(count($results) == 1) {
-			return $results[0];
-		} else {
-			return false;
-		};
-	};
 	
 
 ?>

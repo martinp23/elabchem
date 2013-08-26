@@ -970,4 +970,28 @@ function duplicate_item($id, $type) {
     }
 }
 
+function getInChI($molecule,$bdd) {
+    $sql = "SELECT MOLECULE_TO_INCHI(:molecule)";
+    $req = $bdd->prepare($sql);
+    $req->execute(array('molecule' => $molecule));
+    $result = $req->fetch();
+    return $result[0];
+    
+};
+
+function findInChI($inchi,$bdd) {
+    $sql = "SELECT compound_id from `1D_structures` WHERE inchi = :inchi";
+    $req = $bdd->prepare($sql);
+    $req->execute( array('inchi' => $inchi));
+    $results = array();
+    while ($data = $req->fetch()) {
+        $results[] = $data['compound_id'];
+    };
+    if(count($results) == 1) {
+        return $results[0];
+    } else {
+        return false;
+    };
+};
+
 ?>

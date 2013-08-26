@@ -105,7 +105,7 @@ $bdd->beginTransaction();
 			$fp = fopen($pngFileName, 'wb');
 			fwrite($fp, $pngData);
 			fclose($fp);
-			// then continue database insert
+			// then continue database insert of reaction scheme
 			$sql = "INSERT INTO reactions(user_id, experiment_id, rxn_mdl, rxn_image) VALUES(:userid, :expid, :rxn, :rxn_image)";
 			$req = $bdd->prepare($sql);
 			$result = $req->execute(array(
@@ -114,6 +114,96 @@ $bdd->beginTransaction();
 				'rxn'	=> $rxn,
 				'rxn_image' => $pngFileName ));	
 			$rxn_id = $bdd->lastInsertId();
+			
+			// then we want to separate our rxn scheme into products and reactant molecules
+			$rxn_content = explode("\$MOL\n", $rxn);
+            $header_lines = explode("\n", $rxn_content[0]);
+            $num_react = intval(substr($header_lines[4], 0,3));
+            $num_prod = intval(substr($header_lines[4], 3,6));
+            $molecules = array();
+            for ($i = 0; $i < $num_react + $num_prod; $i ++) {
+                $molecules[] = $rxn_content[$i+1];
+            }
+            
+			
+			// then get the compound number (from compounds table) for each molecule. If molecule isn't in table,
+			// put it in and generate fingerprints
+			$cids = array();
+			for($i = 0; $i < count($molecules); $i++) {
+			    $inchi = getInChI($molecules[$i], $bdd);
+			    $cid = findInChI($inchi, $bdd);
+			    if ($cid) {
+			        $cids[] = $cid;
+			    }
+                else {
+                    $sql = "INSERT INTO compounds(name, created, user_id_entrant) VALUES('', NOW(), :userid)";
+                    $req = $bdd->prepare($sql);
+                    $result = $req->execute(array(
+                        'userid' => $_SESSION['userid']));
+                    
+                    $cid = $bdd->lastInsertId();    
+
+                    $sql = "INSERT INTO 3D_structures(compound_id, molfile) VALUES(:cid, :molfile)";
+                    $req = $bdd->prepare($sql);
+                    $result = $req->execute(array(
+                        'cid'     => $cid,
+                        'molfile' => $molecules[$i]));
+                    
+                    $sql = "INSERT INTO `1D_structures` (`compound_id`,`inchi`,`smiles`) SELECT `compound_id`, MOLECULE_TO_INCHI(`molfile`), MOLECULE_TO_SMILES(`molfile`) FROM `3D_structures` WHERE `compound_id` = :cid;";
+                    $req = $bdd->prepare($sql);
+                    $result = $req->execute(array(
+                        'cid'     => $cid));
+
+                    $sql = "INSERT INTO `bin_structures` (`compound_id`,`fp2`,`obserialized`) SELECT `compound_id`, FINGERPRINT2(`molfile`), MOLECULE_TO_SERIALIZEDOBMOL(`molfile`) FROM `3D_structures` WHERE `compound_id` = :cid;";
+                    $req = $bdd->prepare($sql);
+                    $result = $req->execute(array(
+                        'cid'     => $cid));
+    
+                    $sql = "INSERT INTO compound_properties (compound_id, mwt, exact_mass, clogp, formula, num_donor, num_acceptor, num_heavyat, num_rings, num_rot_bond, tot_charge, num_atom, num_bond, mol_psa, is_chiral) SELECT compound_id, MOLWEIGHT(molfile), EXACTMASS(molfile), MOLLOGP(ADD_HYDROGENS(molfile)), molformula(molfile), NUMBER_OF_DONORS(ADD_HYDROGENS(molfile)), NUMBER_OF_ACCEPTORS(ADD_HYDROGENS(molfile)), NUMBER_OF_HEAVY_ATOMS(molfile), NUMBER_OF_RINGS(molfile), NUMBER_OF_ROTABLE_BONDS(molfile), TOTAL_CHARGE(molfile), NUMBER_OF_ATOMS(ADD_HYDROGENS(molfile)), NUMBER_OF_BONDS(ADD_HYDROGENS(molfile)), MOLPSA(ADD_HYDROGENS(molfile)), IS_CHIRAL(molfile) FROM 3D_structures WHERE `compound_id` = :cid;";
+                    $req = $bdd->prepare($sql);
+                    $result = $req->execute(array(
+                        'cid'     => $cid));
+                    
+                    $cids[] = $cid;
+                }
+			}
+			
+		    // let's set up some arrays equipped to do a multi-line mysql insert w/PDO
+			for($i = 0; $i < $num_react; $i++) {
+			    $reacts_to_insert[] = $id;
+			    $reacts_to_insert[] = $cids[$i];
+			}
+			for($i = $num_react; $i < $num_prod+$num_react; $i++) {
+			    $prods_to_insert[] = $id;
+                $prods_to_insert[] = $cids[$i];
+            }
+            
+            // and then populate relation tables to x-reference exp_id and cpd_ids.
+            // first by deleting any existing crossreferences for the given expt
+            $sql = "DELETE FROM rel_exp_structure_react WHERE exp_id = :exp_id";
+            $req = $bdd->prepare($sql);
+            $result = $req->execute(array(
+                'exp_id'    => $id));
+            
+            $sql = "DELETE FROM rel_exp_structure_prod WHERE exp_id = :exp_id";
+            $req = $bdd->prepare($sql);
+            $result = $req->execute(array(
+                'exp_id'    => $id));
+            
+            if($num_react > 0) {
+                $insertPlaceHolder = implode(',', array_fill(0, count($num_react), '(?,?)'));
+                $sql = "INSERT INTO rel_exp_structure_react (exp_id, cpd_id) VALUES " . $insertPlaceHolder;
+                $req = $bdd->prepare($sql);
+                $result = $req->execute($reacts_to_insert);
+            }
+            
+            if($num_prod > 0) {
+                $insertPlaceHolder = implode(',', array_fill(0, count($num_prod), '(?,?)'));                
+                $sql = "INSERT INTO rel_exp_structure_prod (exp_id, cpd_id) VALUES " . $insertPlaceHolder;
+                $req = $bdd->prepare($sql);
+                $result = $req->execute($prods_to_insert);
+            }
+			
 		} else {
 			$rxn_id = $oldrev['rev_reaction_id'];
 		}
