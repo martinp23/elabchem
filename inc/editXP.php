@@ -492,6 +492,7 @@ $status = $exp_data['status'];
 	            data:{reactants:reactants, products:products},
 	            dataType: "json",
 	            productsArr: products,
+	            type: 'POST',
 	            
 	            success: function(dbdata) {
 	            	// we're going to build a collection of "possible products" (unique by name) from the scheme and from existing entries in the product table
