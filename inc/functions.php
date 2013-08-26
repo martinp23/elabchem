@@ -140,6 +140,36 @@ function has_attachement($id) {
 }
 
 
+
+// substructure search across all structures in all experiments
+function substruc_search_rxns($fragmentmol, $table, $explist) {
+    global $bdd;
+    $results_arr = array();
+    $sql = "SELECT MOLECULE_TO_SMILES(:molecule)";
+    $req = $bdd->prepare($sql);
+    $result = $req->execute(array(
+        'molecule'  => $fragmentmol));
+    $smiles = $req->fetch();
+    
+    $sql = "SELECT t.exp_id FROM bin_structures as bin INNER JOIN $table AS t ON 
+                bin.compound_id=t.cpd_id WHERE ";
+    if($explist) {
+        $sql .= "t.exp_id IN (". implode(",", array_fill(0,count($explist),'?')) . ") AND ";
+    } else {
+        $explist = array();
+    }
+    $sql .= "MATCH_SUBSTRUCT(?, `obserialized`)";
+    $req = $bdd->prepare($sql);
+    $query_values = array_merge($explist,array($smiles[0]));
+    $result = $req->execute($query_values);
+    while ($data = $req->fetch()) {
+        $results_arr[] = $data['exp_id'];
+    }
+    
+    return array_reverse(array_unique($results_arr)); 
+}
+
+
 // Search item
 function search_item($type, $query, $userid) {
     global $bdd;
@@ -450,6 +480,16 @@ function check_status($input) {
         }
     } else {
         return NULL;
+    }
+}
+
+function check_search_type($input) {
+    if((isset($input)) && (!empty($input))){
+        if(($input === 'exact') || ($input === 'substructure') || ($imput === 'similarity')){
+            return $input;
+        }
+    } else {
+        return 'exact';
     }
 }
 
