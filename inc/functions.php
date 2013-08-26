@@ -166,9 +166,24 @@ function substruc_search_rxns($fragmentmol, $table, $explist) {
         $results_arr[] = $data['exp_id'];
     }
     
-    return array_reverse(array_unique($results_arr)); 
+    return array_unique($results_arr); 
 }
 
+
+function exact_search_rxns($molecule, $table, $explist) {
+    global $bdd;
+    $inchi = getInChI($molecule, $bdd);
+    $cid = findInChI($inchi, $bdd);
+    $results_arr = array();
+    $sql = "SELECT exp_id FROM $table WHERE cpd_id = :cid";
+    $req = $bdd->prepare($sql);
+    $result = $req->execute(array('cid' => $cid));
+        while ($data = $req->fetch()) {
+        $results_arr[] = $data['exp_id'];
+    }
+    return array_unique($results_arr); 
+    
+}
 
 // Search item
 function search_item($type, $query, $userid) {

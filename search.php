@@ -296,7 +296,7 @@ if (isset($_REQUEST['rating']) && !empty($_REQUEST['rating'])) {;
     $rating = '';
 }
 if (isset($_REQUEST['rxn']) && !empty($_REQUEST['rxn'])) {
-    $rxn = $_REQUEST['rxn'];
+    $rxn = check_rxn($_REQUEST['rxn']);
 } else {
     $rxn = '';
 }
@@ -376,7 +376,6 @@ if (isset($_REQUEST)) {
                     $strucSearch = true;
                     $molecules = array($_REQUEST['mol']);
                 }
-    
                 if($strucSearch && ($structSearchType === 'substructure')) {      
                     // first let us deconstruct our rxn string into products and reagents.  
                     $results_temp = array();
@@ -399,11 +398,33 @@ if (isset($_REQUEST)) {
                     
                     $results_id = array_unique($results_temp);
                     $count = count($results_id);
-                }
+                } elseif($strucSearch && ($structSearchType === 'exact')) {
+                 // exact search   
+                 // we will do this by inchi  
+                     $results_temp = array();  
+                     if($num_react + $num_prod > 0) {
+                            for($i = 0; $i < $num_react; $i++) {
+                                $results_temp = array_merge(exact_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id),$results_temp);
+                            }
+                            for($i = $num_react; $i < $num_react + $num_prod; $i++) {
+                                $results_temp = array_merge(exact_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id),$results_temp);
+                            }
+                      } elseif (count($molecules) > 0) {
+                            for($i = 0; $i < count($molecules); $i++) {
+                                $results_temp = array_merge(exact_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id),$results_temp);
+                                $results_temp = array_merge(exact_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id),$results_temp);
+                            }
+                      }
+                      $results_id = array_unique($results_temp);
+                      $count = count($results_id); 
+                } elseif($strucSearch && ($structSearchType === 'similarity')) {
+                 // similarity search   
+                    
+                }  
                     
                     
-                }
             }
+            
             if ($count > 0) {
                 
                 // sort by id, biggest (newer item) comes first
@@ -500,7 +521,7 @@ if (isset($_REQUEST)) {
         }
     }
     }
-
+    }
 
 // FOOTER
 require_once('inc/footer.php');
