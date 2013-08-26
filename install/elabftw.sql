@@ -268,13 +268,16 @@ CREATE TABLE IF NOT EXISTS `revisions` (
   `experiment_id` int(10) unsigned DEFAULT NULL,
   `item_id` int(10) unsigned DEFAULT NULL,
   `rev_notes` varchar(140) DEFAULT NULL,
-  `rev_parent_id` int(10) unsigned DEFAULT NULL,
   `rev_body` text,
   `rev_title` varchar(255) DEFAULT NULL,
   `rev_structure` varchar(45) DEFAULT NULL,
   `rev_links` varchar(255) DEFAULT NULL,
   `rev_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `rev_reaction_id` int(10) unsigned DEFAULT NULL,
+  `rev_stoictab_id` int(10) unsigned DEFAULT NULL,
+  `rev_prodtab_id` int(10) unsigned DEFAULT NULL,
+  `rev_stoictab_col` blob,
+  `rev_prodtab_col` blob,
   PRIMARY KEY (`rev_id`),
   KEY `user_id_idx` (`user_id`),
   KEY `experiment_id_idx` (`experiment_id`),
@@ -291,12 +294,9 @@ CREATE TABLE IF NOT EXISTS `revisions` (
 DROP TABLE IF EXISTS `rxn_product_table`;
 CREATE TABLE IF NOT EXISTS `rxn_product_table` (
   `id` int(15) unsigned NOT NULL AUTO_INCREMENT,
-  `rxn_id` int(10) unsigned NOT NULL,
-  `rev_id` int(10) unsigned NOT NULL,
+  `table_rev_id` int(10) unsigned DEFAULT NULL,
   `row_id` int(10) unsigned NOT NULL,
   `exp_id` int(10) unsigned NOT NULL,
-  `user_id` int(10) unsigned NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `cpd_name` text,
   `cpd_id` int(11) unsigned DEFAULT NULL,
   `batch_ref` varchar(50) DEFAULT NULL,
@@ -319,10 +319,7 @@ CREATE TABLE IF NOT EXISTS `rxn_product_table` (
   `equiv` float unsigned DEFAULT NULL,
   `columns` blob,
   PRIMARY KEY (`id`),
-  KEY `rxn_id` (`rxn_id`),
-  KEY `rev_id` (`rev_id`),
-  KEY `exp_id` (`exp_id`),
-  KEY `user_id` (`user_id`)
+  KEY `exp_id` (`exp_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -334,11 +331,9 @@ CREATE TABLE IF NOT EXISTS `rxn_product_table` (
 DROP TABLE IF EXISTS `rxn_stoichiometry`;
 CREATE TABLE IF NOT EXISTS `rxn_stoichiometry` (
   `id` int(15) unsigned NOT NULL AUTO_INCREMENT,
-  `rxn_id` int(10) unsigned NOT NULL,
-  `rev_id` int(10) unsigned NOT NULL,
+  `table_rev_id` int(10) unsigned DEFAULT NULL,
+  `exp_id` int(10) unsigned NOT NULL,
   `row_id` int(4) unsigned NOT NULL,
-  `user_id` int(10) unsigned NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `cpd_name` text,
   `cpd_id` int(11) unsigned DEFAULT NULL,
   `cas_number` varchar(20) DEFAULT NULL,
@@ -366,9 +361,7 @@ CREATE TABLE IF NOT EXISTS `rxn_stoichiometry` (
   `solvent` varchar(255) DEFAULT NULL,
   `columns` blob,
   PRIMARY KEY (`id`),
-  KEY `rxn_id` (`rxn_id`,`rev_id`,`user_id`,`cpd_id`),
-  KEY `rev_id` (`rev_id`),
-  KEY `user_id` (`user_id`),
+  KEY `rxn_id` (`cpd_id`),
   KEY `cpd_id` (`cpd_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -510,28 +503,15 @@ ALTER TABLE `revisions`
   ADD CONSTRAINT `revisions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION,
   ADD CONSTRAINT `revisions_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
-
---
--- Constraints for table `rxn_product_table`
---
-ALTER TABLE `rxn_product_table`
-  ADD CONSTRAINT `rxn_product_table_ibfk_4` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION,
-  ADD CONSTRAINT `rxn_product_table_ibfk_1` FOREIGN KEY (`rxn_id`) REFERENCES `reactions` (`rxn_id`) ON UPDATE NO ACTION,
-  ADD CONSTRAINT `rxn_product_table_ibfk_2` FOREIGN KEY (`rev_id`) REFERENCES `revisions` (`rev_id`),
-  ADD CONSTRAINT `rxn_product_table_ibfk_3` FOREIGN KEY (`exp_id`) REFERENCES `experiments` (`id`) ON UPDATE NO ACTION;
-
---
--- Constraints for table `rxn_stoichiometry`
---
-ALTER TABLE `rxn_stoichiometry`
-  ADD CONSTRAINT `rxn_stoichiometry_ibfk_1` FOREIGN KEY (`rxn_id`) REFERENCES `reactions` (`rxn_id`),
-  ADD CONSTRAINT `rxn_stoichiometry_ibfk_2` FOREIGN KEY (`rev_id`) REFERENCES `revisions` (`rev_id`),
-  ADD CONSTRAINT `rxn_stoichiometry_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION,
-  ADD CONSTRAINT `rxn_stoichiometry_ibfk_4` FOREIGN KEY (`cpd_id`) REFERENCES `compounds` (`id`) ON UPDATE NO ACTION;
-
 --
 -- Constraints for table `uploads`
 --
 ALTER TABLE `uploads`
   ADD CONSTRAINT `uploads_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION;
 
+-- ELABFTW
+INSERT INTO `items_types` (`id`, `name`, `bgcolor`, `template`, `tags`) VALUES
+(1, 'Antibody', '31a700', '<p><strong>Host :</strong></p>\r\n<p><strong>Target :</strong></p>\r\n<p><strong>Dilution to use :</strong></p>\r\n<p>Don''t forget to add the datasheet !</p>', ''),
+(2, 'Plasmid', '29AEB9', '<p><strong>Concentration : </strong></p>\r\n<p><strong>Resistances : </strong></p>\r\n<p><strong>Backbone :</strong></p>\r\n<p><strong><br /></strong></p>', ''),
+(3, 'siRNA', '0064ff', '<p><strong>Sequence :</strong></p>\r\n<p><strong>Target :</strong></p>\r\n<p><strong>Concentration :</strong></p>\r\n<p><strong>Buffer :</strong></p>', ''),
+(4, 'Drugs', 'fd00fe', '<p><strong>Action :</strong> &nbsp;<strong> </strong></p>\r\n<p><strong>Concentration :</strong>&nbsp;</p>\r\n<p><strong>Use at :</strong>&nbsp;</p>\r\n<p><strong>Buffer :</strong> </p>', '');
