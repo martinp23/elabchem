@@ -215,13 +215,21 @@ for($i=1; $i<=5; $i++) {
                         echo " selected='selected'";
                     }
 ?>>Substructure search</option>
-<option value='similiarty' name='status'<?php
+<option value='similarity' name='status'<?php
                     if(isset($_REQUEST['structsearchtype']) && ($_REQUEST['structsearchtype'] == 'similarity')) {
                         echo " selected='selected'";
                     }
 ?>>Similarity search</option>
 
 </select>
+    <br />
+    <p class='inline'>Tanimoto coeff (0-1) </p><input type="text" name='tanimoto' value='<?php
+                    if(isset($_REQUEST['tanimoto'])) {
+                        echo $_REQUEST['tanimoto'];
+                    } else {
+                        echo '0.7';
+                    }
+?>'></input>
     
     </div>
 
@@ -305,6 +313,11 @@ if (isset($_REQUEST['structsearchtype']) && !empty($_REQUEST['structsearchtype']
 } else {
     $structSearchType = 'exact';
 }
+if (isset($_REQUEST['tanimoto'])) {
+    $tanimoto = floatval($_REQUEST['tanimoto']);
+} else {
+    $tanimoto = 0.7;
+}
 
 $userid = intval($_SESSION['userid']);
 
@@ -361,6 +374,8 @@ if (isset($_REQUEST)) {
             if ($count > 0) {
                 // now let's run chem-structure queries on our first-pass search results
                 $strucSearch = false;
+                $num_react = 0;
+                $num_prod = 0;
                 if(isset($_REQUEST['rxn']) && !empty($_REQUEST['rxn'])) {
                     $strucSearch = true;
                     $rxn_content = explode("\$MOL\n", $rxn);
@@ -376,51 +391,78 @@ if (isset($_REQUEST)) {
                     $strucSearch = true;
                     $molecules = array($_REQUEST['mol']);
                 }
-                if($strucSearch && ($structSearchType === 'substructure')) {      
-                    // first let us deconstruct our rxn string into products and reagents.  
-                    $results_temp = array();
+                
+                if($strucSearch) {
                     
-                    if($num_react + $num_prod > 0) {
-                        for($i = 0; $i < $num_react; $i++) {
-                            $results_temp = array_merge(substruc_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id),$results_temp);
-                        }
-                        for($i = $num_react; $i < $num_react + $num_prod; $i++) {
-                            $results_temp = array_merge(substruc_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id),$results_temp);
-                        }
-                    } elseif (count($molecules) > 0) {
-                        for($i = 0; $i < count($molecules); $i++) {
-                            $results_temp = array_merge(substruc_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id),$results_temp);
-                            $results_temp = array_merge(substruc_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id),$results_temp);
-                            
-                        }
-                    
-                    }
-                    
-                    $results_id = array_unique($results_temp);
-                    $count = count($results_id);
-                } elseif($strucSearch && ($structSearchType === 'exact')) {
-                 // exact search   
-                 // we will do this by inchi  
-                     $results_temp = array();  
-                     if($num_react + $num_prod > 0) {
+                    if ($structSearchType === 'substructure') {      
+                        // first let us deconstruct our rxn string into products and reagents.  
+                        $results_temp = array();
+                        $results_id = array();
+                        if($num_react + $num_prod > 0) {
                             for($i = 0; $i < $num_react; $i++) {
-                                $results_temp = array_merge(exact_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id),$results_temp);
+                                $results_temp[] = substruc_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);
                             }
                             for($i = $num_react; $i < $num_react + $num_prod; $i++) {
-                                $results_temp = array_merge(exact_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id),$results_temp);
+                                $results_temp[] = substruc_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id);
                             }
-                      } elseif (count($molecules) > 0) {
+                        } elseif (count($molecules) > 0) {
                             for($i = 0; $i < count($molecules); $i++) {
-                                $results_temp = array_merge(exact_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id),$results_temp);
-                                $results_temp = array_merge(exact_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id),$results_temp);
-                            }
-                      }
-                      $results_id = array_unique($results_temp);
-                      $count = count($results_id); 
-                } elseif($strucSearch && ($structSearchType === 'similarity')) {
-                 // similarity search   
+                                $x = substruc_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);
+                                $y = substruc_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id);
+                                $results_temp[] = array_merge($x,$y);
+                            }                        
+                        }
+
+                     } elseif($structSearchType === 'exact') {
+                         // exact search   
+                         // we will do this by inchi  
+                         $results_temp = array();  
+                         if($num_react + $num_prod > 0) {
+                                for($i = 0; $i < $num_react; $i++) {
+                                    $results_temp[] = exact_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);
+                                }
+                                for($i = $num_react; $i < $num_react + $num_prod; $i++) {
+                                    $results_temp[] = exact_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id);
+                                }
+                          } elseif (count($molecules) > 0) {
+                                for($i = 0; $i < count($molecules); $i++) {
+                                    $x = exact_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);
+                                    $y = exact_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id);
+                                    $results_temp[] = array_merge($x,$y);
+                                }
+                          }
+                    } elseif($structSearchType === 'similarity') {
+                         // similarity search   
+                         $results_temp = array();  
+                         if($num_react + $num_prod > 0) {
+                                for($i = 0; $i < $num_react; $i++) {
+                                    $results_temp[] = similarity_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id, $tanimoto);
+                                }
+                                for($i = $num_react; $i < $num_react + $num_prod; $i++) {
+                                    $results_temp[] = similarity_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id, $tanimoto);
+                                }
+                          } elseif (count($molecules) > 0) {
+                                for($i = 0; $i < count($molecules); $i++) {
+                                    $x = similarity_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id, $tanimoto);
+                                    $y = similarity_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id, $tanimoto);
+                                    $results_temp[] = array_merge($x,$y);
+                                }
+                          }
+                    }
                     
-                }  
+                    // where we have more than one results set, we treat the query as AND. So we find the intersection of the different 
+                    // results arrays and return that as result.
+                    if(count($results_temp) > 1) {
+                        $results_id = call_user_func_array('array_intersect', $results_temp);
+                    } else {
+                        $results_id = $results_temp[0];
+                    }
+                    $results_id = array_unique($results_id);
+                    $count = count($results_id); 
+                }
+
+
+  
                     
                     
             }
