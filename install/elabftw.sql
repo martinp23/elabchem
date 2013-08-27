@@ -133,9 +133,9 @@ CREATE TABLE IF NOT EXISTS `experiments` (
   `deleted` tinyint(1) unsigned DEFAULT '0',
   `type` varchar(40) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `userid_idx` (`userid_creator`),
-  KEY `userid_witness_idx` (`userid_witness`),
-  KEY `userid_closer_idx` (`userid_closer`),
+  KEY `userid_creator` (`userid_creator`),
+  KEY `userid_witness` (`userid_witness`),
+  KEY `userid_closer` (`userid_closer`),
   KEY `rev_id` (`rev_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS `experiments_tags` (
   `item_id` int(10) unsigned NOT NULL,
   `userid` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `userid_idx` (`userid`)
+  KEY `userid` (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -183,7 +183,7 @@ CREATE TABLE IF NOT EXISTS `experiments_templates` (
   `userid` int(10) unsigned DEFAULT NULL,
   `exp_type` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `userid_idx` (`userid`)
+  KEY `userid` (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -202,8 +202,8 @@ CREATE TABLE IF NOT EXISTS `items` (
   `type` int(10) unsigned NOT NULL,
   `userid` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `userid_idx` (`userid`),
-  KEY `type_idx` (`type`)
+  KEY `userid` (`userid`),
+  KEY `type` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -218,7 +218,7 @@ CREATE TABLE IF NOT EXISTS `items_tags` (
   `tag` varchar(255) NOT NULL,
   `item_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `item_id_idx` (`item_id`)
+  KEY `item_id` (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -263,10 +263,12 @@ CREATE TABLE IF NOT EXISTS `reactions` (
 
 DROP TABLE IF EXISTS `rel_exp_structure_prod`;
 CREATE TABLE IF NOT EXISTS `rel_exp_structure_prod` (
-  `rel_id` int(10) NOT NULL AUTO_INCREMENT,
-  `exp_id` int(10) NOT NULL,
-  `cpd_id` int(11) NOT NULL,
-  PRIMARY KEY (`rel_id`)
+  `rel_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `exp_id` int(10) UNSIGNED NOT NULL,
+  `cpd_id` int(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`rel_id`),
+  KEY `exp_id` (`exp_id`),
+  KEY `cpd_id` (`cpd_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -277,10 +279,12 @@ CREATE TABLE IF NOT EXISTS `rel_exp_structure_prod` (
 
 DROP TABLE IF EXISTS `rel_exp_structure_react`;
 CREATE TABLE IF NOT EXISTS `rel_exp_structure_react` (
-  `rel_id` int(10) NOT NULL AUTO_INCREMENT,
-  `exp_id` int(10) NOT NULL,
-  `cpd_id` int(11) NOT NULL,
-  PRIMARY KEY (`rel_id`)
+  `rel_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `exp_id` int(10) UNSIGNED NOT NULL,
+  `cpd_id` int(11) UNSIGNED NOT NULL,
+  PRIMARY KEY (`rel_id`),
+  KEY `exp_id` (`exp_id`),
+  KEY `cpd_id` (`cpd_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -305,10 +309,9 @@ CREATE TABLE IF NOT EXISTS `revisions` (
   `rev_stoictab_col` blob,
   `rev_prodtab_col` blob,
   PRIMARY KEY (`rev_id`),
-  UNIQUE KEY `revid_UNIQUE` (`rev_id`),
-  KEY `user_id_idx` (`user_id`),
-  KEY `experiment_id_idx` (`experiment_id`),
-  KEY `item_id_idx` (`item_id`),
+  KEY `user_id` (`user_id`),
+  KEY `experiment_id` (`experiment_id`),
+  KEY `item_id` (`item_id`),
   KEY `rev_reaction_id` (`rev_reaction_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -409,7 +412,7 @@ CREATE TABLE IF NOT EXISTS `uploads` (
   `type` varchar(255) NOT NULL,
   `date` date DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `userid_idx` (`userid`)
+  KEY `userid` (`userid`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -520,6 +523,20 @@ ALTER TABLE `items_tags`
 ALTER TABLE `reactions`
   ADD CONSTRAINT `reactions_ibfk_4` FOREIGN KEY (`experiment_id`) REFERENCES `experiments` (`id`) ON UPDATE NO ACTION,
   ADD CONSTRAINT `reactions_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`userid`) ON UPDATE NO ACTION;
+
+--
+-- Constraints for table `rel_exp_structure_prod`
+--
+ALTER TABLE  `rel_exp_structure_prod`
+   ADD CONSTRAINT `rel_prod_ibfk_1` FOREIGN KEY (`exp_id`) REFERENCES `experiments` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+   ADD CONSTRAINT `rel_prod_ibfk_2` FOREIGN KEY (`cpd_id`) REFERENCES `compounds` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
+
+--
+-- Constraints for table `rel_exp_structure_react`
+--
+ALTER TABLE  `rel_exp_structure_react`
+   ADD CONSTRAINT `rel_react_ibfk_1` FOREIGN KEY (`exp_id`) REFERENCES `experiments` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+   ADD CONSTRAINT `rel_react_ibfk_2` FOREIGN KEY (`cpd_id`) REFERENCES `compounds` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `revisions`
