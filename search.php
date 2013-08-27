@@ -34,7 +34,9 @@ require_once('inc/info_box.php');
 <!-- Advanced Search page begin -->
 <div class='item'>
     <div class='align_left'>
-        <form name="search" method="get" action="search.php">
+        <!-- even though this is a search form, we are submitting with POST because query strings might be long 
+            when involving chemistry queries -->
+        <form name="search" method="post" onsubmit='return preSubmit()' action="search.php">
             <!-- SUBMIT BUTTON -->
             <button class='submit_search_button' type='submit'>
                 <img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/submit.png' name='Submit' value='Submit' />
@@ -50,7 +52,7 @@ require_once('inc/info_box.php');
                 while ($items_types = $req->fetch()) {
                     echo "<option value='".$items_types['id']."' name='type'";
                     // item get selected if it is in the search url
-                    if($_GET && ($items_types['id'] == $_GET['type'])) {
+                    if($_REQUEST && ($items_types['id'] == $_REQUEST['type'])) {
                         echo " selected='selected'";
                     } 
                     echo ">".$items_types['name']."</option>";
@@ -60,27 +62,27 @@ require_once('inc/info_box.php');
            <!-- search everyone box --> 
             (search in everyone's experiments <input name="all" value="y" type="checkbox" <?php
                 // keep the box checked if it was checked
-                if(isset($_GET['all'])){
+                if(isset($_REQUEST['all'])){
                     echo "checked=checked";
                 }?>>)
             <br />
             <br />
             <div id='search_inputs_div'>
             <p class='inline'>Where date is between :</p><input name='from' type='text' size='6' class='search_inputs datepicker' value='<?php
-                if(isset($_GET['from']) && !empty($_GET['from'])) {
-                    echo check_date($_GET['from']);
+                if(isset($_REQUEST['from']) && !empty($_REQUEST['from'])) {
+                    echo check_date($_REQUEST['from']);
                 }
 ?>'/><br />
 <br />
             <p class='inline'>and :</p><input name='to' type='text' size='6' class='search_inputs datepicker' value='<?php
-                if(isset($_GET['to']) && !empty($_GET['to'])) {
-                    echo check_date($_GET['to']);
+                if(isset($_REQUEST['to']) && !empty($_REQUEST['to'])) {
+                    echo check_date($_REQUEST['to']);
                 }
 ?>'/><br />
 <br />
 <p class='inline'>And title contains </p><input name='title' type='text' class='search_inputs' value='<?php
-                if(isset($_GET['title']) && !empty($_GET['title'])) {
-                    echo check_title($_GET['title']);
+                if(isset($_REQUEST['title']) && !empty($_REQUEST['title'])) {
+                    echo check_title($_REQUEST['title']);
                 }
 ?>'/><br />
 <br />
@@ -89,39 +91,42 @@ require_once('inc/info_box.php');
 <br />
 -->
 <p class='inline'>And body contains</p><input name='body' type='text' class='search_inputs' value='<?php
-                if(isset($_GET['body']) && !empty($_GET['body'])) {
-                    echo check_body($_GET['body']);
+                if(isset($_REQUEST['body']) && !empty($_REQUEST['body'])) {
+                    echo check_body($_REQUEST['body']);
                 }
 ?>'/><br />
 <br />
                 <p class='inline'>And status is </p><select name='status' class='search_inputs'>
 <option value='' name='status'>select status</option>
 <option value='running' name='status'<?php
-                    if(isset($_GET['status']) && ($_GET['status'] == 'running')) {
+                    if(isset($_REQUEST['status']) && ($_REQUEST['status'] == 'running')) {
                         echo " selected='selected'";
                     }
 ?>
+
+
 >Running</option>
+
 <option value='success' name='status'<?php
-                    if(isset($_GET['status']) && ($_GET['status'] == 'success')) {
+                    if(isset($_REQUEST['status']) && ($_REQUEST['status'] == 'success')) {
                         echo " selected='selected'";
                     }
 ?>
 >Success</option>
 <option value='redo' name='status'<?php
-                    if(isset($_GET['status']) && ($_GET['status'] == 'redo')) {
+                    if(isset($_REQUEST['status']) && ($_REQUEST['status'] == 'redo')) {
                         echo " selected='selected'";
                     }
 ?>
 >Redo</option>
 <option value='fail' name='status'<?php
-                    if(isset($_GET['status']) && ($_GET['status'] == 'fail')) {
+                    if(isset($_REQUEST['status']) && ($_REQUEST['status'] == 'fail')) {
                         echo " selected='selected'";
                     }
 ?>
 >Fail</option>
 <option value='deleted' name='status'<?php
-                    if(isset($_GET['status']) && ($_GET['status'] == 'deleted')) {
+                    if(isset($_REQUEST['status']) && ($_REQUEST['status'] == 'deleted')) {
                         echo " selected='selected'";
                     }
 ?>
@@ -135,7 +140,7 @@ require_once('inc/info_box.php');
 for($i=1; $i<=5; $i++) {
     echo "<option value='".$i."' name='rating'";
         // item get selected if it is in the search url
-    if(isset($_GET['rating']) && ($_GET['rating'] == $i)) {
+    if(isset($_REQUEST['rating']) && ($_REQUEST['rating'] == $i)) {
         echo " selected='selected'";
     }
     echo ">".$i."</option>";
@@ -143,73 +148,210 @@ for($i=1; $i<=5; $i++) {
 ?>
 </select>
 <br />
-            </div>
 
+
+<br />
+            </div>
+<?php if($ini_arr['chemistry']){ ?>
+<div align='center'>  
+        <input type='hidden' id='rxn' name='rxn' value='<?php if(isset($_REQUEST['rxn'])) {
+                        echo $_REQUEST['rxn'];
+                    }  ?>'/>
+    <input type='hidden' id='mol' name='mol' value='<?php if(isset($_REQUEST['mol'])) {
+                        echo $_REQUEST['mol'];
+                    }  ?>'/>
+    
+            <!-- stylesheets extra -->
+                <meta http-equiv="X-UA-Compatible" content="chrome=1">
+                <link rel="stylesheet" href="js/chemdoodleweb/ChemDoodleWeb.css" type="text/css">
+                <link rel="stylesheet" href="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.css" type="text/css">
+                <link rel="stylesheet" href="js/slickgrid/slick.grid.css" type="text/css">
+                <link rel="stylesheet" href="js/slickgrid/css/stoich-grid.css" type="text/css">
+                <link rel="stylesheet" href="js/slickgrid/controls/slick.columnpicker.css" type="text/css">
+        <!-- these are required by the ChemDoodle Web Components library -->
+                <script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb-libs.js"></script>
+                <script type="text/javascript" src="js/chemdoodleweb/ChemDoodleWeb.js"></script>
+                    
+    <!-- these are required by the SketcherCanvas plugin -->
+                <script type="text/javascript" src="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.min.js"></script>
+                <script type="text/javascript" src="js/chemdoodleweb/sketcher/ChemDoodleWeb-sketcher.js"></script>
+
+<script type ="text/javascript">
+            ChemDoodle.ELEMENT['H'].jmolColor = 'black';
+            // darkens the default JMol color of sulfur so it appears on white backgrounds
+            ChemDoodle.ELEMENT['S'].jmolColor = '#B9A130';
+            var reactionCanvas = new ChemDoodle.SketcherCanvas('reactionquery', 600, 200, {useServices:false});
+            reactionCanvas.specs.atoms_displayTerminalCarbonLabels_2D = true;
+            // sets atom labels to be colored by JMol colors, which are easy to recognize
+            reactionCanvas.specs.atoms_useJMOLColors = true;
+            // enables overlap clear widths, so that some depth is introduced to overlapping bonds
+            reactionCanvas.specs.bonds_clearOverlaps_2D = true;
+            // sets the shape color to improve contrast when drawing figures
+            reactionCanvas.specs.shapes_color = 'c10000';
+            // because we do not load any content, we need to repaint the sketcher, otherwise we would just see an empty area with the toolbar
+            // however, you can instead use one of the Canvas.load... functions to pre-populate the canvas with content, then you don't need to call repaint
+            if(document.getElementById('rxn').value != "") {
+                var reaction_cd = ChemDoodle.readRXN(document.getElementById('rxn').value);
+                reactionCanvas.loadContent(reaction_cd.molecules, reaction_cd.shapes);
+            } else if (document.getElementById('mol').value != "") {
+                reactionCanvas.loadMolecule(ChemDoodle.readMOL(document.getElementById('mol').value));
+            }
+            
+            reactionCanvas.repaint();
+
+</script>
+    <br />
+
+    <div id='chem_search_inputs_div'>
+    <p class='inline'>Search type </p><select name='structsearchtype' id='structsearchtype' class='search_inputs'>
+
+<option value='exact' name='status'<?php
+                    if(isset($_REQUEST['structsearchtype']) && ($_REQUEST['structsearchtype'] == 'exact')) {
+                        echo " selected='selected'";
+                    }
+?>>Exact search</option>
+<option value='substructure' name='status'<?php
+                    if(isset($_REQUEST['structsearchtype']) && ($_REQUEST['structsearchtype'] == 'substructure')) {
+                        echo " selected='selected'";
+                    }
+?>>Substructure search</option>
+<option value='similarity' name='status'<?php
+                    if(isset($_REQUEST['structsearchtype']) && ($_REQUEST['structsearchtype'] == 'similarity')) {
+                        echo " selected='selected'";
+                    }
+?>>Similarity search</option>
+
+</select>
+    <br /><br />
+    <p class='inline'>Tanimoto coeff (0-1) </p><input type="text" name='tanimoto' id='tanimoto' class='search_inputs' value='<?php
+                    if(isset($_REQUEST['tanimoto'])) {
+                        echo $_REQUEST['tanimoto'];
+                    } else {
+                        echo '0.7';
+                    }
+?>'></input>
+    </div>
+    </div>
+
+
+<?php //endif
+} ?>
             </div>
             </div>
 
         </form>
+        
     </div>
 </div>
+<script type='text/javascript'>function preSubmit() {
+    <?php if($ini_arr['chemistry']) { ?>
+        var shapes = reactionCanvas.getShapes();
+        try {
+            if (shapes.length > 0) {
+                document.getElementById('mol').value = '';
+                document.getElementById('rxn').value = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), shapes);
+            } else {
+                document.getElementById('rxn').value = '';
+                document.getElementById('mol').value = ChemDoodle.writeMOL(reactionCanvas.getMolecule());         
+            }
+        } catch(e) {
+            document.getElementById('rxn').value = '';
+            document.getElementById('mol').value = '';
+        }
+        
+        var tanimoto = document.getElementById('tanimoto').value;
+        var parsedTanimoto = parseFloat(tanimoto);
+        if(document.getElementById('structsearchtype').value === 'similarity') {
+            // if we're doing a similarity search but the tanimoto field hasn't been filled, set it to 0.7.
+            if(tanimoto === undefined || tanimoto === null || tanimoto === '') {
+                document.getElementById('tanimoto').value = '0.7';
+            } else if (parsedTanimoto === false || parsedTanimoto < 0 || parsedTanimoto > 1) {
+                alert("Tanimoto value must be between 0 and 1.");
+                return false;
+            }
+            
+        } 
 
+    <?php } ?>
+}</script>
 
 <?php
 // assign variables from get
-if (isset($_GET['title']) && !empty($_GET['title'])) {
-    $title =  filter_var($_GET['title'], FILTER_SANITIZE_STRING);
+if (isset($_REQUEST['title']) && !empty($_REQUEST['title'])) {
+    $title =  filter_var($_REQUEST['title'], FILTER_SANITIZE_STRING);
 } else {
     $title = '';
 }
-if (isset($_GET['from']) && !empty($_GET['from'])) {
-    $from = check_date($_GET['from']);
+if (isset($_REQUEST['from']) && !empty($_REQUEST['from'])) {
+    $from = check_date($_REQUEST['from']);
 } else {
     $from = '';
 }
-if (isset($_GET['to']) && !empty($_GET['to'])) {
-    $to = check_date($_GET['to']);
+if (isset($_REQUEST['to']) && !empty($_REQUEST['to'])) {
+    $to = check_date($_REQUEST['to']);
 } else {
     $to = '';
 }
-if (isset($_GET['tags']) && !empty($_GET['tags'])) {
-    $tags = filter_var($_GET['tags'], FILTER_SANITIZE_STRING);
+if (isset($_REQUEST['tags']) && !empty($_REQUEST['tags'])) {
+    $tags = filter_var($_REQUEST['tags'], FILTER_SANITIZE_STRING);
 } else {
     $tags = '';
 }
-if (isset($_GET['body']) && !empty($_GET['body'])) {
-    $body = check_body($_GET['body']);
+if (isset($_REQUEST['body']) && !empty($_REQUEST['body'])) {
+    $body = check_body($_REQUEST['body']);
 } else {
     $body = '';
 }
-if (isset($_GET['status']) && !empty($_GET['status'])) {
-    $status = check_status($_GET['status']);
+if (isset($_REQUEST['status']) && !empty($_REQUEST['status'])) {
+    $status = check_status($_REQUEST['status']);
 } else {
     $status = '';
 }
-if (isset($_GET['rating']) && !empty($_GET['rating'])) {;
-    if($_GET['rating'] === 'no') {
+if (isset($_REQUEST['rating']) && !empty($_REQUEST['rating'])) {;
+    if($_REQUEST['rating'] === 'no') {
         $rating = '0';
     } else {
-    $rating = intval($_GET['rating']);
+    $rating = intval($_REQUEST['rating']);
     }
 } else {
     $rating = '';
 }
+if (isset($_REQUEST['rxn']) && !empty($_REQUEST['rxn'])) {
+    $rxn = check_rxn($_REQUEST['rxn']);
+} else {
+    $rxn = '';
+}
+if (isset($_REQUEST['structsearchtype']) && !empty($_REQUEST['structsearchtype'])) {
+    $structSearchType = check_search_type($_REQUEST['structsearchtype']);
+} else {
+    $structSearchType = 'exact';
+}
+if (isset($_REQUEST['tanimoto'])) {
+    $tanimoto = floatval($_REQUEST['tanimoto']);
+} else {
+    $tanimoto = 0.7;
+}
+
+$userid = intval($_SESSION['userid']);
+
 
 // Is there a search ?
-if (isset($_GET)) {
+if (isset($_REQUEST)) {
 
     // EXPERIMENT ADVANCED SEARCH
-    if(isset($_GET['type'])) {
-        if($_GET['type'] === 'experiments') {
+    if(isset($_REQUEST['type'])) {
+        if($_REQUEST['type'] === 'experiments') {
             // SQL
             // the BETWEEN stuff makes the date mandatory, so we switch the $sql with/without date
-            if(!isset($_GET['to']) || empty($_GET['to'])) {
+            if(!isset($_REQUEST['to']) || empty($_REQUEST['to'])) {
             	// if "to" date not set, put it far into the future
             	$to = 991212;
 			} 
-
-			if(isset($_GET['from']) && !empty($_GET['from'])) {
-                if(isset($_GET['all']) && !empty($_GET['all'])) {
+            
+            
+            
+            if(isset($_REQUEST['from']) && !empty($_REQUEST['from'])) {
+                if(isset($_REQUEST['all']) && !empty($_REQUEST['all'])) {
 					$sql = "SELECT exp.id FROM experiments exp JOIN revisions rev on exp.rev_id = rev.rev_id
 					WHERE exp.status LIKE '%$status%' AND exp.date BETWEEN '$from' AND '$to' AND rev.rev_title LIKE '%$title%'
 					AND rev.rev_body LIKE '%$body%';";
@@ -217,35 +359,132 @@ if (isset($_GET)) {
 				else { //search only in your experiments
 					$sql = "SELECT exp.id FROM experiments exp JOIN revisions rev on exp.rev_id = rev.rev_id
 					WHERE exp.status LIKE '%$status%' AND exp.date BETWEEN '$from' AND '$to' AND rev.rev_title LIKE '%$title%'
-					AND rev.rev_body LIKE '%$body%' AND exp.userid_creator = :userid;";
+					AND rev.rev_body LIKE '%$body%' AND exp.userid_creator = $userid;";
 				}			
             } else { // no date input
-                if(isset($_GET['all']) && !empty($_GET['all'])) {
+                if(isset($_REQUEST['all']) && !empty($_REQUEST['all'])) {
 					$sql = "SELECT exp.id FROM experiments exp JOIN revisions rev on exp.rev_id = rev.rev_id
 					WHERE exp.status LIKE '%$status%' AND rev.rev_title LIKE '%$title%'
 					AND rev.rev_body LIKE '%$body%';";					
                 } else {
                     $sql = "SELECT exp.id FROM experiments exp JOIN revisions rev on exp.rev_id = rev.rev_id
 					WHERE exp.status LIKE '%$status%' AND rev.rev_title LIKE '%$title%'
-					AND rev.rev_body LIKE '%$body%' AND exp.userid_creator = :userid;";	
+					AND rev.rev_body LIKE '%$body%' AND exp.userid_creator = $userid;";	
                 }
             }
 		
             $req = $bdd->prepare($sql);
-            $req->execute(array(
-                'userid' => $_SESSION['userid']
-            ));
-            // This counts the number of results - and if there wasn't any it gives them a little message explaining that 
-            $count = $req->rowCount();
-            if ($count > 0) {
-                // make array of results id
-                $results_id = array();
-                while ($get_id = $req->fetch()) {
+            $req->execute();
+            
+            $results_id = array();
+            // make array of results id
+            
+            while ($get_id = $req->fetch()) {
                     $results_id[] = $get_id['id'];
+            }
+            // This counts the number of results - and if there wasn't any it gives them a little message explaining that 
+            $count = count($results_id);
+            if ($count > 0) {
+                // now let's run chem-structure queries on our first-pass search results
+                $strucSearch = false;
+                $num_react = 0;
+                $num_prod = 0;
+                if(isset($_REQUEST['rxn']) && !empty($_REQUEST['rxn'])) {
+                    $strucSearch = true;
+                    $rxn_content = explode("\$MOL\n", $rxn);
+                    $header_lines = explode("\n", $rxn_content[0]);
+                    $num_react = intval(substr($header_lines[4], 0,3));
+                    $num_prod = intval(substr($header_lines[4], 3,6));
+                    $molecules = array();
+                    for ($i = 0; $i < $num_react + $num_prod; $i ++) {
+                        $molecules[] = $rxn_content[$i+1];
+                    }
+                    
+                } elseif(isset($_REQUEST['mol']) && !empty($_REQUEST['mol'])) {
+                    $strucSearch = true;
+                    $molecules = array($_REQUEST['mol']);
                 }
+                
+                if($strucSearch) {
+                    
+                    if ($structSearchType === 'substructure') {      
+                        // first let us deconstruct our rxn string into products and reagents.  
+                        $results_temp = array();
+                        $results_id = array();
+                        if($num_react + $num_prod > 0) {
+                            for($i = 0; $i < $num_react; $i++) {
+                                $results_temp[] = substruc_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);
+                            }
+                            for($i = $num_react; $i < $num_react + $num_prod; $i++) {
+                                $results_temp[] = substruc_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id);
+                            }
+                        } elseif (count($molecules) > 0) {
+                            for($i = 0; $i < count($molecules); $i++) {
+                                $x = substruc_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);
+                                $y = substruc_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id);
+                                $results_temp[] = array_merge($x,$y);
+                            }                        
+                        }
+
+                     } elseif($structSearchType === 'exact') {
+                         // exact search   
+                         // we will do this by inchi  
+                         $results_temp = array();  
+                         if($num_react + $num_prod > 0) {
+                                for($i = 0; $i < $num_react; $i++) {
+                                    $results_temp[] = exact_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);
+                                }
+                                for($i = $num_react; $i < $num_react + $num_prod; $i++) {
+                                    $results_temp[] = exact_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id);
+                                }
+                          } elseif (count($molecules) > 0) {
+                                for($i = 0; $i < count($molecules); $i++) {
+                                    $x = exact_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);
+                                    $y = exact_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id);
+                                    $results_temp[] = array_merge($x,$y);
+                                }
+                          }
+                    } elseif($structSearchType === 'similarity') {
+                         // similarity search   
+                         $results_temp = array();  
+                         if($num_react + $num_prod > 0) {
+                                for($i = 0; $i < $num_react; $i++) {
+                                    $results_temp[] = similarity_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id, $tanimoto);
+                                }
+                                for($i = $num_react; $i < $num_react + $num_prod; $i++) {
+                                    $results_temp[] = similarity_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id, $tanimoto);
+                                }
+                          } elseif (count($molecules) > 0) {
+                                for($i = 0; $i < count($molecules); $i++) {
+                                    $x = similarity_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id, $tanimoto);
+                                    $y = similarity_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id, $tanimoto);
+                                    $results_temp[] = array_merge($x,$y);
+                                }
+                          }
+                    }
+                    
+                    // where we have more than one results set, we treat the query as AND. So we find the intersection of the different 
+                    // results arrays and return that as result.
+                    if(count($results_temp) > 1) {
+                        $results_id = call_user_func_array('array_intersect', $results_temp);
+                    } else {
+                        $results_id = $results_temp[0];
+                    }
+                    $results_id = array_unique($results_id);
+                    $count = count($results_id); 
+                }
+
+
+  
+                    
+                    
+            }
+            
+            if ($count > 0) {
+                
                 // sort by id, biggest (newer item) comes first
                 $results_id = array_reverse($results_id);
-                
+
                 // construct string for links to export results
                 $results_id_str = "";
                 foreach($results_id as $id) {
@@ -279,12 +518,12 @@ if (isset($_GET)) {
             }
 
     // DATABASE ADVANCED SEARCH
-    } elseif (is_pos_int($_GET['type'])) {
+    } elseif (is_pos_int($_REQUEST['type'])) {
             // SQL
             // the BETWEEN stuff makes the date mandatory, so we switch the $sql with/without date
-            if(isset($_GET['to']) && !empty($_GET['to'])) {
+            if(isset($_REQUEST['to']) && !empty($_REQUEST['to'])) {
             	$sql = "SELECT * FROM items WHERE type = :type AND title LIKE '%$title%' AND body LIKE '%$body%' AND rating LIKE '%$rating%' AND date BETWEEN '$from' AND '$to'";
-            } elseif(isset($_GET['from']) && !empty($_GET['from'])) {
+            } elseif(isset($_REQUEST['from']) && !empty($_REQUEST['from'])) {
             	$sql = "SELECT * FROM items WHERE type = :type AND title LIKE '%$title%' AND body LIKE '%$body%' AND rating LIKE '%$rating%' AND date BETWEEN '$from' AND '991212'";
             } else { // no date input
             	$sql = "SELECT * FROM items WHERE type = :type AND title LIKE '%$title%' AND body LIKE '%$body%' AND rating LIKE '%$rating%'";
@@ -292,7 +531,7 @@ if (isset($_GET)) {
 
         $req = $bdd->prepare($sql);
         $req->execute(array(
-            'type' => $_GET['type']
+            'type' => $_REQUEST['type']
         ));
         $count = $req->rowCount();
         if ($count > 0) {
@@ -337,7 +576,7 @@ if (isset($_GET)) {
         }
     }
     }
-}
+    }
 
 // FOOTER
 require_once('inc/footer.php');
@@ -347,5 +586,7 @@ $(document).ready(function(){
     // DATEPICKER
     $( ".datepicker" ).datepicker({dateFormat: 'ymmdd'});
 });
+
+
 </script>
 

@@ -273,6 +273,13 @@ h4 {
 #search_inputs_div {
     width:400px;
 }
+
+#chem_search_inputs_div {
+	width:400px;
+	overflow:auto;
+	padding-right:100px;
+}
+
 .search_inputs {
     float:right;
 }

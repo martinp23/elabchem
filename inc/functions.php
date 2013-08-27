@@ -140,6 +140,81 @@ function has_attachement($id) {
 }
 
 
+
+// substructure search across all structures in all experiments
+function substruc_search_rxns($fragmentmol, $table, $explist) {
+    global $bdd;
+    $results_arr = array();
+    $sql = "SELECT MOLECULE_TO_SMILES(:molecule)";
+    $req = $bdd->prepare($sql);
+    $result = $req->execute(array(
+        'molecule'  => $fragmentmol));
+    $smiles = $req->fetch();
+    
+    $sql = "SELECT t.exp_id FROM bin_structures as bin INNER JOIN $table AS t ON 
+                bin.compound_id=t.cpd_id WHERE ";
+    if($explist) {
+        $sql .= "t.exp_id IN (". implode(",", array_fill(0,count($explist),'?')) . ") AND ";
+    } else {
+        $explist = array();
+    }
+    $sql .= "MATCH_SUBSTRUCT(?, `obserialized`)";
+    $req = $bdd->prepare($sql);
+    $query_values = array_merge($explist,array($smiles[0]));
+    $result = $req->execute($query_values);
+    while ($data = $req->fetch()) {
+        $results_arr[] = $data['exp_id'];
+    }
+    
+    return array_unique($results_arr); 
+}
+
+
+function exact_search_rxns($molecule, $table, $explist) {
+    global $bdd;
+    $inchi = getInChI($molecule, $bdd);
+    $cid = findInChI($inchi, $bdd);
+    $results_arr = array();
+    $sql = "SELECT exp_id FROM $table WHERE cpd_id = :cid";
+    $req = $bdd->prepare($sql);
+    $result = $req->execute(array('cid' => $cid));
+        while ($data = $req->fetch()) {
+        $results_arr[] = $data['exp_id'];
+    }
+    return array_unique($results_arr); 
+    
+}
+
+function similarity_search_rxns($molecule, $table, $explist, $tanimoto) {
+    global $bdd;
+    $results_arr = array();
+    // first we use SET to store fingerprint in mysql memory for performance reasons
+    $sql = "SET @fp = (SELECT FINGERPRINT2(:mol))";
+    $req = $bdd->prepare($sql);
+    $result = $req->execute(array('mol' => $molecule));
+    
+    // now construct and run actual query
+    
+    $sql = "SELECT t.exp_id FROM bin_structures as bin INNER JOIN $table AS t ON 
+                bin.compound_id=t.cpd_id WHERE ";
+    if($explist) {
+        $sql .= "t.exp_id IN (". implode(",", array_fill(0,count($explist),'?')) . ") AND ";
+    } else {
+        $explist = array();
+    }
+    $sql .= "TANIMOTO(@fp,bin.fp2) >= ? ORDER BY TANIMOTO(@fp, bin.fp2) DESC";
+    $req = $bdd->prepare($sql);
+    $query_values = $explist;
+    $query_values[] = $tanimoto;
+    $result = $req->execute($query_values);
+    while ($data = $req->fetch()) {
+        $results_arr[] = $data['exp_id'];
+    }
+    
+    
+    return array_unique($results_arr); 
+}
+
 // Search item
 function search_item($type, $query, $userid) {
     global $bdd;
@@ -450,6 +525,16 @@ function check_status($input) {
         }
     } else {
         return NULL;
+    }
+}
+
+function check_search_type($input) {
+    if((isset($input)) && (!empty($input))){
+        if(($input === 'exact') || ($input === 'substructure') || ($input === 'similarity')){
+            return $input;
+        }
+    } else {
+        return 'exact';
     }
 }
 
