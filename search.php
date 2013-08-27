@@ -36,9 +36,9 @@ require_once('inc/info_box.php');
     <div class='align_left'>
         <!-- even though this is a search form, we are submitting with POST because query strings might be long 
             when involving chemistry queries -->
-        <form name="search" method="post" action="search.php">
+        <form name="search" method="post" onsubmit='return preSubmit()' action="search.php">
             <!-- SUBMIT BUTTON -->
-            <button class='submit_search_button' onclick='preSubmit();' type='submit'>
+            <button class='submit_search_button' type='submit'>
                 <img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/submit.png' name='Submit' value='Submit' />
                 <p>FIND</p>
             </button>
@@ -202,8 +202,8 @@ for($i=1; $i<=5; $i++) {
 </script>
     <br />
 
-    
-    <p class='inline'>Search type </p><select name='structsearchtype'>
+    <div id='chem_search_inputs_div'>
+    <p class='inline'>Search type </p><select name='structsearchtype' id='structsearchtype' class='search_inputs'>
 
 <option value='exact' name='status'<?php
                     if(isset($_REQUEST['structsearchtype']) && ($_REQUEST['structsearchtype'] == 'exact')) {
@@ -222,15 +222,15 @@ for($i=1; $i<=5; $i++) {
 ?>>Similarity search</option>
 
 </select>
-    <br />
-    <p class='inline'>Tanimoto coeff (0-1) </p><input type="text" name='tanimoto' value='<?php
+    <br /><br />
+    <p class='inline'>Tanimoto coeff (0-1) </p><input type="text" name='tanimoto' id='tanimoto' class='search_inputs' value='<?php
                     if(isset($_REQUEST['tanimoto'])) {
                         echo $_REQUEST['tanimoto'];
                     } else {
                         echo '0.7';
                     }
 ?>'></input>
-    
+    </div>
     </div>
 
 
@@ -258,6 +258,19 @@ for($i=1; $i<=5; $i++) {
             document.getElementById('rxn').value = '';
             document.getElementById('mol').value = '';
         }
+        
+        var tanimoto = document.getElementById('tanimoto').value;
+        var parsedTanimoto = parseFloat(tanimoto);
+        if(document.getElementById('structsearchtype').value === 'similarity') {
+            // if we're doing a similarity search but the tanimoto field hasn't been filled, set it to 0.7.
+            if(tanimoto === undefined || tanimoto === null || tanimoto === '') {
+                document.getElementById('tanimoto').value = '0.7';
+            } else if (parsedTanimoto === false || parsedTanimoto < 0 || parsedTanimoto > 1) {
+                alert("Tanimoto value must be between 0 and 1.");
+                return false;
+            }
+            
+        } 
 
     <?php } ?>
 }</script>
