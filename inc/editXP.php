@@ -715,7 +715,7 @@ function preSubmit() {
     }
     
     if(document.editXP.title.value !== '<?php echo stripslashes($rev_data['rev_title']); ?>') {
-    	document.editXP.title.value = '1';
+    	document.editXP.title_changed.value = '1';
     }
     return;
 }
