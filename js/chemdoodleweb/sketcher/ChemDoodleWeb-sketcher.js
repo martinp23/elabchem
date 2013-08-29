@@ -3685,7 +3685,7 @@ ChemDoodle.sketcher.gui.imageDepot = (function() {
 		sb.push(this.attributeSet.getSource(bg));
 		sb.push(this.bondSet.getSource(bg));
 		sb.push(this.ringSet.getSource(bg));
-		if (!this.sketcher.oneMolecule) {
+		if (!this.sketcher.oneMolecule && this.sketcher.allowShapes) {
 			sb.push(this.shapeSet.getSource(bg));
 		}
 		sb.push(this.groupSet.getSource());
@@ -3717,11 +3717,12 @@ ChemDoodle.sketcher.gui.imageDepot = (function() {
 			this.buttonSearch.setup();
 			this.buttonCalculate.setup();
 		}
+	
 		this.labelSet.setup();
 		this.attributeSet.setup();
 		this.bondSet.setup();
 		this.ringSet.setup();
-		if (!this.sketcher.oneMolecule) {
+		if (!this.sketcher.oneMolecule && this.sketcher.allowShapes) {
 			this.shapeSet.setup();
 		}
         this.groupSet.setup();
@@ -4309,6 +4310,7 @@ ChemDoodle.sketcher.gui.imageDepot = (function() {
 		this.isMobile = options.isMobile === undefined ? featureDetection.supports_touch() : options.isMobile;
 		this.useServices = options.useServices === undefined ? false : options.useServices;
 		this.oneMolecule = options.oneMolecule === undefined ? false : options.oneMolecule;
+		this.allowShapes = options.allowShapes === undefined ? true : options.allowShapes;
 		this.includeToolbar = options.includeToolbar === undefined ? true : options.includeToolbar;
 		// toolbar manager needs the sketcher id to make it unique to this
 		// canvas
