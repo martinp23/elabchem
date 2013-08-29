@@ -191,14 +191,14 @@ $bdd->beginTransaction();
                 'exp_id'    => $id));
             
             if($num_react > 0) {
-                $insertPlaceHolder = implode(',', array_fill(0, count($num_react), '(?,?)'));
+                $insertPlaceHolder = implode(',', array_fill(0, $num_react, '(?,?)'));
                 $sql = "INSERT INTO rel_exp_structure_react (exp_id, cpd_id) VALUES " . $insertPlaceHolder;
                 $req = $bdd->prepare($sql);
                 $result = $req->execute($reacts_to_insert);
             }
             
             if($num_prod > 0) {
-                $insertPlaceHolder = implode(',', array_fill(0, count($num_prod), '(?,?)'));                
+                $insertPlaceHolder = implode(',', array_fill(0, $num_prod, '(?,?)'));                
                 $sql = "INSERT INTO rel_exp_structure_prod (exp_id, cpd_id) VALUES " . $insertPlaceHolder;
                 $req = $bdd->prepare($sql);
                 $result = $req->execute($prods_to_insert);
