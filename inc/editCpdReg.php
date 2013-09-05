@@ -463,7 +463,7 @@ if($id > 0) {
 		        data:{structId:inchi, representation:representation},
 		        
 		        success: function(out) {
-		            if(iupacname) {
+		            if(out) {
 		            	el.value = out;
 		            } else {
 		            	alert("Unable to find unambiguous value in PubChem/ChemSpider.");
