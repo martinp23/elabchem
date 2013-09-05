@@ -34,7 +34,7 @@ if (isset($_POST['id']) && is_pos_int($_POST['id'])) {
 if(isset($_POST['item_id']) && is_pos_int($_POST['item_id'])) {
     $item_id = $_POST['item_id'];
 } else {
-    die("The item id parameter in the URL isn't valid !");
+    die("The item id parameter in the URL isn't valid!");
 }
 
 // Check item_id is owned by connected user

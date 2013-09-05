@@ -410,7 +410,6 @@ if (isset($_REQUEST)) {
                     if ($structSearchType === 'substructure') {      
                         // first let us deconstruct our rxn string into products and reagents.  
                         $results_temp = array();
-                        $results_id = array();
                         if($num_react + $num_prod > 0) {
                             for($i = 0; $i < $num_react; $i++) {
                                 $results_temp[] = substruc_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);

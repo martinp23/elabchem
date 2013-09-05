@@ -62,7 +62,7 @@ if (isset($_SESSION['auth']) && $_SESSION['auth'] == 1) {
                 </p>
                 <p>
                     <label for="cpassword">Confirm password</label>
-                    <input name="cpassword" type="password" id="cpassword" data-trigger="change" data-equalto="#password" data-error-message="The passwords do not match !" />
+                    <input name="cpassword" type="password" id="cpassword" data-trigger="change" data-equalto="#password" data-error-message="The passwords do not match!" />
                 </p>
                 Password complexity (for your information) : <span id="complexity">0%</span><br /><br />
                 <div id='submitDiv'>

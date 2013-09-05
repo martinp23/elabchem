@@ -137,7 +137,7 @@ $res = $req->rowCount();
 if ($res) {
     echo $ok;
 } else { // no structure here
-    die($fail. " You need to import the file install/elabftw.sql in your database !");
+    die($fail. " You need to import the file install/elabftw.sql in your database!");
 }
 // END SQL CONNECT
 
@@ -197,7 +197,7 @@ $result = $mailer->send($message);
 if ($result) {
     echo $ok;
 } else {
-    echo $fail." : Couldn't send email. Check your SMTP settings !";
+    echo $fail." : Couldn't send email. Check your SMTP settings!";
 }
  */
 
@@ -244,7 +244,7 @@ if ($test[0] != 0) {
                 </p>
                 <p>
                     <label for="cpassword">Confirm password</label>
-                    <input name="cpassword" type="password" id="cpassword" data-trigger="change" data-equalto="#password" data-error-message="The passwords do not match !" />
+                    <input name="cpassword" type="password" id="cpassword" data-trigger="change" data-equalto="#password" data-error-message="The passwords do not match!" />
                 </p>
                 Password complexity (for your information) : <span id="complexity">0%</span><br /><br />
                 <div id='submitDiv'>

@@ -54,7 +54,7 @@ if ($count_tpl > 0) {
         echo "<li class='inline'><a href='create_item.php?type=exp&exp_type=".$tpl['exp_type']."&tpl=".$tpl['id']."' class='templates'>".$tpl['name']."</a></li> ";
     }
 } else { // user has no templates
-    echo "You do not have any templates yet. Go to <a href='ucp.php'>your control panel</a> to make one !";
+    echo "You do not have any templates yet. Go to <a href='ucp.php'>your control panel</a> to make one!";
 }
 ?>
 </ul></div>
