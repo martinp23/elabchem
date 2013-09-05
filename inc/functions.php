@@ -142,7 +142,7 @@ function has_attachement($id) {
 
 
 // substructure search across all structures in all experiments
-function substruc_search_rxns($fragmentmol, $table, $explist) {
+function substruc_search($fragmentmol, $table, $explist, $col) {
     global $bdd;
     $results_arr = array();
     $sql = "SELECT MOLECULE_TO_SMILES(:molecule)";
@@ -151,10 +151,10 @@ function substruc_search_rxns($fragmentmol, $table, $explist) {
         'molecule'  => $fragmentmol));
     $smiles = $req->fetch();
     
-    $sql = "SELECT t.exp_id FROM bin_structures as bin INNER JOIN $table AS t ON 
+    $sql = "SELECT t.".$col." FROM bin_structures as bin INNER JOIN $table AS t ON 
                 bin.compound_id=t.cpd_id WHERE ";
     if($explist) {
-        $sql .= "t.exp_id IN (". implode(",", array_fill(0,count($explist),'?')) . ") AND ";
+        $sql .= "t.".$col." IN (". implode(",", array_fill(0,count($explist),'?')) . ") AND ";
     } else {
         $explist = array();
     }
@@ -163,29 +163,29 @@ function substruc_search_rxns($fragmentmol, $table, $explist) {
     $query_values = array_merge($explist,array($smiles[0]));
     $result = $req->execute($query_values);
     while ($data = $req->fetch()) {
-        $results_arr[] = $data['exp_id'];
+        $results_arr[] = $data[$col];
     }
     
     return array_unique($results_arr); 
 }
 
 
-function exact_search_rxns($molecule, $table, $explist) {
+function exact_search($molecule, $table, $explist, $col) {
     global $bdd;
     $inchi = getInChI($molecule, $bdd);
     $cid = findInChI($inchi, $bdd);
     $results_arr = array();
-    $sql = "SELECT exp_id FROM $table WHERE cpd_id = :cid";
+    $sql = "SELECT ".$col." FROM $table WHERE cpd_id = :cid";
     $req = $bdd->prepare($sql);
     $result = $req->execute(array('cid' => $cid));
         while ($data = $req->fetch()) {
-        $results_arr[] = $data['exp_id'];
+        $results_arr[] = $data[$col];
     }
     return array_unique($results_arr); 
     
 }
 
-function similarity_search_rxns($molecule, $table, $explist, $tanimoto) {
+function similarity_search($molecule, $table, $explist, $tanimoto, $col) {
     global $bdd;
     $results_arr = array();
     // first we use SET to store fingerprint in mysql memory for performance reasons
@@ -195,10 +195,10 @@ function similarity_search_rxns($molecule, $table, $explist, $tanimoto) {
     
     // now construct and run actual query
     
-    $sql = "SELECT t.exp_id FROM bin_structures as bin INNER JOIN $table AS t ON 
+    $sql = "SELECT t.".$col." FROM bin_structures as bin INNER JOIN $table AS t ON 
                 bin.compound_id=t.cpd_id WHERE ";
     if($explist) {
-        $sql .= "t.exp_id IN (". implode(",", array_fill(0,count($explist),'?')) . ") AND ";
+        $sql .= "t.".$col." IN (". implode(",", array_fill(0,count($explist),'?')) . ") AND ";
     } else {
         $explist = array();
     }
@@ -208,7 +208,7 @@ function similarity_search_rxns($molecule, $table, $explist, $tanimoto) {
     $query_values[] = $tanimoto;
     $result = $req->execute($query_values);
     while ($data = $req->fetch()) {
-        $results_arr[] = $data['exp_id'];
+        $results_arr[] = $data[$col];
     }
     
     
@@ -470,13 +470,13 @@ function check_title($input) {
 }
 
 function check_rxn($input) {				
-		if ((isset($input)) && (!empty($input))) {
-       			 $rxn = filter_var($input, FILTER_SANITIZE_STRING);
-				 $rxn = str_replace("\r\n", "\n", $rxn); 
-			 return $rxn;
-	    } else {
-        return '';
- 	    }
+	if ((isset($input)) && (!empty($input))) {
+   			 $rxn = filter_var($input, FILTER_SANITIZE_STRING);
+			 $rxn = str_replace("\r\n", "\n", $rxn); 
+		 return $rxn;
+    } else {
+    return '';
+    }
 }
 
 function check_date($input) {
@@ -539,7 +539,7 @@ function check_search_type($input) {
 }
 
 function check_bool($input) {
-	if((isset($input)) && (!empty($input)) && ($input === '1')){
+	if((isset($input)) && (!empty($input)) && (($input === '1') || ($input === 'true'))){
 		return true;
 	}
 	else {
@@ -1079,3 +1079,71 @@ function findInChI($inchi,$bdd) {
     };
 };
 
+function regIdFromCid($cid,$bdd) {
+    $sql = "SELECT id from `compound_registry` WHERE cpd_id = :cid";
+    $req = $bdd->prepare($sql);
+    $req->execute( array('cid' => $cid));
+    $results = array();
+    while ($data = $req->fetch()) {
+        $results[] = $data['id'];
+    };
+    if(count($results) == 1) {
+        return $results[0];
+    } else {
+        return false;
+    };
+};
+
+function regNoFromRegId($regid,$bdd) {
+    $sql = "SELECT regno from `compound_registry` WHERE id = :id";
+    $req = $bdd->prepare($sql);
+    $req->execute( array('id' => $regid));
+    $results = array();
+    while ($data = $req->fetch()) {
+        $results[] = $data['regno'];
+    };
+    if(count($results) == 1) {
+        return $results[0];
+    } else {
+        return false;
+    };
+};
+
+function showRegCpd($regId) {
+    global $bdd;
+    
+    // sql to get name, CAS, verification status and structure (if present)
+    $sql = "SELECT cpd.name, cpd.cas_number, reg.no_structure, reg.validated FROM compounds AS cpd JOIN compound_registry AS reg 
+            ON reg.cpd_id = cpd.id WHERE reg.id = :id";
+    $req = $bdd->prepare($sql); 
+    $req->execute(array('id' => $regId));
+    $cpd_result = $req->fetch(PDO::FETCH_ASSOC);
+    
+    if($cpd_result['validated'] === '1') {
+        $html = "<div class='regCpdContainer validated'>";
+    } else {
+        $html = "<div class='regCpdContainer pending'>";
+    }
+    
+    if($cpd_result['no_structure'] === '0') {
+        $sql = "SELECT 3d.molfile FROM 3D_structures AS 3d JOIN compound_registry AS reg ON reg.cpd_id = 3d.compound_id WHERE reg.id = :id";
+        $req = $bdd->prepare($sql);
+        $req->execute(array('id' => $regId));
+        $mol_results = $req->fetch();
+        $mol = $mol_results[0]; 
+        $html .= "<div class='regMolecule'><canvas id='viewer_" .$regId. "'></canvas></div>";
+        $html .= "<script type='text/javascript'>\nvar viewer_".$regId." = new ChemDoodle.ViewerCanvas('viewer_".$regId."', 150, 150);\n";
+        $html .= "viewer_".$regId.".loadMolecule(ChemDoodle.readMOL(".json_encode($mol)."));\n</script>";
+    } else {
+        $html .= "<div class='regMolecule'><canvas id='viewer_" .$regId. "'></canvas></div>";
+        $html .= "<script type='text/javascript'>\nvar viewer_".$regId." = new ChemDoodle.ViewerCanvas('viewer_".$regId."', 150, 150);\n";
+        $html .= "viewer_".$regId.".emptyMessage = 'No structure';\nviewer_".$regId.".repaint</script>";
+    }
+    $html .= "<div class='regDataContainer'>Name: ".$cpd_result['name']."<br />";
+    $html .= "CAS: ".$cpd_result['cas_number']."<br />";
+    $html .= "<a href='compounds.php?mode=edit&regid=".$regId."'>Edit</a>";
+    $html .= "</div></div>";
+    echo $html;
+
+  
+}

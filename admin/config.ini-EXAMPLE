@@ -32,6 +32,9 @@ debug = off
 ; activate chemistry functions (on/off)
 chemistry = on
 
+; prefix series of letters for compound registration numbers (eg ABC or ELB)
+cpd-prefix = ELB
+
 ; proxy setting (change it to proxy.company.com:3128 or leave blank if you're not behind a proxy)
 proxy =
 

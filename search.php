@@ -412,15 +412,15 @@ if (isset($_REQUEST)) {
                         $results_temp = array();
                         if($num_react + $num_prod > 0) {
                             for($i = 0; $i < $num_react; $i++) {
-                                $results_temp[] = substruc_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);
+                                $results_temp[] = substruc_search($molecules[$i], 'rel_exp_structure_react', $results_id, 'exp_id');
                             }
                             for($i = $num_react; $i < $num_react + $num_prod; $i++) {
-                                $results_temp[] = substruc_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id);
+                                $results_temp[] = substruc_search($molecules[$i], 'rel_exp_structure_prod', $results_id, 'exp_id');
                             }
                         } elseif (count($molecules) > 0) {
                             for($i = 0; $i < count($molecules); $i++) {
-                                $x = substruc_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);
-                                $y = substruc_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id);
+                                $x = substruc_search($molecules[$i], 'rel_exp_structure_react', $results_id, 'exp_id');
+                                $y = substruc_search($molecules[$i], 'rel_exp_structure_prod', $results_id, 'exp_id');
                                 $results_temp[] = array_merge($x,$y);
                             }                        
                         }
@@ -431,15 +431,15 @@ if (isset($_REQUEST)) {
                          $results_temp = array();  
                          if($num_react + $num_prod > 0) {
                                 for($i = 0; $i < $num_react; $i++) {
-                                    $results_temp[] = exact_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);
+                                    $results_temp[] = exact_search($molecules[$i], 'rel_exp_structure_react', $results_id, 'exp_id');
                                 }
                                 for($i = $num_react; $i < $num_react + $num_prod; $i++) {
-                                    $results_temp[] = exact_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id);
+                                    $results_temp[] = exact_search($molecules[$i], 'rel_exp_structure_prod', $results_id, 'exp_id');
                                 }
                           } elseif (count($molecules) > 0) {
                                 for($i = 0; $i < count($molecules); $i++) {
-                                    $x = exact_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id);
-                                    $y = exact_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id);
+                                    $x = exact_search($molecules[$i], 'rel_exp_structure_react', $results_id, 'exp_id');
+                                    $y = exact_search($molecules[$i], 'rel_exp_structure_prod', $results_id, 'exp_id');
                                     $results_temp[] = array_merge($x,$y);
                                 }
                           }
@@ -448,15 +448,15 @@ if (isset($_REQUEST)) {
                          $results_temp = array();  
                          if($num_react + $num_prod > 0) {
                                 for($i = 0; $i < $num_react; $i++) {
-                                    $results_temp[] = similarity_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id, $tanimoto);
+                                    $results_temp[] = similarity_search($molecules[$i], 'rel_exp_structure_react', $results_id, $tanimoto, 'exp_id');
                                 }
                                 for($i = $num_react; $i < $num_react + $num_prod; $i++) {
-                                    $results_temp[] = similarity_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id, $tanimoto);
+                                    $results_temp[] = similarity_search($molecules[$i], 'rel_exp_structure_prod', $results_id, $tanimoto, 'exp_id');
                                 }
                           } elseif (count($molecules) > 0) {
                                 for($i = 0; $i < count($molecules); $i++) {
-                                    $x = similarity_search_rxns($molecules[$i], 'rel_exp_structure_react', $results_id, $tanimoto);
-                                    $y = similarity_search_rxns($molecules[$i], 'rel_exp_structure_prod', $results_id, $tanimoto);
+                                    $x = similarity_search($molecules[$i], 'rel_exp_structure_react', $results_id, $tanimoto, 'exp_id');
+                                    $y = similarity_search($molecules[$i], 'rel_exp_structure_prod', $results_id, $tanimoto, 'exp_id');
                                     $results_temp[] = array_merge($x,$y);
                                 }
                           }
@@ -556,7 +556,7 @@ if (isset($_REQUEST)) {
             <a href='make_zip.php?id=<?php echo $results_id_str;?>&type=items'>
             <img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/zip.gif' title='make a zip archive' alt='zip' /></a>
 
-                <a href='make_csv.php?id=<?php echo $results_id_str;?>&type=items'><img src='img/spreadsheet.png' title='Export in spreadsheet file' alt='Export in spreadsheet file' /></a>
+            <a href='make_csv.php?id=<?php echo $results_id_str;?>&type=items'><img src='img/spreadsheet.png' title='Export in spreadsheet file' alt='Export in spreadsheet file' /></a>
             </div>
 <?php
             if ($count == 1) {

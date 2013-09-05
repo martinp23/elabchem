@@ -38,6 +38,8 @@ if (isset($_GET['type']) && ($_GET['type'] === 'exp')){
     $item_type = 'experiments_templates';
 } elseif (isset($_GET['type']) && ($_GET['type'] === 'item_type')) {
     $item_type = 'items_types';
+} elseif (isset($_GET['type']) && ($_GET['type'] === 'regcpd')) {
+    $item_type = 'compound_registry';
 } else {
     $item_type = 'items';
 }
@@ -130,6 +132,8 @@ if ($result1) {
         header("location: database.php");
     } elseif ($item_type === 'items_types') {
         header("location: admin.php");
+    } elseif ($item_type === 'compound_registry') {
+        header("location: compounds.php");
     } else {
         header("location: ucp.php");
     }

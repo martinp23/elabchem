@@ -782,3 +782,53 @@ footer p, footer p a {
 .slick-group-title[level='2'] {
   font-style: italic;
 }
+
+.regCpdContainer {
+	overflow:hidden;
+	width:400px;
+	border-radius: 5px;
+    font: 16px Verdana, Arial, Helvetica, sans-serif;
+    margin: auto;
+    margin-bottom:10px;
+    margin-left:30px;
+    float:left;
+    opacity: 0.95;
+    background-color: #EEE;
+    border: 1px dotted #CCC;
+    box-shadow:  3px 2px 2px 1px #CCC; 
+    -webkit-box-shadow: 3px 2px 2px 1px #CCC;
+    -moz-box-shadow: 3px 2px 2px 1px #CCC;
+}
+
+.regMolecule {
+	float:left;
+	padding:5px;
+	width:150px;
+}
+
+.regDataContainer {
+	padding:5px;
+	width:200px;
+	position:relative;
+	float:right;
+}
+
+.validated {
+    border: 2px dotted green !important;
+}
+
+.pending {
+    border: 2px dotted blue !important;
+}
+
+.cpdItemContainer {
+	overflow:auto;
+}
+
+.cpdEditLoupe {
+	width:15px;
+	height:15px;
+	position:absolute;
+	z-index:1;
+	margin-top:5px;
+}
