@@ -27,13 +27,31 @@
 	$structId = str_replace(" ", "+", $_REQUEST['structId']);
 	$representation = $_REQUEST['representation'];
 	
-	$url = "http://cactus.nci.nih.gov/chemical/structure/{$structId}/{$representation}";
-	$curl = curl_init($url);
-	curl_setopt($curl, CURLOPT_FAILONERROR, 1);
-	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-	
-	$result = curl_exec($curl);
+    if($representation === 'chemspider') {
+        $url = "http://www.chemspider.com/inchi.asmx/InChIToCSID?inchi={$structId}";
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_FAILONERROR, 1);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($curl);
+        $resultxml = simplexml_load_string($result);
+        $result = strval($resultxml);
+    } else {
+    
+    	$url = "http://cactus.nci.nih.gov/chemical/structure/{$structId}/{$representation}";
+    	$curl = curl_init($url);
+    	curl_setopt($curl, CURLOPT_FAILONERROR, 1);
+    	curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    	
+    	$result = curl_exec($curl);
+    }
+    if(substr_count($result, "\n") > 0) {
+        // if pubchem has given us multiple choices then we return nothing, because we can't guess the right answer...
+        $result = false;
+    }
 	echo $result;
 	
 	curl_close($curl);
+    
+    
+    
 ?>
