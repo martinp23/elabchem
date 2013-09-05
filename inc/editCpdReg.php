@@ -496,17 +496,18 @@ if($id > 0) {
 <script>		
 function preSubmit() {
 	editChemReg.mol.value = mol;
-	if(mol = '') {
-	    if(editChemReg.mwt.value == '') {
-	        alert("Value for 'mol. wt.' required.");
+	debugger;
+	if(mol == '') {
+	    if(editChemReg.mwt.value == '' || isNaN(parseFloat(editChemReg.mwt.value)) ) {
+	        alert("Valid value for 'mol. wt.' required.");
 	        return false;
 	    }
-	    if (editChemReg.exact_mass.value == '') {
-	        alert("Value for 'exact mass' required.");
+	    if (editChemReg.exact_mass.value == '' || isNaN(parseFloat(editChemReg.exact_mass.value))) {
+	        alert("Valid value for 'exact mass' required.");
 	        return false;
 	    } 
-        if (editChemReg.exact_mass.value == '') {
-            alert("Value for 'formula' required.");
+        if (editChemReg.formula.value == '') {
+            alert("Valid value for 'formula' required.");
             return false;
         }
 	}
