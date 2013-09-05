@@ -109,7 +109,7 @@ if($id > 0) {
     <a class='align_right' href='delete_item.php?id=<?php echo $id;?>&type=regcpd' onClick="return confirm('Delete this entry?');"><img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/trash.png' title='delete' alt='delete' /></a>
 <?php } ?>
 <!-- BEGIN EDITChemReg FORM -->
-<form id="editChemReg" name="editChemReg" method="post" action="editChemReg-exec.php" enctype='multipart/form-data'>
+<form id="editChemReg" name="editChemReg" method="post" action="editChemReg-exec.php" onsubmit='return preSubmit();' enctype='multipart/form-data'>
 <input name='regid' type='hidden' value='<?php echo $id;?>' />
 <input name='cpdid' type='hidden' value='<?php echo $cpdid;?>' />
 
@@ -388,39 +388,42 @@ if($id > 0) {
                     }
                     if(typeof cpddata['cpd_name'] !== 'undefined') {
                         editChemReg.name.value = cpddata['cpd_name'];
-                    }
+                    } else { editChemReg.name.value = ''; }
                     if(typeof cpddata['iupac_name'] !== 'undefined') {
                         editChemReg.iupac_name.value = cpddata['iupac_name'];
-                    }
+                    } else { editChemReg.iupac_name.value = '';}
                     if(typeof cpddata['cas_number'] !== 'undefined') {
                         editChemReg.cas_number.value = cpddata['cas_number'];
-                    }
+                    } else { editChemReg.cas_number.value = ''; }
                     if(typeof cpddata['pubchem_id'] !== 'undefined') {
                         editChemReg.pubchem_id.value = cpddata['pubchem_id'];
-                    }
+                    } else {editChemReg.pubchem_id.value = ''; }
                     if(typeof cpddata['chemspider_id'] !== 'undefined') {
                         editChemReg.chemspider_id.value = cpddata['chemspider_id'];
-                    }
+                    } else { editChemReg.chemspider_id.value = ''; }
                     if(typeof cpddata['density'] !== 'undefined') {
                         editChemReg.density.value = cpddata['density'];       
-                    }             
+                    } else { editChemReg.density.value = ''; }          
                     if(typeof cpddata['mwt'] !== 'undefined') {
                         editChemReg.mwt.value = cpddata['mwt'];
                         editChemReg.mwt.disabled = true;
                     } else {
                         editChemReg.mwt.disabled = false;
+                        editChemReg.mwt.value = '';
                     }
                     if(typeof cpddata['exact_mass'] !== 'undefined') {
                         editChemReg.exact_mass.value = cpddata['exact_mass'];
                         editChemReg.exact_mass.disabled = true;
                     } else {
                         editChemReg.exact_mass.disabled = false;
+                        editChemReg.exact_mass.value = '';
                     }
                     if(typeof cpddata['formula'] !== 'undefined') {
                         editChemReg.formula.value = cpddata['formula'];
                         editChemReg.formula.disabled = true;
                     } else {
                         editChemReg.formula.disabled = false;
+                        editChemReg.formula.value = '';
                     }
                     if(typeof cpddata['id'] !== 'undefined') {
                         editChemReg.cpdid.value = cpddata['id'];
@@ -429,7 +432,7 @@ if($id > 0) {
                     }
                     if(typeof cpddata['notes'] !== 'undefined') {
                         editChemReg.notes.value = cpddata['notes'];
-                    }
+                    } else { editChemReg.notes.value = ''; }
                     if(typeof cpddata['inchi'] !== 'undefined') {
                         editChemReg.inchi.value = cpddata['inchi'];
                     } else {
@@ -486,13 +489,31 @@ if($id > 0) {
 
 
 <div class='center' id='saveButton'>
-      <p class='center'><input type="submit" href="Submit" onclick="preSubmit();" name="Verify entry" class='button' value='Save and reload'></input></p>
+      <p class='center'><input type="submit" href="Submit" name="Verify entry" class='button' value='Save and reload'></input></p>
 </div>
 </form><!-- end editXP form -->
 
 <script>		
 function preSubmit() {
 	editChemReg.mol.value = mol;
+	if(mol = '') {
+	    if(editChemReg.mwt.value == '') {
+	        alert("Value for 'mol. wt.' required.");
+	        return false;
+	    }
+	    if (editChemReg.exact_mass.value == '') {
+	        alert("Value for 'exact mass' required.");
+	        return false;
+	    } 
+        if (editChemReg.exact_mass.value == '') {
+            alert("Value for 'formula' required.");
+            return false;
+        }
+	}
+	if(editChemReg.name.value == '') {
+	    alert("You must provide a name for the compound.");
+	    return false;
+	}
     return;
 }
 
