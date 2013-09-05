@@ -156,7 +156,7 @@ if($mol !== '' && $cpdid !== '')  {
     ON c.id = cp.compound_id JOIN compound_registry AS creg ON c.id = creg.cpd_id 
     SET c.name = :name, c.iupac_name = :iupac_name, c.cas_number = :cas_number, c.pubchem_id = :pubchem_id,
     c.chemspider_id = :chemspider_id, cp.density = :density, creg.is_salt = :saltCheck, 
-    creg.parent_regid = :parentregid, c.notes = :notes
+    creg.parent_regid = :parentregid, c.notes = :notes, creg.no_structure = 0 
     WHERE creg.id = :regid";
     $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
     $result = $req->execute(array(
@@ -213,7 +213,7 @@ if($mol !== '' && $cpdid !== '')  {
     $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
     $result = $req->execute(array('density' => $density));
     
-    $sql = "UPDATE compound_registry SET cpd_id = $cpdid, is_salt = :issalt, parent_regid = :parent_regid WHERE id = :regid";
+    $sql = "UPDATE compound_registry SET cpd_id = $cpdid, is_salt = :issalt, parent_regid = :parent_regid, no_structure = 0 WHERE id = :regid";
     $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
     $result = $req->execute(array(
                         'issalt' => $issalt,
