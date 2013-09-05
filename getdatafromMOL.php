@@ -59,13 +59,14 @@
         }	
 	} else {
 
-		$sql = "SELECT MOLWEIGHT(:molecule), MOLFORMULA(:molecule);";
+		$sql = "SELECT MOLWEIGHT(:molecule), MOLFORMULA(:molecule), EXACTMASS(:molecule);";
         $req = $bdd->prepare($sql);
         $req->execute(array('molecule' => $mol));
 		$data = $req->fetch();
 		$result = array();
 		$result['mwt'] = $data[0];
 		$result['formula'] = $data[1];
+        $result['exact_mass'] = $data[2];
 		$result['inchi'] = $inchi;
 	};
 

@@ -176,7 +176,7 @@ if($mol !== '' && $cpdid !== '')  {
     // if we have a structure but no compound ID, let's first register the structure as a compound and calculate properties
     // and then insert data  
     $sql = "INSERT INTO compounds (name, iupac_name, cas_number, pubchem_id, chemspider_id, user_id_entrant, created, notes)
-    VALES (:name, :iupac_name, :cas_number, :pubchem_id, :chemspider_id, :user_id, NOW(), :notes)";
+    VALUES (:name, :iupac_name, :cas_number, :pubchem_id, :chemspider_id, :user_id, NOW(), :notes)";
     $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
     $result = $req->execute(array(                        
                         'name'  => $name,
@@ -213,7 +213,7 @@ if($mol !== '' && $cpdid !== '')  {
     $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
     $result = $req->execute(array('density' => $density));
     
-    $sql = "UPDATE compounds_registry SET cpd_id = $cpdid, is_salt = :issalt, parent_regid = :parent_regid WHERE id = :regid";
+    $sql = "UPDATE compound_registry SET cpd_id = $cpdid, is_salt = :issalt, parent_regid = :parent_regid WHERE id = :regid";
     $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
     $result = $req->execute(array(
                         'issalt' => $issalt,
@@ -254,7 +254,7 @@ if($mol !== '' && $cpdid !== '')  {
     // if we have no structure and no compound ID, we need to first make a compound with the properties stated by the user,
     // then update the entry in the registry to refer to the new cpd_id.    
     $sql = "INSERT INTO compounds (name, iupac_name, cas_number, pubchem_id, chemspider_id, user_id_entrant, created, notes)
-    VALES (:name, :iupac_name, :cas_number, :pubchem_id, :chemspider_id, :user_id_entrant, NOW(), :notes)";
+    VALUES (:name, :iupac_name, :cas_number, :pubchem_id, :chemspider_id, :user_id_entrant, NOW(), :notes)";
     $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
     $result = $req->execute(array(                        
                         'name'  => $name,
@@ -276,7 +276,7 @@ if($mol !== '' && $cpdid !== '')  {
                         'formula'   => $formula,
                         'density' => $density));    
     
-    $sql = "UPDATE compounds_registry SET cpd_id = $cpdid, is_salt = :issalt, parent_regid = :parent_regid, no_structure=1 WHERE id = :regid";
+    $sql = "UPDATE compound_registry SET cpd_id = $cpdid, is_salt = :issalt, parent_regid = :parent_regid, no_structure=1 WHERE id = :regid";
     $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
     $result = $req->execute(array(
                         'issalt' => $isSalt,
@@ -290,7 +290,7 @@ if($isSalt) {
     
     $sql = "SELECT count(regno) FROM compound_registry WHERE regno LIKE :regno";
     $req = $bdd->prepare($sql);
-    $result = $req->execute(array('regno' => $parentregid . '%'));
+    $result = $req->execute(array('regno' => $_POST['cpdParentRegNum'] . '%'));
     $count = $req->fetch();
     
     $saltSuffix = 'A';
