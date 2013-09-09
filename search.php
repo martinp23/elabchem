@@ -379,23 +379,27 @@ if (isset($_REQUEST)) {
                 if(isset($_REQUEST['all']) && !empty($_REQUEST['all'])) {
 					$sql = "SELECT exp.id FROM experiments exp JOIN revisions rev on exp.rev_id = rev.rev_id
 					WHERE exp.status LIKE '%$status%' AND exp.date BETWEEN '$from' AND '$to' AND rev.rev_title LIKE '%$title%'
-					AND rev.rev_body LIKE '%$body%';";
+					AND rev.rev_body LIKE '%$body%'";
 				}
 				else { //search only in your experiments
 					$sql = "SELECT exp.id FROM experiments exp JOIN revisions rev on exp.rev_id = rev.rev_id
 					WHERE exp.status LIKE '%$status%' AND exp.date BETWEEN '$from' AND '$to' AND rev.rev_title LIKE '%$title%'
-					AND rev.rev_body LIKE '%$body%' AND exp.userid_creator = :userid;";
+					AND rev.rev_body LIKE '%$body%' AND exp.userid_creator = :userid";
 				}			
             } else { // no date input
                 if(isset($_REQUEST['all']) && !empty($_REQUEST['all'])) {
 					$sql = "SELECT exp.id FROM experiments exp JOIN revisions rev on exp.rev_id = rev.rev_id
 					WHERE exp.status LIKE '%$status%' AND rev.rev_title LIKE '%$title%'
-					AND rev.rev_body LIKE '%$body%';";					
+					AND rev.rev_body LIKE '%$body%'";					
                 } else {
                     $sql = "SELECT exp.id FROM experiments exp JOIN revisions rev on exp.rev_id = rev.rev_id
 					WHERE exp.status LIKE '%$status%' AND rev.rev_title LIKE '%$title%'
-					AND rev.rev_body LIKE '%$body%' AND exp.userid_creator = :userid;";	
+					AND rev.rev_body LIKE '%$body%' AND exp.userid_creator = :userid";	
                 }
+            }
+            
+            if($status !== 'deleted') {
+                $sql .= " AND exp.status NOT LIKE 'deleted'";
             }
             
             $args = array('userid' => $_SESSION['userid']);
