@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Sep 09, 2013 at 05:01 PM
+-- Generation Time: Sep 09, 2013 at 05:19 PM
 -- Server version: 5.5.29-log
 -- PHP Version: 5.4.10
 
@@ -61,6 +61,29 @@ CREATE TABLE IF NOT EXISTS `bin_structures` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `compounds`
+--
+
+DROP TABLE IF EXISTS `compounds`;
+CREATE TABLE IF NOT EXISTS `compounds` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `iupac_name` text COLLATE utf8_bin,
+  `created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `user_id_entrant` int(10) unsigned NOT NULL,
+  `cas_number` varchar(20) COLLATE utf8_bin DEFAULT NULL,
+  `pubchem_id` int(15) DEFAULT NULL,
+  `chemspider_id` int(15) unsigned DEFAULT NULL,
+  `notes` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `name` (`name`),
+  KEY `id` (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Compound Library';
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `compound_properties`
 --
 
@@ -105,31 +128,11 @@ CREATE TABLE IF NOT EXISTS `compound_registry` (
   `parent_regid` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `regno` (`regno`),
-  KEY `cpd_id` (`cpd_id`,`userid_entrant`,`userid_registrar`)
+  KEY `cpd_id` (`cpd_id`),
+  KEY `userid_entrant` (`userid_entrant`),
+  KEY `userid_registrar` (`userid_registrar`),
+  KEY `parent_regid` (`parent_regid`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `compounds`
---
-
-DROP TABLE IF EXISTS `compounds`;
-CREATE TABLE IF NOT EXISTS `compounds` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `iupac_name` text COLLATE utf8_bin,
-  `created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `user_id_entrant` int(10) unsigned NOT NULL,
-  `cas_number` varchar(20) COLLATE utf8_bin DEFAULT NULL,
-  `pubchem_id` int(15) DEFAULT NULL,
-  `chemspider_id` int(15) unsigned DEFAULT NULL,
-  `notes` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `name` (`name`),
-  KEY `id` (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Compound Library';
 
 -- --------------------------------------------------------
 
@@ -310,6 +313,7 @@ CREATE TABLE IF NOT EXISTS `rel_exp_structure_react` (
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
+
 --
 -- Table structure for table `revisions`
 --
@@ -500,6 +504,15 @@ ALTER TABLE `bin_structures`
 --
 ALTER TABLE `compound_properties`
   ADD CONSTRAINT `compound_properties_ibfk_1` FOREIGN KEY (`compound_id`) REFERENCES `compounds` (`id`) ON UPDATE NO ACTION;
+
+--
+-- Constraints for table `compound_registry`
+--
+ALTER TABLE `compound_registry`
+  ADD CONSTRAINT `compound_registry_ibfk_4` FOREIGN KEY (`parent_regid`) REFERENCES `compound_registry` (`id`),
+  ADD CONSTRAINT `compound_registry_ibfk_1` FOREIGN KEY (`cpd_id`) REFERENCES `compounds` (`id`),
+  ADD CONSTRAINT `compound_registry_ibfk_2` FOREIGN KEY (`userid_entrant`) REFERENCES `users` (`userid`),
+  ADD CONSTRAINT `compound_registry_ibfk_3` FOREIGN KEY (`userid_registrar`) REFERENCES `users` (`userid`);
 
 --
 -- Constraints for table `experiments`
