@@ -43,7 +43,7 @@ require_once('inc/info_box.php');
                 <p>FIND</p>
             </button>
             <p class='inline'>Search in : </p>
-            <select name='type'>
+            <select name='type' onChange='typeChanged(this.value);'>
                 <option value='experiments'>Experiments</option>
                 <?php // Database items types
                 $sql = "SELECT * FROM items_types";
@@ -173,7 +173,7 @@ for($i=1; $i<=5; $i++) {
 <br />
             </div>
 <?php if(CHEMISTRY){ ?>
-<div align='center'>  
+<div id='chemdiv' align='center' <?php if((isset($_REQUEST['type'])) && $_REQUEST['type'] !== 'experiments') { echo "style='display:none;'"; } ?>>  
         <input type='hidden' id='rxn' name='rxn' value='<?php if(isset($_REQUEST['rxn'])) {
                         echo $_REQUEST['rxn'];
                     }  ?>'/>
@@ -223,7 +223,7 @@ for($i=1; $i<=5; $i++) {
     <br />
 
     <div id='chem_search_inputs_div'>
-    <p class='inline'>Search type </p><select name='structsearchtype' id='structsearchtype' class='search_inputs'>
+    <p class='inline'>Search type </p><select name='structsearchtype' id='structsearchtype' onChange='searchTypeChanged(this.value);' class='search_inputs'>
 
 <option value='exact' name='status'<?php
                     if(isset($_REQUEST['structsearchtype']) && ($_REQUEST['structsearchtype'] == 'exact')) {
@@ -243,13 +243,16 @@ for($i=1; $i<=5; $i++) {
 
 </select>
     <br /><br />
-    <p class='inline'>Tanimoto coeff (0-1) </p><input type="text" name='tanimoto' id='tanimoto' class='search_inputs' value='<?php
+    <span id='tanspan' <?php if(!isset($_REQUEST['structsearchtype']) || ($_REQUEST['structsearchtype'] !== 'similarity')) {
+        echo "style='display:none;'";
+    }    
+    ?>><p class='inline'>Tanimoto coeff (0-1)</p><input type="text" name='tanimoto' id='tanimoto' class='search_inputs' value='<?php
                     if(isset($_REQUEST['tanimoto'])) {
                         echo $_REQUEST['tanimoto'];
                     } else {
                         echo '0.7';
                     }
-?>'></input>
+?>'></input></span>
     </div>
     </div>
 
@@ -293,7 +296,28 @@ for($i=1; $i<=5; $i++) {
         } 
 
     <?php } ?>
-}</script>
+}
+
+function typeChanged(value) {
+    <?php if(CHEMISTRY) { ?>
+    if(value === 'experiments') {
+        document.getElementById('chemdiv').style.display = 'block';
+    } else {
+        document.getElementById('chemdiv').style.display = 'none';
+    }
+    <?php } ?>
+}
+
+function searchTypeChanged(value) {
+    <?php if(CHEMISTRY) { ?>
+        if(value === 'similarity') {
+            document.getElementById('tanspan').style.display = 'block';
+        } else {
+            document.getElementById('tanspan').style.display = 'none';
+        }
+    <?php } ?>
+}
+</script>
 
 <?php
 // assign variables from get
