@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Aug 03, 2013 at 10:45 PM
+-- Generation Time: Sep 09, 2013 at 05:01 PM
 -- Server version: 5.5.29-log
 -- PHP Version: 5.4.10
 
@@ -61,30 +61,6 @@ CREATE TABLE IF NOT EXISTS `bin_structures` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `compounds`
---
-
-DROP TABLE IF EXISTS `compounds`;
-CREATE TABLE IF NOT EXISTS `compounds` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_bin NOT NULL,
-  `iupac_name` text COLLATE utf8_bin,
-  `created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `user_id_entrant` int(10) unsigned NOT NULL,
-  `user_id_registrar` int(10) unsigned DEFAULT NULL,
-  `cas_number` varchar(20) COLLATE utf8_bin DEFAULT NULL,
-  `pubchem_id` int(15) DEFAULT NULL,
-  `chemspider_id` int(15) unsigned DEFAULT NULL,
-  `notes` varchar(255) COLLATE utf8_bin DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `name` (`name`),
-  KEY `id` (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Compound Library';
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `compound_properties`
 --
 
@@ -109,6 +85,51 @@ CREATE TABLE IF NOT EXISTS `compound_properties` (
   PRIMARY KEY (`compound_id`),
   KEY `compound_id` (`compound_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `compound_registry`
+--
+
+DROP TABLE IF EXISTS `compound_registry`;
+CREATE TABLE IF NOT EXISTS `compound_registry` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `cpd_id` int(10) unsigned NOT NULL,
+  `userid_entrant` int(10) unsigned NOT NULL,
+  `userid_registrar` int(10) unsigned DEFAULT NULL,
+  `validated` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `no_structure` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `regno` varchar(255) DEFAULT NULL,
+  `is_salt` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `parent_regid` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `regno` (`regno`),
+  KEY `cpd_id` (`cpd_id`,`userid_entrant`,`userid_registrar`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `compounds`
+--
+
+DROP TABLE IF EXISTS `compounds`;
+CREATE TABLE IF NOT EXISTS `compounds` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `iupac_name` text COLLATE utf8_bin,
+  `created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `user_id_entrant` int(10) unsigned NOT NULL,
+  `cas_number` varchar(20) COLLATE utf8_bin DEFAULT NULL,
+  `pubchem_id` int(15) DEFAULT NULL,
+  `chemspider_id` int(15) unsigned DEFAULT NULL,
+  `notes` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `name` (`name`),
+  KEY `id` (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Compound Library';
 
 -- --------------------------------------------------------
 
@@ -167,7 +188,7 @@ CREATE TABLE IF NOT EXISTS `experiments_tags` (
   `item_id` int(10) unsigned NOT NULL,
   `userid` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `userid` (`userid`)
+  KEY `userid_idx` (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -184,7 +205,7 @@ CREATE TABLE IF NOT EXISTS `experiments_templates` (
   `userid` int(10) unsigned DEFAULT NULL,
   `exp_type` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `userid` (`userid`)
+  KEY `userid_idx` (`userid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -203,8 +224,8 @@ CREATE TABLE IF NOT EXISTS `items` (
   `type` int(10) unsigned NOT NULL,
   `userid` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `userid` (`userid`),
-  KEY `type` (`type`)
+  KEY `userid_idx` (`userid`),
+  KEY `type_idx` (`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -219,7 +240,7 @@ CREATE TABLE IF NOT EXISTS `items_tags` (
   `tag` varchar(255) NOT NULL,
   `item_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `item_id` (`item_id`)
+  KEY `item_id_idx` (`item_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -264,9 +285,9 @@ CREATE TABLE IF NOT EXISTS `reactions` (
 
 DROP TABLE IF EXISTS `rel_exp_structure_prod`;
 CREATE TABLE IF NOT EXISTS `rel_exp_structure_prod` (
-  `rel_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `exp_id` int(10) UNSIGNED NOT NULL,
-  `cpd_id` int(11) UNSIGNED NOT NULL,
+  `rel_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `exp_id` int(10) unsigned NOT NULL,
+  `cpd_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`rel_id`),
   KEY `exp_id` (`exp_id`),
   KEY `cpd_id` (`cpd_id`)
