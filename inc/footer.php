@@ -19,35 +19,18 @@
 ********************************************************************************/
 ?>
 <footer>
-<script>
-function mouseOverPhp(action){
-if (action == 'on') {
-    document.php.src ="img/phpon.gif";
-} else {
-document.php.src ="img/phpoff.gif";}
-}
-function mouseOverSql(action){
-if (action == 'on') {
-    document.mysql.src ="img/mysqlon.gif";
-} else {
-document.mysql.src ="img/mysqloff.gif";}
-}
-function mouseOverCss(action){
-if (action == 'on') {
-    document.css.src ="img/csson.gif";
-} else {
-document.css.src ="img/cssoff.gif";}
-}
-</script>
-<script src="js/cornify.js"></script>
+<!-- common stuff -->
+<script src="js/common.min.js"></script>
+<!-- konami code and unicorns -->
+<script src="js/cornify.min.js"></script>
 
 <p>
 <?php
-// because inc/common.php is not here whene not logged in
+// because inc/common.php is not here when not logged in
 if (!isset($_SESSION['auth'])) {
-$ini_arr = parse_ini_file('admin/config.ini');
+    require_once('admin/config.php');
 }
-echo $ini_arr['lab_name']." powered by <a href='http://www.elabftw.net'>eLabFTW</a> by <a href='http://www.elabftw.net' onClick='cornify_add();return false;'>Nicolas CARPi</a></p>";
+echo "<p>".LAB_NAME." powered by <a href='http://www.elabftw.net'>eLabFTW</a> by <a href='http://www.elabftw.net' onClick='cornify_add();return false;'>Nicolas CARPi</a></p>";
 ?>
 <figure><a href='http://www.php.net'><img id='php' onmouseover="mouseOverPhp('on')" onmouseout="mouseOverPhp('off')" class='img' src='img/phpoff.gif' /></a>
 <a href='http://www.mysql.com'><img id='mysql' onmouseover="mouseOverSql('on')" onmouseout="mouseOverSql('off')" class='img' src='img/mysqloff.gif' /></a>

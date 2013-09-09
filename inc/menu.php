@@ -23,13 +23,13 @@
 *    License along with eLabFTW.  If not, see <http://www.gnu.org/licenses/>.   *
 *                                                                               *
 ********************************************************************************/
-$ini_arr = parse_ini_file('admin/config.ini');
+require_once('admin/config.php');
 ?>
 <noscript><!-- show warning if javascript is disabled -->
-<ul class="errors">
-<li><img src="img/info.png" alt="" />
-Javascript is disabled. Please enable Javascript to view this site in all its glory. Thank You.</li>
-</ul>
+<div class="ui-state-error ui-corner-all">
+<p><span class='ui-icon ui-icon-alert' style='float:left; margin: 0 5px 0 5px;'></span>
+<strong>Javascript is disabled.</strong> Please enable Javascript to view this site in all its glory. Thank You.</p>
+</div>
 </noscript>
 
 <div id='logo'>
@@ -66,7 +66,7 @@ if (isset($_SESSION['auth']) && $_SESSION['auth'] === 1) {
 <a href="compounds.php?mode=search">Chemicals</a>
 <a href="team.php">Team</a>
 <a href="search.php">Search</a>
-<a href="<?php echo $ini_arr['link_href'];?>" target='_blank'><?php echo $ini_arr['link_name'];?></a>
+<a href="<?php echo LINK_HREF;?>" target='_blank'><?php echo LINK_NAME;?></a>
 </nav>
 <hr class='flourishes'>
 <!-- TITLE -->
@@ -74,7 +74,7 @@ if (isset($_SESSION['auth']) && $_SESSION['auth'] === 1) {
 <h2><?php echo strtoupper($page_title);?></h2>
 </div>
 <?php
-if ($ini_arr['debug'] == 1) {
+if (DEBUG) {
     echo "Session array : ";
     print_r($_SESSION);
     echo "<br />";

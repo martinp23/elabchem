@@ -130,7 +130,8 @@ if (isset($_GET['q'])) { // if there is a query
     } elseif (count($results_arr) == 1){
         echo "Found 1 result.";
     } else {
-        echo "No experiments were found.";
+        $message = 'No experiments were found.';
+        echo display_message('error', $message);
     }
 
     // loop the results array and display results
@@ -165,7 +166,8 @@ if (isset($_GET['q'])) { // if there is a query
     } elseif (count($results_arr) == 1){
         echo "Found 1 result.";
     } else {
-        echo "<p>No experiments are linked with this item.</p>";
+        $message = 'No experiments are linked with this item.';
+        echo display_message('error', $message);
     }
 
     // loop the results array and display results
@@ -196,7 +198,8 @@ if (isset($_GET['q'])) { // if there is a query
     } elseif (count($results_arr) == 1){
         echo "Found 1 result.";
     } else {
-        echo "No experiments were found.";
+        $message = 'No experiments were found.';
+        echo display_message('error', $message);
     }
 
     // clean duplicates
@@ -324,7 +327,7 @@ $(document).ready(function(){
 	$("a.trigger").click(function(){
 		$('div.toggle_container').slideToggle(1);
 	});
-	<?php if($ini_arr['chemistry']) { ?>
+	<?php if(CHEMISTRY) { ?>
 		$("#exp_create").attr('href', '#');
 		$("a.trigger").mouseover(function(){
 			$('div.create-choices').slideUp();

@@ -32,10 +32,7 @@ require_once('inc/info_box.php');
 
 // Page begin
 
-if (!isset($_SESSION['auth'])) {
-$ini_arr = parse_ini_file('admin/config.ini');
-}
-echo "<p style='text-align:center'>".$ini_arr['lab_name']." powered by <a href='http://www.elabftw.net'>eLabFTW</a> by <a href='http://www.elabftw.net' onClick='cornify_add();return false;'>Nicolas CARPi</a></p>";
+echo "<p style='text-align:center'>". LAB_NAME ." powered by <a href='http://www.elabftw.net'>eLabFTW</a> by <a href='http://www.elabftw.net' onClick='cornify_add();return false;'>Nicolas CARPi</a></p>";
 ?>
 
 <h3><a href="https://github.com/NicolasCARPi/elabftw">Get the eLabFTW source on GitHub</a></h3>

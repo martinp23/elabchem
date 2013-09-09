@@ -50,9 +50,10 @@ require_once('inc/info_box.php');
                 $req = $bdd->prepare($sql);
                 $req->execute();
                 while ($items_types = $req->fetch()) {
-                    echo "<option value='".$items_types['id']."' name='type'";
+                    echo "<option value='".$items_types['id']."'";
                     // item get selected if it is in the search url
-                    if($_REQUEST && ($items_types['id'] == $_REQUEST['type'])) {
+
+                    if(isset($_REQUEST['type']) && ($items_types['id'] == $_REQUEST['type'])) {
                         echo " selected='selected'";
                     } 
                     echo ">".$items_types['name']."</option>";
@@ -60,11 +61,30 @@ require_once('inc/info_box.php');
                 ?>
             </select>
            <!-- search everyone box --> 
-            (search in everyone's experiments <input name="all" value="y" type="checkbox" <?php
+            <label for='all_experiments_chkbx'>(search in everyone's experiment </label>
+            <input name="all" id='all_experiments_chkbx' value="y" type="checkbox" <?php
                 // keep the box checked if it was checked
                 if(isset($_REQUEST['all'])){
                     echo "checked=checked";
                 }?>>)
+            <br />
+            <br />
+            Search only in experiments owned by : <select name='owner'>
+            <option value=''>Select a member</option>
+            <?php
+            $users_sql = "SELECT userid, firstname, lastname FROM users";
+            $users_req = $bdd->prepare($users_sql);
+            $users_req->execute();
+            while ($users = $users_req->fetch()) {
+                echo "<option value='".$users['userid']."'";
+                    // item get selected if it is in the search url
+                    if(isset($_REQUEST['owner']) && ($users['userid'] == $_REQUEST['owner'])) {
+                        echo " selected='selected'";
+                    } 
+                    echo ">".$users['firstname']." ".$users['lastname']."</option>";
+                }
+                ?>
+            </select>
             <br />
             <br />
             <div id='search_inputs_div'>
@@ -152,7 +172,7 @@ for($i=1; $i<=5; $i++) {
 
 <br />
             </div>
-<?php if($ini_arr['chemistry']){ ?>
+<?php if(CHEMISTRY){ ?>
 <div align='center'>  
         <input type='hidden' id='rxn' name='rxn' value='<?php if(isset($_REQUEST['rxn'])) {
                         echo $_REQUEST['rxn'];
@@ -244,7 +264,7 @@ for($i=1; $i<=5; $i++) {
     </div>
 </div>
 <script type='text/javascript'>function preSubmit() {
-    <?php if($ini_arr['chemistry']) { ?>
+    <?php if(CHEMISTRY) { ?>
         var shapes = reactionCanvas.getShapes();
         try {
             if (shapes.length > 0) {
@@ -316,6 +336,12 @@ if (isset($_REQUEST['rating']) && !empty($_REQUEST['rating'])) {;
 } else {
     $rating = '';
 }
+if (isset($_REQUEST['owner']) && !empty($_REQUEST['owner']) && is_pos_int($_REQUEST['owner'])) {
+    $owner_search = true;
+    $owner = $_REQUEST['owner'];
+} else {
+    $owner_search = false;
+}
 if (isset($_REQUEST['rxn']) && !empty($_REQUEST['rxn'])) {
     $rxn = check_rxn($_REQUEST['rxn']);
 } else {
@@ -337,7 +363,6 @@ $userid = intval($_SESSION['userid']);
 
 // Is there a search ?
 if (isset($_REQUEST)) {
-
     // EXPERIMENT ADVANCED SEARCH
     if(isset($_REQUEST['type'])) {
         if($_REQUEST['type'] === 'experiments') {
@@ -359,7 +384,7 @@ if (isset($_REQUEST)) {
 				else { //search only in your experiments
 					$sql = "SELECT exp.id FROM experiments exp JOIN revisions rev on exp.rev_id = rev.rev_id
 					WHERE exp.status LIKE '%$status%' AND exp.date BETWEEN '$from' AND '$to' AND rev.rev_title LIKE '%$title%'
-					AND rev.rev_body LIKE '%$body%' AND exp.userid_creator = $userid;";
+					AND rev.rev_body LIKE '%$body%' AND exp.userid_creator = :userid;";
 				}			
             } else { // no date input
                 if(isset($_REQUEST['all']) && !empty($_REQUEST['all'])) {
@@ -369,12 +394,17 @@ if (isset($_REQUEST)) {
                 } else {
                     $sql = "SELECT exp.id FROM experiments exp JOIN revisions rev on exp.rev_id = rev.rev_id
 					WHERE exp.status LIKE '%$status%' AND rev.rev_title LIKE '%$title%'
-					AND rev.rev_body LIKE '%$body%' AND exp.userid_creator = $userid;";	
+					AND rev.rev_body LIKE '%$body%' AND exp.userid_creator = :userid;";	
                 }
+            }
+            
+            $args = array('userid' => $_SESSION['userid']);
+            if($owner_search) {
+                $args['userid'] = $owner;
             }
 		
             $req = $bdd->prepare($sql);
-            $req->execute();
+            $req->execute($args);
             
             $results_id = array();
             // make array of results id
@@ -472,13 +502,23 @@ if (isset($_REQUEST)) {
                     $results_id = array_unique($results_id);
                     $count = count($results_id); 
                 }
-
-
-  
-                    
-                    
+     
             }
-            
+            $req = $bdd->prepare($sql);
+            // if there is a selection on 'owned by', we use the owner id as parameter
+            if ($owner_search) {
+                $req->execute(array(
+                    'userid' => $owner
+                ));
+            } else {
+            $req->execute(array(
+                'userid' => $_SESSION['userid']
+            ));
+            }
+            // This counts the number or results - and if there wasn't any it gives them a little message explaining that 
+            $count = $req->rowCount();
+
+
             if ($count > 0) {
                 
                 // sort by id, biggest (newer item) comes first
@@ -513,7 +553,8 @@ if (isset($_REQUEST)) {
                     showXP($id, $_SESSION['prefs']['display']);
                 }
             } else { // no results
-                echo "<p>Sorry, I couldn't find anything :(</p><br />";
+                $message = "Sorry, I couldn't find anything :(";
+                echo display_message('error', $message);
             }
 
     // DATABASE ADVANCED SEARCH
@@ -571,15 +612,16 @@ if (isset($_REQUEST)) {
                 showDB($id, $_SESSION['prefs']['display']);
             }
         } else { // no results
-            echo "<p>Sorry, I couldn't find anything :(</p><br />";
+            $message = "Sorry, I couldn't find anything :(";
+            echo display_message('error', $message);
         }
     }
     }
+
     }
 
-// FOOTER
-require_once('inc/footer.php');
 ?>
+
 <script>
 $(document).ready(function(){
     // DATEPICKER
@@ -588,4 +630,6 @@ $(document).ready(function(){
 
 
 </script>
+
+<?php require_once('inc/footer.php');?>
 

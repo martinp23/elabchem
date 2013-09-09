@@ -44,24 +44,32 @@ $title = check_title($_POST['title']);
 $date = check_date($_POST['date']);
 $body = check_body($_POST['body']);
 $status = check_status($_POST['status']);
-$rxn = check_rxn($_POST['rxn_input']);
-$grid = $_POST['grid_input'];
-$prodGrid = $_POST['prodGrid_input'];
-$gridColumns = $_POST['grid_columns'];
-$prodGridColumns = $_POST['prodGrid_columns'];
-
-$rxnChanged = check_bool($_POST['rxn_changed']);
-$gridChanged = check_bool($_POST['grid_changed']);
-$prodGridChanged = check_bool($_POST['prodGrid_changed']);
-$gridColumnsChanged = check_bool($_POST['gridColumns_changed']);
-$prodGridColumnsChanged = check_bool($_POST['prodGridColumns_changed']);
 $bodyChanged = check_bool($_POST['body_changed']);
 $titleChanged = check_bool($_POST['title_changed']);
 $oldid = $_POST['oldid'];
-$rxn_png = $_POST['rxn_png'];
-
 // not sanitised! This is not committed to the db.
 $type = $_POST['type'];
+
+if($type === 'chemsingle') {
+    $rxn = check_rxn($_POST['rxn_input']);
+    $grid = $_POST['grid_input'];
+    $prodGrid = $_POST['prodGrid_input'];
+    $gridColumns = $_POST['grid_columns'];
+    $prodGridColumns = $_POST['prodGrid_columns'];
+    
+    $rxnChanged = check_bool($_POST['rxn_changed']);
+    $gridChanged = check_bool($_POST['grid_changed']);
+    $prodGridChanged = check_bool($_POST['prodGrid_changed']);
+    $gridColumnsChanged = check_bool($_POST['gridColumns_changed']);
+    $prodGridColumnsChanged = check_bool($_POST['prodGridColumns_changed']);
+    $rxn_png = $_POST['rxn_png'];
+} else {
+    $rxnChanged = false;
+    $gridChanged = false;
+    $prodGridChanged = false;
+    $gridColumnsChanged = false;
+    $prodGridColumnsChanged = false;
+}
 
 // Store stuff in Session to get it back if error input
 $_SESSION['new_title'] = $title;
@@ -83,6 +91,7 @@ if(!$rxnChanged && !$gridChanged && !$prodGridChanged && !$bodyChanged && !$titl
     unset($_SESSION['status']);
     unset($_SESSION['errors']);
     header("location: experiments.php?mode=view&id=$id");
+    return;
 }
 
 // SQL for editXP

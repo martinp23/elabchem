@@ -23,32 +23,28 @@
 *    License along with eLabFTW.  If not, see <http://www.gnu.org/licenses/>.   *
 *                                                                               *
 ********************************************************************************/
+require_once('inc/functions.php');
 // INFO BOX
+
 if (isset($_SESSION['errors']) && is_array($_SESSION['errors']) && count($_SESSION['errors']) >0 ) {
-    echo "<ul class='errors'>";
     foreach($_SESSION['errors'] as $msg) {
-        echo "<img src='img/error.png' alt='fail' /> <li class='inline'>".$msg."</li><br />"; 
+        echo display_message('error', $msg);
     }
-    echo "</ul>";
     unset($_SESSION['errors']);
 }
 
 if (isset($_SESSION['infos']) && is_array($_SESSION['infos']) && count($_SESSION['infos']) >0 ) {
-    echo "<ul class='infos'>";
     foreach($_SESSION['infos'] as $msg) {
-        echo "<img src='img/ok.png' alt='ok' /> <li class='inline'>".$msg."</li><br />"; 
+        echo display_message('info', $msg);
     }
-    echo "</ul>";
     unset($_SESSION['infos']);
 }
 ?>
 
 <script>
-// box explode when user click on it
-$(document).ready(function(){
-    $("ul.errors, ul.infos").click(function(){
-        $(this).hide('explode', 'slow');
-    });
+// box disappear when user click on it
+$(".ui-state-highlight").click(function(){
+    $(this).hide(500);
 });
 </script>
 

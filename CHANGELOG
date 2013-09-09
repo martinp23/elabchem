@@ -1,12 +1,24 @@
 /* Changelog for eLabFTW */
 
-Dev
+
+Chemistry fork Dev
 * Add revisions system so all changes to experiments are tracked
 * Remove ability to delete experiments permanently
 * db schema changes (lots of)
 * Add ChemDoodle scheme editors and viewers for Chemistry Experiments
 * Add SlickGrid grids for Stoichiometry and Product tables for Chemistry Experiments
 
+
+Version 0.9.1
+* Possibility to limit the visibility of an experiment to yourself only
+
+Version 0.9
+* Newer versions of JQuery and JQuery UI
+* config.ini is now config.php
+* Cosmetic changes
+* Ctrl-Shift-D will add the date in the editor
+* Possibility to search experiments owned by a unique user
+* Conformation to coding standard PSR-2
 
 Version 0.8.2
 * Added check for updates button

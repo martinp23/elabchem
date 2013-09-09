@@ -68,10 +68,11 @@ function createPassword($length) {
     $i = 0;
     $random_part = "";
     while ($i < $length) {
-    $random_part .= $chars{mt_rand(0,strlen($chars))};
-    $i++;
+        $random_part .= $chars{mt_rand(0,strlen($chars))};
+        $i++;
     }
     $fullpassword = $password.$random_part;
+
     return $fullpassword;
 }
 
@@ -81,9 +82,9 @@ function get_ext($filename){
     // if no extension
     if (!empty($path_info['extension'])) {
         return $path_info['extension'];
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 
@@ -134,9 +135,9 @@ function has_attachement($id) {
     ));
     if ($req->rowCount() > 0) {
         return true;
-    } else {
-        return false;
     }
+
+    return false;
 }
 
 
@@ -524,7 +525,8 @@ function check_status($input) {
         return $input;
         }
     } else {
-        return NULL;
+        // default is running
+        return 'running';
     }
 }
 
@@ -720,6 +722,19 @@ function fromSI($value, $units) {
             return $value; // in SI unit
     }
     
+}
+function check_visibility($input) {
+    // Check VISIBILITY
+    if ((isset($input)) 
+        && (!empty($input))){
+        if (($input === 'team')
+        || ($input === 'user')) {
+        return $input;
+        }
+    } else {
+        // default is team
+        return 'team';
+    }
 }
 
 function make_pdf($id, $type, $out = 'browser') {
@@ -1030,9 +1045,10 @@ function duplicate_item($id, $type) {
 
         if($result && $result_tags && $result_links) {
             return $newid;
-        } else {
-            return false;
         }
+
+        return false;
+
     } else { // DB
         // TAGS
         $sql = "SELECT tag FROM items_tags WHERE item_id = :id";
@@ -1049,10 +1065,29 @@ function duplicate_item($id, $type) {
         }
         if($result && $result_tags) {
             return $newid;
-        } else {
-            return false;
         }
+
+        return false;
     }
+}
+
+// for displaying messages using jquery ui highlight/error messages
+// call with echo display_message('info|error', $message);
+function display_message($type, $message) {
+    if ($type === 'info') {
+
+        return "<div class='ui-state-highlight ui-corner-all'>
+        <p><span class='ui-icon ui-icon-info' style='float: left; margin: 0 5px 0 5px;'></span>
+        $message</p></div>";
+
+    } elseif ($type === 'error') {
+
+    return "<div class='ui-state-error ui-corner-all'>
+        <p><span class='ui-icon ui-icon-alert' style='float:left; margin: 0 5px 0 5px;'></span>
+        $message</p></div>";
+    }
+
+    return false;
 }
 
 function getInChI($molecule,$bdd) {
@@ -1147,3 +1182,4 @@ function showRegCpd($regId) {
 
   
 }
+

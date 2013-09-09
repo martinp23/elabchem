@@ -71,12 +71,14 @@ if ($type === 'experiments'){
     }
 
     // SQL for create experiments
-    $sql = "INSERT INTO experiments(date, status, elabid, userid_creator, type) VALUES(:date, :status, :elabid, :userid, :type)";
+    $sql = "INSERT INTO experiments(date, status, elabid, userid_creator, visibility, type) VALUES(:date, :status, :elabid, :userid, :visibility, :type)";
+
     $req = $bdd->prepare($sql);
     $result = $req->execute(array(
         'date' => kdate(),
         'status' => 'running',
         'elabid' => $elabid,
+        'visibility' => 'team',
         'userid' => $_SESSION['userid'],
         'type'	 => $exp_type
     ));
@@ -165,6 +167,6 @@ if($result) {
         header('location: database.php?mode=edit&id='.$newid.'');
     }
 } else {
-    die("Something went wrong in the database query. Check the flux capacitor.");
+    die();
 }
 

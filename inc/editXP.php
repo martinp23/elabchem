@@ -152,14 +152,18 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 
 // Check id is owned by connected user
 if ($exp_data['userid_creator'] != $_SESSION['userid']) {
-    echo ("<ul class='errors'>You are trying to edit an experiment which is not yours.</ul>");
+    $message = "<strong>Cannot edit:</strong> this experiment is not yours !";
+    echo display_message('error', $message);
     require_once('inc/footer.php');
     exit();
 }
 
 // Check for lock
 if ($exp_data['locked'] == 1) {
-    die("Item is locked. Can't edit.");
+    $message = "<strong>This item is locked.</strong> You cannot edit it.";
+    echo display_message('error', $message);
+    require_once('inc/footer.php');
+    exit();
 }
 
 // BEGIN CONTENT
@@ -763,6 +767,18 @@ if ($req->rowcount() != 0) {
 <p class='inline'>Add a link</p>
 <input id='linkinput' size='60' type="text" name="link" placeholder="from the database" />
 
+<br /><br />
+<h4>Visibility</h4>
+<!-- visibility get selected by default -->
+<?php
+$visibility = $exp_data['visibility'];
+?>
+    <select id="visibility_form" name="visibility" onchange="update_visibility(this.value)">
+<option id='option_team' value="team">Only the team</option>
+<option id='option_user' value="user">Only me</option>
+</select>
+<span id='visibility_msg_div'>Updated!</span>
+
 </section>
 
 <script>
@@ -812,7 +828,7 @@ function addTagOnEnter(e) { // the argument here is the event (needed to detect 
     }
     if (keynum == 13) { // if the key that was pressed was Enter (ascii code 13)
         // get tag
-        var tag = $('#addtaginput').attr('value');
+        var tag = $('#addtaginput').val();
         // POST request
         var jqxhr = $.post('add_tag.php', {
             tag: tag,
@@ -866,7 +882,7 @@ function addLinkOnEnter(e) { // the argument here is the event (needed to detect
     }
     if (keynum == 13) { // if the key that was pressed was Enter (ascii code 13)
         // get link
-        var link_id = decodeURIComponent($('#linkinput').attr('value'));
+        var link_id = decodeURIComponent($('#linkinput').val());
         // fix for user pressing enter with no input
         if (link_id.length > 0) {
             // parseint will get the id, and not the rest (in case there is number in title)
@@ -890,6 +906,7 @@ function addLinkOnEnter(e) { // the argument here is the event (needed to detect
     } // end if key is enter
 }
 
+// This function is activated with the select element and send a post request to quicksave.php
 function update_status(status) {
             var jqxhr = $.ajax({
                 type: "POST",
@@ -907,25 +924,62 @@ function update_status(status) {
             });
 }
 
+// This function is activated with the select element and send a post request to quicksave.php
+function update_visibility(visibility) {
+            var jqxhr = $.ajax({
+                type: "POST",
+                url: "quicksave.php",
+                data: {
+                id : <?php echo $id;?>,
+                visibility : visibility,
+                }
+            }).done(function() {
+                // once it's update we show a message for some time before making it disappear
+                $("#visibility_msg_div").show(0, function() {
+                    setTimeout(
+                        function() {
+                            $("#visibility_msg_div").hide(500);
+                        }, 1500)
+
+                });
+            });
+}
+
+
 // READY ? GO !!
 $(document).ready(function() {
+    // hide the little 'Updated !' message
+    $('#visibility_msg_div').hide();
+
     // javascript to put the selected on status option, because with php, browser cache the value of previous edited XP
     var status = "<?php echo $status;?>";
     switch(status) {
     case 'running' :
-        $("#option_running").attr('selected', true);
+        $("#option_running").prop('selected', true);
         break;
     case 'success' :
-        $("#option_success").attr('selected', true);
+        $("#option_success").prop('selected', true);
         break;
     case 'redo' :
-        $("#option_redo").attr('selected', true);
+        $("#option_redo").prop('selected', true);
         break;
     case 'fail' :
-        $("#option_fail").attr('selected', true);
+        $("#option_fail").prop('selected', true);
         break;
     default :
-        $("#option_running").attr('selected', true);
+        $("#option_running").prop('selected', true);
+    }
+    // javascript to put the selected on visibility option, because with php, browser cache the value of previous edited XP
+    var visibility = "<?php echo $visibility;?>";
+    switch(visibility) {
+    case 'team' :
+        $("#option_team").prop('selected', true);
+        break;
+    case 'user' :
+        $("#option_user").prop('selected', true);
+        break;
+    default :
+        $("#option_team").prop('selected', true);
     }
 
     // fix for the ' and "
@@ -960,8 +1014,13 @@ $(document).ready(function() {
                 
                 }
             });
+        },
+        // keyboard shortcut to insert today's date at cursor in editor
+        setup : function(editor) {
+            editor.addShortcut("ctrl+shift+d", "add date at cursor", function() { addDateOnCursor(); });
         }
     });
+
     // ADD TAG JS
     // listen keypress, add tag when it's enter
     jQuery('#addtaginput').keypress(function (e) {

@@ -307,7 +307,7 @@ if(!$registered && $validated) {
         $req = $bdd->prepare($sql);
         $result = $req->execute();
         $latestRegNo = $req->fetch();
-        $prefix = $ini_arr['cpd-prefix'];
+        $prefix = CPD_PREFIX;
         if(count($latestRegNo) >= 1) {
             if(ctype_alpha(substr($latestRegNo[0], strlen($latestRegNo[0])-1))) {
                 $number = substr($latestRegNo[0], strlen($prefix), strlen($latestRegNo[0]) - strlen($prefix) - 1);
