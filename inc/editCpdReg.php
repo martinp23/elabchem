@@ -117,10 +117,9 @@ if($id > 0) {
          echo $reg_data['regno'] . "'></input>" . $reg_data['regno']; 
          } else { echo "unassigned'></input>unassigned"; }?></p><br />
 <br />
-<br />
-    <div id='cpd_display' style='float:right;overflow:auto;position:relative;margin-right:150px;'>  <canvas id='viewer_display'></canvas>
+    <div id='cpd_display' style='float:right;overflow:auto;position:relative;margin-right:150px;'>  <canvas id='viewer_display' onClick='showEditStructureDialog();return false;'></canvas>
         
-        <p><a href='#' onClick='showEditStructureDialog();'>Edit structure</a></p>
+        <p><input type="button" class='button' value='Edit structure' onClick='showEditStructureDialog();return false;'></p>
 
         
     </div>
@@ -276,15 +275,6 @@ if($id > 0) {
                     <input type="button" href="#" name="Save changes" onclick="closeEditCpdDialog();return false;" class="button" value="Save changes" />
                 </p>
             </div></div></section>      
-            
-            <input type='hidden' id='editCpdName' class='prodDialogInputText' value='' /><br style='clear:right;'/>
-            <input type='hidden' id='editCpdIUPACName' class='prodDialogInputText' value='' /><br style='clear:right;'/>
-            <input type='hidden' id='editCpdCAS' class='prodDialogInputText' value='' /><br style='clear:right;'/>
-            <input type='hidden' id='editCpdPubChem' class='prodDialogInputText' value='' /><br style='clear:right;'/>
-            <input type='hidden' id='editCpdChemspider' class='prodDialogInputText' value='' /><br style='clear:right;'/>
-            <input type='hidden' id='editCpdDensity' class='prodDialogInputText' value='' /><br style='clear:right;'/>
-            <input type='hidden' id='editCpdMwt' value=''/>
-            <input type='hidden' id='editCpdFormula' value=''/>
 		</div>
 	
 <script>
@@ -323,15 +313,6 @@ if($id > 0) {
             }
             structEditCWC.repaint();
             
-            document.getElementById('editCpdName').value = document.getElementById('name_txt').value;
-            document.getElementById('editCpdIUPACName').value = document.getElementById('iupacname_txt').value;
-            document.getElementById('editCpdCAS').value = document.getElementById('cas_txt').value;
-            document.getElementById('editCpdPubChem').value = document.getElementById('pubchem_txt').value;
-            document.getElementById('editCpdChemspider').value = document.getElementById('chemspider_txt').value;
-            document.getElementById('editCpdDensity').value = document.getElementById('density_txt').value;
-            document.getElementById('editCpdMwt').value = document.getElementById('mwt_txt').value;
-            document.getElementById('editCpdFormula').value = document.getElementById('formula_txt').value;
-            
   			$('#editStructureDialog').dialog('open');
   			return;
 	     
@@ -339,13 +320,7 @@ if($id > 0) {
   		function closeEditCpdDialog() {
   		    var molObj = structEditCWC.getMolecule();
             var molChanged = false;
-            if(molObj) {
-                if(this['mol'] !== ChemDoodle.writeMOL(molObj)) {                     
-                    this['mol'] = ChemDoodle.writeMOL(molObj);
-                    viewer_display.loadMolecule(ChemDoodle.readMOL(ChemDoodle.writeMOL(structEditCWC.getMolecule())));
-                    molChanged = true;
-                }
-            } else {
+            if(!molObj) {
                 this['mol'] = '';
                 viewer_display.clear();
                 viewer_display.repaint();
@@ -371,92 +346,98 @@ if($id > 0) {
                 return;     
             }
             
-            $.ajax({
-                url: 'getdatafromMOL.php?q=all',
-                data: {'mol': this['mol']},
-                dataType: 'json',
-                type: 'POST',
-                async: false,
-                success: function(cpddata) {
-                    if(typeof cpddata['regno'] !== 'undefined') {
-                        alert("The specified compound is already registered with registration number " + cpddata['regno']);
-                        return false;
-                    }
-                    if(typeof cpddata['regid'] !== 'undefined') {
-                        alert("The specified compound is already pending in the registration database");
-                        return false;
-                    }
-                    if(typeof cpddata['cpd_name'] !== 'undefined') {
-                        editChemReg.name.value = cpddata['cpd_name'];
-                    } else { editChemReg.name.value = ''; }
-                    if(typeof cpddata['iupac_name'] !== 'undefined') {
-                        editChemReg.iupac_name.value = cpddata['iupac_name'];
-                    } else { editChemReg.iupac_name.value = '';}
-                    if(typeof cpddata['cas_number'] !== 'undefined') {
-                        editChemReg.cas_number.value = cpddata['cas_number'];
-                    } else { editChemReg.cas_number.value = ''; }
-                    if(typeof cpddata['pubchem_id'] !== 'undefined') {
-                        editChemReg.pubchem_id.value = cpddata['pubchem_id'];
-                    } else {editChemReg.pubchem_id.value = ''; }
-                    if(typeof cpddata['chemspider_id'] !== 'undefined') {
-                        editChemReg.chemspider_id.value = cpddata['chemspider_id'];
-                    } else { editChemReg.chemspider_id.value = ''; }
-                    if(typeof cpddata['density'] !== 'undefined') {
-                        editChemReg.density.value = cpddata['density'];       
-                    } else { editChemReg.density.value = ''; }          
-                    if(typeof cpddata['mwt'] !== 'undefined') {
-                        editChemReg.mwt.value = cpddata['mwt'];
-                        editChemReg.mwt.disabled = true;
-                    } else {
-                        editChemReg.mwt.disabled = false;
-                        editChemReg.mwt.value = '';
-                    }
-                    if(typeof cpddata['exact_mass'] !== 'undefined') {
-                        editChemReg.exact_mass.value = cpddata['exact_mass'];
-                        editChemReg.exact_mass.disabled = true;
-                    } else {
-                        editChemReg.exact_mass.disabled = false;
-                        editChemReg.exact_mass.value = '';
-                    }
-                    if(typeof cpddata['formula'] !== 'undefined') {
-                        editChemReg.formula.value = cpddata['formula'];
-                        editChemReg.formula.disabled = true;
-                    } else {
-                        editChemReg.formula.disabled = false;
-                        editChemReg.formula.value = '';
-                    }
-                    if(typeof cpddata['id'] !== 'undefined') {
-                        editChemReg.cpdid.value = cpddata['id'];
-                    } else {
-                        editChemReg.cpdid.value = '';
-                    }
-                    if(typeof cpddata['notes'] !== 'undefined') {
-                        editChemReg.notes.value = cpddata['notes'];
-                    } else { editChemReg.notes.value = ''; }
-                    if(typeof cpddata['inchi'] !== 'undefined') {
-                        editChemReg.inchi.value = cpddata['inchi'];
-                    } else {
-                        editChemReg.inchi.value = '';
-                    }
-                    
-                    if(document.getElementById('cpdSaltCheck').checked) {
-                        if (document.getElementById('editCpdParentRegNum').value !== '') {
-                            editChemReg.saltCheck.checked = true;
-                            editChemReg.cpdParentRegNum.value = document.getElementById('editCpdParentRegNum').value;
-                            document.getElementById('saltCheck').onchange();
-                        } else {
-                            alert("You must provide a parent registration number for the product salt.");
+            if(this['mol'] !== ChemDoodle.writeMOL(molObj)) {    
+                $.ajax({
+                    url: 'getdatafromMOL.php?q=all',
+                    data: {'mol': this['mol']},
+                    dataType: 'json',
+                    type: 'POST',
+                    async: false,
+                    success: function(cpddata) {
+                        if(typeof cpddata['regno'] !== 'undefined') {
+                            alert("The specified compound is already registered with registration number " + cpddata['regno']);
                             return false;
                         }
-                    } else {
-                        editChemReg.saltCheck.checked = false;
-                        editChemReg.cpdParentRegNum.value = '';
-                        document.getElementById('saltCheck').onchange();
-                    }
-       
-                    $('#editStructureDialog').dialog('close');
-            }});
-  		    
+                        if(typeof cpddata['regid'] !== 'undefined') {
+                            alert("The specified compound is already pending in the registration database");
+                            return false;
+                        }
+                        if(typeof cpddata['cpd_name'] !== 'undefined') {
+                            editChemReg.name.value = cpddata['cpd_name'];
+                        } else { editChemReg.name.value = ''; }
+                        if(typeof cpddata['iupac_name'] !== 'undefined') {
+                            editChemReg.iupac_name.value = cpddata['iupac_name'];
+                        } else { editChemReg.iupac_name.value = '';}
+                        if(typeof cpddata['cas_number'] !== 'undefined') {
+                            editChemReg.cas_number.value = cpddata['cas_number'];
+                        } else { editChemReg.cas_number.value = ''; }
+                        if(typeof cpddata['pubchem_id'] !== 'undefined') {
+                            editChemReg.pubchem_id.value = cpddata['pubchem_id'];
+                        } else {editChemReg.pubchem_id.value = ''; }
+                        if(typeof cpddata['chemspider_id'] !== 'undefined') {
+                            editChemReg.chemspider_id.value = cpddata['chemspider_id'];
+                        } else { editChemReg.chemspider_id.value = ''; }
+                        if(typeof cpddata['density'] !== 'undefined') {
+                            editChemReg.density.value = cpddata['density'];       
+                        } else { editChemReg.density.value = ''; }          
+                        if(typeof cpddata['mwt'] !== 'undefined') {
+                            editChemReg.mwt.value = cpddata['mwt'];
+                            editChemReg.mwt.disabled = true;
+                        } else {
+                            editChemReg.mwt.disabled = false;
+                            editChemReg.mwt.value = '';
+                        }
+                        if(typeof cpddata['exact_mass'] !== 'undefined') {
+                            editChemReg.exact_mass.value = cpddata['exact_mass'];
+                            editChemReg.exact_mass.disabled = true;
+                        } else {
+                            editChemReg.exact_mass.disabled = false;
+                            editChemReg.exact_mass.value = '';
+                        }
+                        if(typeof cpddata['formula'] !== 'undefined') {
+                            editChemReg.formula.value = cpddata['formula'];
+                            editChemReg.formula.disabled = true;
+                        } else {
+                            editChemReg.formula.disabled = false;
+                            editChemReg.formula.value = '';
+                        }
+                        if(typeof cpddata['id'] !== 'undefined') {
+                            editChemReg.cpdid.value = cpddata['id'];
+                        } else {
+                            editChemReg.cpdid.value = '';
+                        }
+                        if(typeof cpddata['notes'] !== 'undefined') {
+                            editChemReg.notes.value = cpddata['notes'];
+                        } else { editChemReg.notes.value = ''; }
+                        if(typeof cpddata['inchi'] !== 'undefined') {
+                            editChemReg.inchi.value = cpddata['inchi'];
+                        } else {
+                            editChemReg.inchi.value = '';
+                        }
+                        
+                        if(document.getElementById('cpdSaltCheck').checked) {
+                            if (document.getElementById('editCpdParentRegNum').value !== '') {
+                                editChemReg.saltCheck.checked = true;
+                                editChemReg.cpdParentRegNum.value = document.getElementById('editCpdParentRegNum').value;
+                                document.getElementById('saltCheck').onchange();
+                            } else {
+                                alert("You must provide a parent registration number for the product salt.");
+                                return false;
+                            }
+                        } else {
+                            editChemReg.saltCheck.checked = false;
+                            editChemReg.cpdParentRegNum.value = '';
+                            document.getElementById('saltCheck').onchange();
+                        }
+           
+                        $('#editStructureDialog').dialog('close');
+                }});
+                             
+                this['mol'] = ChemDoodle.writeMOL(molObj);
+                viewer_display.loadMolecule(ChemDoodle.readMOL(ChemDoodle.writeMOL(structEditCWC.getMolecule())));
+            }
+            $('#editStructureDialog').dialog('close');
+
   			return;  			
   		}
   		
@@ -496,7 +477,6 @@ if($id > 0) {
 <script>		
 function preSubmit() {
 	editChemReg.mol.value = mol;
-	debugger;
 	if(mol == '') {
 	    if(editChemReg.mwt.value == '' || isNaN(parseFloat(editChemReg.mwt.value)) ) {
 	        alert("Valid value for 'mol. wt.' required.");

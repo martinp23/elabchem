@@ -41,7 +41,7 @@ if(isset($_SESSION['prefs']['display'])) {
         
         <!-- even though this is a search form, we are submitting with POST because query strings might be long 
             when involving chemistry queries -->
-        <form name="search" method="post" onsubmit='return preSubmit()' action="compounds.php">
+        <form name="search" method="post" onsubmit='return preSubmit();' action="compounds.php">
             <!-- SUBMIT BUTTON -->
             <button class='submit_search_button' type='submit'>
                 <img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/submit.png' name='Submit' value='Submit' />
