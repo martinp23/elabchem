@@ -88,13 +88,13 @@ require_once('inc/info_box.php');
             <br />
             <br />
             <div id='search_inputs_div'>
-            <p class='inline'>Where date is between :</p><input name='from' type='text' size='6' class='search_inputs datepicker' value='<?php
+            <p class='inline'>Where date is between:</p><input name='from' type='text' size='11' class='search_inputs datepicker' value='<?php
                 if(isset($_REQUEST['from']) && !empty($_REQUEST['from'])) {
                     echo check_date($_REQUEST['from']);
                 }
 ?>'/><br />
 <br />
-            <p class='inline'>and :</p><input name='to' type='text' size='6' class='search_inputs datepicker' value='<?php
+            <p class='inline'>and:</p><input name='to' type='text' size='11' class='search_inputs datepicker' value='<?php
                 if(isset($_REQUEST['to']) && !empty($_REQUEST['to'])) {
                     echo check_date($_REQUEST['to']);
                 }
@@ -614,7 +614,7 @@ if (isset($_REQUEST)) {
 <script>
 $(document).ready(function(){
     // DATEPICKER
-    $( ".datepicker" ).datepicker({dateFormat: 'ymmdd'});
+    $( ".datepicker" ).datepicker({dateFormat: 'yy-mm-dd'});
 });
 
 

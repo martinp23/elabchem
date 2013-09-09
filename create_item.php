@@ -71,11 +71,10 @@ if ($type === 'experiments'){
     }
 
     // SQL for create experiments
-    $sql = "INSERT INTO experiments(date, status, elabid, userid_creator, visibility, type) VALUES(:date, :status, :elabid, :userid, :visibility, :type)";
+    $sql = "INSERT INTO experiments(date, status, elabid, userid_creator, visibility, type) VALUES(NOW(), :status, :elabid, :userid, :visibility, :type)";
 
     $req = $bdd->prepare($sql);
     $result = $req->execute(array(
-        'date' => kdate(),
         'status' => 'running',
         'elabid' => $elabid,
         'visibility' => 'team',
@@ -123,13 +122,12 @@ if ($type === 'experiments'){
         'id' => $type
     ));
     $get_tpl_body = $get_tpl->fetch();
-
+    
     // SQL for create DB item
-    $sql = "INSERT INTO items(title, date, body, userid, type) VALUES(:title, :date, :body, :userid, :type)";
+    $sql = "INSERT INTO items(title, date, body, userid, type) VALUES(:title, NOW(), :body, :userid, :type)";
     $req = $bdd->prepare($sql);
     $result = $req->execute(array(
         'title' => 'Untitled',
-        'date' => kdate(),
         'body' => $get_tpl_body['template'],
         'userid' => $_SESSION['userid'],
         'type' => $type

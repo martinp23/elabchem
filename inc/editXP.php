@@ -193,9 +193,9 @@ echo stripslashes($tags['tag']);?>
 <input name='item_id' type='hidden' value='<?php echo $id;?>' />
 <input name='type' type='hidden' value='<?php echo $exp_data['type'];?>' />
 
-<h4>Date</h4><span class='smallgray'> (date format : YYMMDD)</span><br />
+<h4>Date</h4><span class='smallgray'> (date format : YYYY-MM-DD)</span><br />
 <!-- TODO if firefox has support for it: type = date -->
-<img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/calendar.png' title='date' alt='Date :' /><input name='date' id='datepicker' size='6' type='text' value='<?php echo $exp_data['date'];?>' />
+<img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/calendar.png' title='date' alt='Date :' /><input name='date' id='datepicker' size='11' type='text' value='<?php echo $exp_data['date'];?>' />
 
 <span class='align_right'>
 <h4>Status</h4>
@@ -986,7 +986,7 @@ $(document).ready(function() {
     title = "<?php echo $rev_data['rev_title']; ?>".replace(/\&#39;/g, "'").replace(/\&#34;/g, "\"");
     document.title = title;
     // DATEPICKER
-    $( "#datepicker" ).datepicker({dateFormat: 'ymmdd'});
+    $( "#datepicker" ).datepicker({dateFormat: 'yy-mm-dd'});
     // SELECT ALL TXT WHEN FOCUS ON TITLE INPUT
     $("#title").focus(function(){
         $("#title").select();

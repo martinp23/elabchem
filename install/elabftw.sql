@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `compounds` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8_bin NOT NULL,
   `iupac_name` text COLLATE utf8_bin,
-  `created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `user_id_entrant` int(10) unsigned NOT NULL,
   `cas_number` varchar(20) COLLATE utf8_bin DEFAULT NULL,
@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS `compound_registry` (
 DROP TABLE IF EXISTS `experiments`;
 CREATE TABLE IF NOT EXISTS `experiments` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `date` int(10) unsigned NOT NULL,
+  `date` date NOT NULL,
   `status` varchar(255) NOT NULL,
   `links` varchar(255) DEFAULT NULL,
   `userid_creator` int(10) unsigned NOT NULL,
@@ -221,7 +221,7 @@ DROP TABLE IF EXISTS `items`;
 CREATE TABLE IF NOT EXISTS `items` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` varchar(255) DEFAULT NULL,
-  `date` int(10) unsigned NOT NULL,
+  `date` date NOT NULL,
   `body` text,
   `rating` tinyint(10) DEFAULT '0',
   `type` int(10) unsigned NOT NULL,
@@ -260,7 +260,7 @@ CREATE TABLE IF NOT EXISTS `items_types` (
   `template` text,
   `tags` text,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -273,8 +273,8 @@ CREATE TABLE IF NOT EXISTS `reactions` (
   `rxn_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
   `experiment_id` int(10) unsigned NOT NULL,
-  `rxn_mdl` longtext CHARACTER SET utf8 NOT NULL,
-  `rxn_image` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `rxn_mdl` longtext NOT NULL,
+  `rxn_image` varchar(255) NOT NULL,
   PRIMARY KEY (`rxn_id`),
   KEY `user_id` (`user_id`,`experiment_id`),
   KEY `experiment_id` (`experiment_id`)
@@ -304,9 +304,9 @@ CREATE TABLE IF NOT EXISTS `rel_exp_structure_prod` (
 
 DROP TABLE IF EXISTS `rel_exp_structure_react`;
 CREATE TABLE IF NOT EXISTS `rel_exp_structure_react` (
-  `rel_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `exp_id` int(10) UNSIGNED NOT NULL,
-  `cpd_id` int(11) UNSIGNED NOT NULL,
+  `rel_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `exp_id` int(10) unsigned NOT NULL,
+  `cpd_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`rel_id`),
   KEY `exp_id` (`exp_id`),
   KEY `cpd_id` (`cpd_id`)
@@ -461,7 +461,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `skype` varchar(255) DEFAULT NULL,
   `website` varchar(255) DEFAULT NULL,
   `is_admin` tinyint(1) NOT NULL DEFAULT '0',
-  `register_date` bigint(20) unsigned NOT NULL,
+  `register_date` datetime NOT NULL,
   `token` varchar(255) DEFAULT NULL,
   `group` varchar(255) NOT NULL DEFAULT 'user',
   `theme` varchar(30) NOT NULL DEFAULT 'default',
@@ -590,3 +590,4 @@ INSERT INTO `items_types` (`id`, `name`, `bgcolor`, `template`, `tags`) VALUES
 (2, 'Plasmid', '29AEB9', '<p><strong>Concentration : </strong></p>\r\n<p><strong>Resistances : </strong></p>\r\n<p><strong>Backbone :</strong></p>\r\n<p><strong><br /></strong></p>', ''),
 (3, 'siRNA', '0064ff', '<p><strong>Sequence :</strong></p>\r\n<p><strong>Target :</strong></p>\r\n<p><strong>Concentration :</strong></p>\r\n<p><strong>Buffer :</strong></p>', ''),
 (4, 'Drugs', 'fd00fe', '<p><strong>Action :</strong> &nbsp;<strong> </strong></p>\r\n<p><strong>Concentration :</strong>&nbsp;</p>\r\n<p><strong>Use at :</strong>&nbsp;</p>\r\n<p><strong>Buffer :</strong> </p>', '');
+  

@@ -123,8 +123,6 @@ if($errflag) {
     exit();
 }
 
-// Registration date is stored in epoch
-$register_date = time();
 // If it's the first user, make him admin (call from install/index.php)
 $sql = "SELECT COUNT(*) FROM users WHERE is_admin = 1";
 $req = $bdd->prepare($sql);
@@ -140,9 +138,9 @@ if ($test[0] == 0) {
 
 // If all is good => registration
 if (ADMIN_VALIDATE === 1){
-    $sql = "INSERT INTO users(username, firstname, lastname, email, password, salt, register_date, is_admin) VALUES('$username', '$firstname', '$lastname', '$email', '$passwordHash', '$salt', '$register_date', '$is_admin')";
+    $sql = "INSERT INTO users(username, firstname, lastname, email, password, salt, register_date, is_admin) VALUES('$username', '$firstname', '$lastname', '$email', '$passwordHash', '$salt', NOW(), '$is_admin')";
 } else { // no admin validation in config file
-    $sql = "INSERT INTO users(username, firstname, lastname, email, password, salt, register_date, validated, is_admin) VALUES('$username', '$firstname', '$lastname', '$email', '$passwordHash', '$salt', '$register_date', '1', '$is_admin')";
+    $sql = "INSERT INTO users(username, firstname, lastname, email, password, salt, register_date, validated, is_admin) VALUES('$username', '$firstname', '$lastname', '$email', '$passwordHash', '$salt', NOW(), '1', '$is_admin')";
 }
 
 $result = $bdd->exec($sql);
