@@ -170,9 +170,10 @@ echo show_tags($id, 'experiments_tags');
             <script type="text/javascript" src="js/chem-formatters.js"></script>     
             <script type="text/javascript" src="js/stoic-table-view.js"></script>    
             <script type="text/javascript" src="js/chemistry-functions.js"></script>
-			
+		<?php if(isset($rxn_data['rxn_image'])) { ?>
 			<img style="border:1px solid black;" src="<?php echo $rxn_data['rxn_image'];?>" />			
-</p></div>
+        <?php } ?>
+			</p></div>
 	    
 	    	</div><h4>Stoichiometry table</h4><br />
 	    

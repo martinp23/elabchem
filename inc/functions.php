@@ -371,7 +371,7 @@ function showXP($id, $display) {
     }
     echo "<p class='title'>". stripslashes($rev_query['rev_title']) . "</p>";
 	
-	if($rxn_image) {
+	if(isset($rxn_image)) {
 	?>	<p class = "schemeView">
 		<img style="border:1px solid black;" src='<?php echo $rxn_image;?>' />  </p>
 	

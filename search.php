@@ -504,21 +504,6 @@ if (isset($_REQUEST)) {
                 }
      
             }
-            $req = $bdd->prepare($sql);
-            // if there is a selection on 'owned by', we use the owner id as parameter
-            if ($owner_search) {
-                $req->execute(array(
-                    'userid' => $owner
-                ));
-            } else {
-            $req->execute(array(
-                'userid' => $_SESSION['userid']
-            ));
-            }
-            // This counts the number or results - and if there wasn't any it gives them a little message explaining that 
-            $count = $req->rowCount();
-
-
             if ($count > 0) {
                 
                 // sort by id, biggest (newer item) comes first
