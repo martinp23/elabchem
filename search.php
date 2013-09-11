@@ -63,7 +63,7 @@ require_once('inc/info_box.php');
             <br />
             <br />
 
-            Search only in experiments owned by: <select name='owner'>
+            Search only in experiments owned by: <select name='owner' class='search_inputs'>
             <option value=''>Select a member</option>
             <?php
             $users_sql = "SELECT userid, firstname, lastname FROM users";
