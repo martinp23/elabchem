@@ -35,7 +35,9 @@ if(isset($_SESSION['prefs']['display'])) {
 ?>
 
 <!-- Advanced Search page begin -->
-<a href='compounds.php?mode=create'>Add a new compound</a>
+<div id='top-wrapper'><div id='submenu'>
+<a href='compounds.php?mode=create'><img src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/create.gif" alt="" /> Add a new compound</a>
+</div></div>
 <div class='item'>
     <div class='align_left'>
         
