@@ -36,7 +36,7 @@ require_once('inc/info_box.php');
     <div class='align_left'>
         <!-- even though this is a search form, we are submitting with POST because query strings might be long 
             when involving chemistry queries -->
-        <form name="search" method="post" onsubmit='return preSubmit()' action="search.php">
+        <form name="search" method="get" onsubmit='return preSubmit()' action="search.php">
             <!-- SUBMIT BUTTON -->
             <button class='submit_search_button' type='submit'>
                 <img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/submit.png' name='Submit' value='Submit' />
@@ -293,7 +293,14 @@ for($i=1; $i<=5; $i++) {
                 return false;
             }
             
-        } 
+        }
+        debugger;
+        // if the length of mol or rxn is > 1500 (quite likely), we use POST instead of GET
+        if (document.getElementById('mol').value.length > 1500 || document.getElementById('rxn').value.length > 1500) {
+            search.method = 'POST';
+        } else {
+            search.method = 'GET';
+        }
 
     <?php } ?>
 }
