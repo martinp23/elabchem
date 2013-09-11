@@ -52,8 +52,8 @@ if ($password == $cpassword) {
     if($result){
         // LOGIN THE USER
         // admin validated ?
-        
-        if (ADMIN_VALIDATE === '1'){
+
+        if (ADMIN_VALIDATE === 1){
         $sql = "SELECT * FROM users WHERE userid='$userid' AND password='$passwordHash' AND validated= 1";
         } else {
         $sql = "SELECT * FROM users WHERE userid='$userid' AND password='$passwordHash'";

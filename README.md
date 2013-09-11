@@ -140,8 +140,14 @@ $ nano admin/config.php
 ~~~
 I would recommend using an advanced text editor like (g)vim (GNU), notepad++ (Win) or TextWrangler (Mac) to benefit from syntax highlighting.
 
+You need to edit the part between the quotes.
+
 ## Final step
 Finally, point your browser to the install folder (install/) and read onscreen instructions.
+
+For example : http://12.34.56.78/elabftw/install
+
+******
 
 # Updating
 To update, just cd in the `elabftw` folder and do :
@@ -153,6 +159,22 @@ $ php update.php
 # Backup
 It is important to backup your files to somewhere else, in case anything bad happens.
 Please refer to the [wiki](https://github.com/NicolasCARPi/elabftw/wiki/backup).
+
+# HTTPS
+If you want to enable HTTPS (and you should), uncomment (remove the # at the beginning) these lines in the file .htaccess. 
+~~~sh
+#RewriteEngine On
+#RewriteCond %{HTTPS} !=on
+#RewriteRule .* https://%{SERVER_NAME}%{REQUEST_URI} [R=301,L]
+~~~
+
+You will need the modules "rewrite" and "ssl" enabled, the package ssl-cert installed and the ssl site enabled.
+~~~sh
+$ sudo apt-get install ssl-cert
+$ sudo a2enmod rewrite
+$ sudo a2enmod ssl
+$ sudo a2ensite default-ssl
+~~~
 
 # Bonus stage
 * It's a good idea to use a php optimizer to increase speed. I recommand installing XCache.

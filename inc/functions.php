@@ -924,21 +924,23 @@ function duplicate_item($id, $type) {
     global $bdd;
     if ($type === 'experiments') {
         $elabid = generate_elabid();
+
         // SQL to get latest revision from the experiment we duplicate
-        $sql = "SELECT rev_id, rev_title, rev_body FROM revisions WHERE experiment_id = :id ORDER BY rev_id DESC LIMIT 0,1";
+        $sql = "SELECT rev.rev_id, rev.rev_title, rev.rev_body, exp.visibility FROM revisions as rev JOIN experiments as exp ON rev.experiment_id = exp.id WHERE exp.id = :id";
         $req = $bdd->prepare($sql);
         $req->execute(array('id' => $id));
         $data = $req->fetch();
-		
+
 		//now get content of latest revision and 
 		
         // SQL for duplicateXP
-        $sql = "INSERT INTO experiments(date, status, elabid, userid_creator) VALUES(:date, :status, :elabid, :userid)";
+        $sql = "INSERT INTO experiments(date, status, elabid, visibility, userid_creator) VALUES(:date, :status, :elabid, :visibility, :userid)";
         $req = $bdd->prepare($sql);
         $result = $req->execute(array(
             'date' => kdate(),
             'status' => 'running',
             'elabid' => $elabid,
+            'visibility' => $data['visibility'],
             'userid' => $_SESSION['userid']));
 
         // END SQL main

@@ -32,17 +32,10 @@ require_once('inc/info_box.php');
 ?>
 
 <!-- Advanced Search page begin -->
-<div class='item'>
-    <div class='align_left'>
-        <!-- even though this is a search form, we are submitting with POST because query strings might be long 
-            when involving chemistry queries -->
-        <form name="search" method="get" onsubmit='return preSubmit()' action="search.php">
-            <!-- SUBMIT BUTTON -->
-            <button class='submit_search_button' type='submit'>
-                <img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/submit.png' name='Submit' value='Submit' />
-                <p>FIND</p>
-            </button>
-            <p class='inline'>Search in : </p>
+<div class='item' style='padding-bottom:16px;'>
+    <div style='width:500px; margin:auto;'>
+        <form name="search" method="get" onsubmit='return preSubmit();' action="search.php">
+            <p class='inline'>Search in: </p>
             <select name='type' onChange='typeChanged(this.value);'>
                 <option value='experiments'>Experiments</option>
                 <?php // Database items types
@@ -60,7 +53,7 @@ require_once('inc/info_box.php');
                 }
                 ?>
             </select>
-           <!-- search everyone box --> 
+            <!-- search everyone box --> 
             <label for='all_experiments_chkbx'>(search in everyone's experiment </label>
             <input name="all" id='all_experiments_chkbx' value="y" type="checkbox" <?php
                 // keep the box checked if it was checked
@@ -69,7 +62,8 @@ require_once('inc/info_box.php');
                 }?>>)
             <br />
             <br />
-            Search only in experiments owned by : <select name='owner'>
+
+            Search only in experiments owned by: <select name='owner'>
             <option value=''>Select a member</option>
             <?php
             $users_sql = "SELECT userid, firstname, lastname FROM users";
@@ -87,6 +81,7 @@ require_once('inc/info_box.php');
             </select>
             <br />
             <br />
+
             <div id='search_inputs_div'>
             <p class='inline'>Where date is between:</p><input name='from' type='text' size='11' class='search_inputs datepicker' value='<?php
                 if(isset($_REQUEST['from']) && !empty($_REQUEST['from'])) {
@@ -200,7 +195,7 @@ for($i=1; $i<=5; $i++) {
             ChemDoodle.ELEMENT['H'].jmolColor = 'black';
             // darkens the default JMol color of sulfur so it appears on white backgrounds
             ChemDoodle.ELEMENT['S'].jmolColor = '#B9A130';
-            var reactionCanvas = new ChemDoodle.SketcherCanvas('reactionquery', 600, 200, {useServices:false});
+            var reactionCanvas = new ChemDoodle.SketcherCanvas('reactionquery', 500, 200, {useServices:false});
             reactionCanvas.specs.atoms_displayTerminalCarbonLabels_2D = true;
             // sets atom labels to be colored by JMol colors, which are easy to recognize
             reactionCanvas.specs.atoms_useJMOLColors = true;
@@ -260,8 +255,12 @@ for($i=1; $i<=5; $i++) {
 <?php //endif
 } ?>
             </div>
-            </div>
-
+        </div>
+        <div class='center' style='margin-top:16px;'>
+                <button class='button' value='Submit' type='submit'>
+                Launch search
+                </button>
+        </div>
         </form>
         
     </div>
