@@ -293,7 +293,6 @@ for($i=1; $i<=5; $i++) {
             }
             
         }
-        debugger;
         // if the length of mol or rxn is > 1500 (quite likely), we use POST instead of GET
         if (document.getElementById('mol').value.length > 1500 || document.getElementById('rxn').value.length > 1500) {
             search.method = 'POST';

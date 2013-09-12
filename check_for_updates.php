@@ -64,10 +64,10 @@ if (isset($_POST)) {
     $current_branch = shell_exec('git symbolic-ref --short -q HEAD');
     if ($current_branch == 'master') {
     // for branch master
-    curl_setopt($ch, CURLOPT_URL, "https://api.github.com/repos/NicolasCARPi/elabftw/git/refs/heads/master");
+    curl_setopt($ch, CURLOPT_URL, "https://api.github.com/repos/martinp23/elabchem/git/refs/heads/master");
     } else {
     // for branch next
-    curl_setopt($ch, CURLOPT_URL, "https://api.github.com/repos/NicolasCARPi/elabftw/git/refs/heads/next");
+    curl_setopt($ch, CURLOPT_URL, "https://api.github.com/repos/martinp23/elabchem/git/refs/heads/develop");
     }
     // this is to get content
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -110,7 +110,7 @@ if (isset($_POST)) {
     } 
     if ($latest_version == $current_version) {
     // sha1 are the same
-    echo "Congratulations! You are running the latest stable version of eLabFTW :)";
+    echo "Congratulations! You are running the latest stable version of eLabChem :)";
     exit();
     }
 }

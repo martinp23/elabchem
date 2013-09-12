@@ -36,16 +36,16 @@ define('LAB_NAME', 'YOURLABNAME');
 define('ADMIN_VALIDATE', 0);
 
 // the name of the custom link in menu
-define('LINK_NAME', 'Wiki');
+define('LINK_NAME', 'GitHub');
 
 // the URL of the custom link
-define('LINK_HREF', 'https://github.com/NicolasCARPi/elabftw/wiki');
+define('LINK_HREF', 'https://github.com/martinp23/elabchem');
 
 // the path of the install (absolute path) WITHOUT TRAILING SLASH
-// on Windows it should be : 'C:\xampp\htdocs\elabftw'
-// on GNU/Linux it might be : '/var/www/elabftw'
+// on Windows it should be : 'C:\xampp\htdocs\elabchem'
+// on GNU/Linux it might be : '/var/www/elabchem'
 // on Mac OS X it might be : '/Applications/MAMP/htdocs'
-define('PATH', '/path/to/elabftw');
+define('PATH', '/path/to/elabchem');
 
 // change to true to activate debug mode
 define('DEBUG', false);
@@ -56,7 +56,11 @@ define('PROXY', 'proxy.example.com:3128');
 /*
  * Chemistry settings
  */
+ 
+// use chemistry
 define('CHEMISTRY', true);
+
+// prefix to use for chemical registration numbers, eg: ELB4636231A, prefix is ELB.
 define('CPD_PREFIX', 'ELB');
 
 
@@ -68,10 +72,10 @@ define('CPD_PREFIX', 'ELB');
 define('DB_HOST', 'localhost');
 
 // Name of the database
-define('DB_NAME', 'elabftw');
+define('DB_NAME', 'elabchem');
 
 // SQL username
-define('DB_USER', 'elabftw');
+define('DB_USER', 'elabchem');
 
 // SQL Password (the one you chose in phpmyadmin)
 define('DB_PASSWORD', 'YOUR PASSWORD');

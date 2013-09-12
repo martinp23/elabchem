@@ -33,7 +33,7 @@ require_once('admin/config.php');
 </noscript>
 
 <div id='logo'>
-<img src='img/logo-169.png' alt='elabftw' />
+<img src='img/logo-169.png' alt='elabchem' />
 </div>
 
 <div id="logmenu"><p>
@@ -41,9 +41,9 @@ require_once('admin/config.php');
 if (isset($_SESSION['auth']) && $_SESSION['is_admin'] === '1') {
 ?>
     <!-- ADMIN MENU --> 
-    <a href='https://twitter.com/elabftw'>
+    <!-- <a href='https://twitter.com/elabftw'>
         <img src='img/twitter-bird-16x16.png' alt='twitter' title='Follow eLabFTW on Twitter !'>
-    </a> | 
+    </a> |  -->
     <a id='check_for_updates' href='#'>Check for updates</a> | <a href='admin.php'>Admin Panel</a> | 
     <script>
     $('#check_for_updates').click(function() {

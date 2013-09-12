@@ -32,13 +32,13 @@ require_once('inc/info_box.php');
 
 // Page begin
 
-echo "<p style='text-align:center'>". LAB_NAME ." powered by <a href='http://www.elabftw.net'>eLabFTW</a> by <a href='http://www.elabftw.net' onClick='cornify_add();return false;'>Nicolas CARPi</a></p>";
+echo "<p>".LAB_NAME." powered by <a href='https://github.com/martinp23/elabchem'>eLabChem</a>, a fork of <a href='http://www.elabftw.net' onClick='cornify_add();return false;'>Nicolas CARPi's eLabFTW</a></p>";
 ?>
 
-<h3><a href="https://github.com/NicolasCARPi/elabftw">Get the eLabFTW source on GitHub</a></h3>
+<h3><a href="https://github.com/martinp23/elabchem">Get the eLabChem source on GitHub</a></h3>
 
-<p style='text-align:center'>eLabFTW is free software, licensed using the <a href="agpl-3.0.txt">GNU Affero General Public License v3.0</a></p>
-<p style='text-align:center'>eLabFTW is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied  
+<p style='text-align:center'>eLabChem is free software, licensed using the <a href="agpl-3.0.txt">GNU Affero General Public License v3.0</a></p>
+<p style='text-align:center'>eLabChem is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied  
  warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the <a href="agpl-3.0.txt">GNU Affero General Public License</a> for more details.  </p>
 <br /><br />
 <h4>Contributors</h4>
@@ -49,7 +49,7 @@ echo "<p style='text-align:center'>". LAB_NAME ." powered by <a href='http://www
 </ul></p>
 <br /><br />
 <h4>Acknowledgements</h4>
-<p>The following open-source projects are incorporated in some way into eLabFTW:<ul>
+<p>The following open-source projects are incorporated in some way into eLabChem:<ul>
 	<li><a href="http://jquery.com/">jQuery</a> (<a href="https://github.com/jquery/jquery">source</a>) (<a href="http://opensource.org/licenses/MIT">MIT License</a>)</li>
 	<li><a href="http://web.chemdoodle.com/">ChemDoodle Web</a> (<a href="http://web.chemdoodle.com/installation/download">download</a>) (<a href="https://www.gnu.org/licenses/gpl.html">GPL v3.0 License</a>)</li> 
 	<li><a href="https://github.com/mleibman/SlickGrid/wiki">SlickGrid</a> (<a href="https://github.com/mleibman/SlickGrid">source</a>) (<a href="http://opensource.org/licenses/MIT">MIT License</a>)</li>

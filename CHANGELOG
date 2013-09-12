@@ -1,13 +1,16 @@
 /* Changelog for eLabFTW */
 
 
-Chemistry fork Dev
+Version 0.9.1.2~chem0.1
 * Add revisions system so all changes to experiments are tracked
 * Remove ability to delete experiments permanently
-* db schema changes (lots of)
+* Lots of db schema changes. No upgrade route from v <0.9.1, sorry!
 * Add ChemDoodle scheme editors and viewers for Chemistry Experiments
 * Add SlickGrid grids for Stoichiometry and Product tables for Chemistry Experiments
-
+* Add chemical structure searching system to search experiments
+* Change date format to dates rather than ints
+* Add rudimentary chemical registry database. 
+* Export chemistry "stuff" in pdf and zip exports.
 
 Version 0.9.1
 * Possibility to limit the visibility of an experiment to yourself only

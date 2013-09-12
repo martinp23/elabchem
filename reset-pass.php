@@ -93,9 +93,9 @@ Follow this link to change your password :
 '.$reset_link.'
 
 ~~
-Email sent by eLabFTW
-http://www.elabftw.net
-Free open-source Lab Manager');
+Email sent by eLabChem
+https://github.com/martinp23/elabchem
+Free open-source Lab Manager, based on eLabFTW (http://www.elabftw.net)');
             $transport = Swift_SmtpTransport::newInstance(SMTP_ADDRESS, SMTP_PORT, SMTP_ENCRYPTION)
             ->setUsername(SMTP_USERNAME)
             ->setPassword(SMTP_PASSWORD);

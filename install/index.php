@@ -61,7 +61,7 @@ $ok = "<span style='color:green'>OK</span>";
 $fail = "<span style='color:red'>FAIL</span>";
 
 echo "<section class='item'>";
-echo "<center><img src='../img/logo.png' alt='elabftw' title='elabftw' /></center>";
+echo "<center><img src='../img/logo.png' alt='elabchem' title='elabchem' /></center>";
 echo "<h2>Welcome the the install of eLabFTW</h2>";
 // Config file
 echo "[°] Check for admin/config.php file...";
@@ -83,7 +83,7 @@ if (!is_dir("../uploads")){
    if  (mkdir("../uploads", 0777)){
     echo $ok;
     }else{
-        die($fail." : Failed creating <em>uploads/</em> directory. <a href='https://github.com/NicolasCARPi/elabftw/wiki/Troubleshooting'>Read the wiki to fix this.</a>");
+        die($fail." : Failed creating <em>uploads/</em> directory. <a href='https://github.com/NicolasCARPi/elabftw/wiki/Troubleshooting'>Read the elabftw wiki to fix this.</a>");
     }
 }else{
     echo $ok;
@@ -96,7 +96,7 @@ if (!is_dir("../uploads/export")){
    if  (mkdir("../uploads/export", 0777)){
     echo $ok;
     }else{
-        die($fail." : Failed creating <em>uploads/export</em> directory.  <a href='https://github.com/NicolasCARPi/elabftw/wiki/Troubleshooting'>Read the wiki to fix this.</a>");
+        die($fail." : Failed creating <em>uploads/export</em> directory.  <a href='https://github.com/NicolasCARPi/elabftw/wiki/Troubleshooting'>Read the elabftw wiki to fix this.</a>");
     }
 }else{
     echo $ok;
@@ -109,7 +109,7 @@ if (!is_dir("../uploads/tmp")){
    if  (mkdir("../uploads/tmp", 0777)){
     echo $ok;
     }else{
-        die($fail." : Failed creating <em>uploads/tmp</em> directory.  <a href='https://github.com/NicolasCARPi/elabftw/wiki/Troubleshooting'>Read the wiki to fix this.</a>");
+        die($fail." : Failed creating <em>uploads/tmp</em> directory.  <a href='https://github.com/NicolasCARPi/elabftw/wiki/Troubleshooting'>Read the elabftw wiki to fix this.</a>");
     }
 }else{
     echo $ok;
