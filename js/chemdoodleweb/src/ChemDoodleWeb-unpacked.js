@@ -1,5 +1,5 @@
-//
-// ChemDoodle Web Components 5.2.2
+// From eLabChem
+// Based on ChemDoodle Web Components 5.2.3
 //
 // http://web.chemdoodle.com
 //
@@ -18,19 +18,23 @@
 // are not obligated to do so. If you do not wish to do so, delete this
 // exception statement from your version.
 //
+// As an additional exception to the GPL, you may distribute this
+// packed form of the code without the copy of the GPL license normally
+// required, provided you include this license notice and a URL through
+// which recipients can access the corresponding unpacked source code.
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
 // Please contact iChemLabs <http://www.ichemlabs.com/contact-us> for
 // alternate licensing options.
 //
-//
-//  Copyright 2009 iChemLabs, LLC.  All rights reserved.
+// With changes by Martin Peeks (martinp23@googlemail.com)
+// http://github.com/martinp23/elabchem
+
+
 //
 //  $Revision: 2934 $
 //  $Author: kevin $
@@ -47,7 +51,7 @@ var ChemDoodle = (function() {
 	c.informatics = {};
 	c.io = {};
 
-	var VERSION = '5.2.2';
+	var VERSION = '5.2.3';
 
 	c.getVersion = function() {
 		return VERSION;
@@ -173,9 +177,9 @@ ChemDoodle.extensions = (function(structures, v3, m) {
 //
 //  Copyright 2009 iChemLabs, LLC.  All rights reserved.
 //
-//  $Revision: 4238 $
+//  $Revision: 4459 $
 //  $Author: kevin $
-//  $LastChangedDate: 2013-04-17 17:08:36 -0400 (Wed, 17 Apr 2013) $
+//  $LastChangedDate: 2013-08-06 14:09:43 -0400 (Tue, 06 Aug 2013) $
 //
 
 ChemDoodle.math = (function(extensions, structures, m) {
@@ -393,6 +397,17 @@ ChemDoodle.math = (function(extensions, structures, m) {
 		return err;
 	};
 
+	pack.idx2color = function(value) {
+		var hex = value.toString(16);
+
+		// add '0' padding
+		for ( var i = 0, ii = 6 - hex.length; i < ii; i++) {
+			hex = "0" + hex;
+		}
+
+		return "#" + hex;
+	};
+
 	pack.distanceFromPointToLineInclusive = function(p, l1, l2) {
 		var length = l1.distance(l2);
 		var angle = l1.angle(l2);
@@ -526,7 +541,7 @@ ChemDoodle.math = (function(extensions, structures, m) {
 	};
 
 	pack.clamp = function(value, min, max) {
-	    return value < min ? min : value > max ? max : value;
+		return value < min ? min : value > max ? max : value;
 	};
 
 	return pack;
@@ -1137,9 +1152,9 @@ ChemDoodle.featureDetection = (function(iChemLabs, q, document, window) {
 //
 //  Copyright 2009 iChemLabs, LLC.  All rights reserved.
 //
-//  $Revision: 4131 $
+//  $Revision: 4459 $
 //  $Author: kevin $
-//  $LastChangedDate: 2013-02-18 21:02:56 -0500 (Mon, 18 Feb 2013) $
+//  $LastChangedDate: 2013-08-06 14:09:43 -0400 (Tue, 06 Aug 2013) $
 //
 
 // all symbols
@@ -1150,271 +1165,136 @@ ChemDoodle.ELEMENT = (function(SYMBOLS) {
 	'use strict';
 	var E = [];
 
-	function Element(symbol, name, atomicNumber) {
+	function Element(symbol, name, atomicNumber, addH, color, covalentRadius, vdWRadius, valency, mass) {
 		this.symbol = symbol;
 		this.name = name;
 		this.atomicNumber = atomicNumber;
+		this.addH = addH;
+		this.jmolColor = this.pymolColor = color;
+		this.covalentRadius = covalentRadius;
+		this.vdWRadius = vdWRadius;
+		this.valency = valency;
+		this.mass = mass;
 	}
 
-	E.H = new Element('H', 'Hydrogen', 1);
-	E.He = new Element('He', 'Helium', 2);
-	E.Li = new Element('Li', 'Lithium', 3);
-	E.Be = new Element('Be', 'Beryllium', 4);
-	E.B = new Element('B', 'Boron', 5);
-	E.C = new Element('C', 'Carbon', 6);
-	E.N = new Element('N', 'Nitrogen', 7);
-	E.O = new Element('O', 'Oxygen', 8);
-	E.F = new Element('F', 'Fluorine', 9);
-	E.Ne = new Element('Ne', 'Neon', 10);
-	E.Na = new Element('Na', 'Sodium', 11);
-	E.Mg = new Element('Mg', 'Magnesium', 12);
-	E.Al = new Element('Al', 'Aluminum', 13);
-	E.Si = new Element('Si', 'Silicon', 14);
-	E.P = new Element('P', 'Phosphorus', 15);
-	E.S = new Element('S', 'Sulfur', 16);
-	E.Cl = new Element('Cl', 'Chlorine', 17);
-	E.Ar = new Element('Ar', 'Argon', 18);
-	E.K = new Element('K', 'Potassium', 19);
-	E.Ca = new Element('Ca', 'Calcium', 20);
-	E.Sc = new Element('Sc', 'Scandium', 21);
-	E.Ti = new Element('Ti', 'Titanium', 22);
-	E.V = new Element('V', 'Vanadium', 23);
-	E.Cr = new Element('Cr', 'Chromium', 24);
-	E.Mn = new Element('Mn', 'Manganese', 25);
-	E.Fe = new Element('Fe', 'Iron', 26);
-	E.Co = new Element('Co', 'Cobalt', 27);
-	E.Ni = new Element('Ni', 'Nickel', 28);
-	E.Cu = new Element('Cu', 'Copper', 29);
-	E.Zn = new Element('Zn', 'Zinc', 30);
-	E.Ga = new Element('Ga', 'Gallium', 31);
-	E.Ge = new Element('Ge', 'Germanium', 32);
-	E.As = new Element('As', 'Arsenic', 33);
-	E.Se = new Element('Se', 'Selenium', 34);
-	E.Br = new Element('Br', 'Bromine', 35);
-	E.Kr = new Element('Kr', 'Krypton', 36);
-	E.Rb = new Element('Rb', 'Rubidium', 37);
-	E.Sr = new Element('Sr', 'Strontium', 38);
-	E.Y = new Element('Y', 'Yttrium', 39);
-	E.Zr = new Element('Zr', 'Zirconium', 40);
-	E.Nb = new Element('Nb', 'Niobium', 41);
-	E.Mo = new Element('Mo', 'Molybdenum', 42);
-	E.Tc = new Element('Tc', 'Technetium', 43);
-	E.Ru = new Element('Ru', 'Ruthenium', 44);
-	E.Rh = new Element('Rh', 'Rhodium', 45);
-	E.Pd = new Element('Pd', 'Palladium', 46);
-	E.Ag = new Element('Ag', 'Silver', 47);
-	E.Cd = new Element('Cd', 'Cadmium', 48);
-	E.In = new Element('In', 'Indium', 49);
-	E.Sn = new Element('Sn', 'Tin', 50);
-	E.Sb = new Element('Sb', 'Antimony', 51);
-	E.Te = new Element('Te', 'Tellurium', 52);
-	E.I = new Element('I', 'Iodine', 53);
-	E.Xe = new Element('Xe', 'Xenon', 54);
-	E.Cs = new Element('Cs', 'Cesium', 55);
-	E.Ba = new Element('Ba', 'Barium', 56);
-	E.La = new Element('La', 'Lanthanum', 57);
-	E.Ce = new Element('Ce', 'Cerium', 58);
-	E.Pr = new Element('Pr', 'Praseodymium', 59);
-	E.Nd = new Element('Nd', 'Neodymium', 60);
-	E.Pm = new Element('Pm', 'Promethium', 61);
-	E.Sm = new Element('Sm', 'Samarium', 62);
-	E.Eu = new Element('Eu', 'Europium', 63);
-	E.Gd = new Element('Gd', 'Gadolinium', 64);
-	E.Tb = new Element('Tb', 'Terbium', 65);
-	E.Dy = new Element('Dy', 'Dysprosium', 66);
-	E.Ho = new Element('Ho', 'Holmium', 67);
-	E.Er = new Element('Er', 'Erbium', 68);
-	E.Tm = new Element('Tm', 'Thulium', 69);
-	E.Yb = new Element('Yb', 'Ytterbium', 70);
-	E.Lu = new Element('Lu', 'Lutetium', 71);
-	E.Hf = new Element('Hf', 'Hafnium', 72);
-	E.Ta = new Element('Ta', 'Tantalum', 73);
-	E.W = new Element('W', 'Tungsten', 74);
-	E.Re = new Element('Re', 'Rhenium', 75);
-	E.Os = new Element('Os', 'Osmium', 76);
-	E.Ir = new Element('Ir', 'Iridium', 77);
-	E.Pt = new Element('Pt', 'Platinum', 78);
-	E.Au = new Element('Au', 'Gold', 79);
-	E.Hg = new Element('Hg', 'Mercury', 80);
-	E.Tl = new Element('Tl', 'Thallium', 81);
-	E.Pb = new Element('Pb', 'Lead', 82);
-	E.Bi = new Element('Bi', 'Bismuth', 83);
-	E.Po = new Element('Po', 'Polonium', 84);
-	E.At = new Element('At', 'Astatine', 85);
-	E.Rn = new Element('Rn', 'Radon', 86);
-	E.Fr = new Element('Fr', 'Francium', 87);
-	E.Ra = new Element('Ra', 'Radium', 88);
-	E.Ac = new Element('Ac', 'Actinium', 89);
-	E.Th = new Element('Th', 'Thorium', 90);
-	E.Pa = new Element('Pa', 'Protactinium', 91);
-	E.U = new Element('U', 'Uranium', 92);
-	E.Np = new Element('Np', 'Neptunium', 93);
-	E.Pu = new Element('Pu', 'Plutonium', 94);
-	E.Am = new Element('Am', 'Americium', 95);
-	E.Cm = new Element('Cm', 'Curium', 96);
-	E.Bk = new Element('Bk', 'Berkelium', 97);
-	E.Cf = new Element('Cf', 'Californium', 98);
-	E.Es = new Element('Es', 'Einsteinium', 99);
-	E.Fm = new Element('Fm', 'Fermium', 100);
-	E.Md = new Element('Md', 'Mendelevium', 101);
-	E.No = new Element('No', 'Nobelium', 102);
-	E.Lr = new Element('Lr', 'Lawrencium', 103);
-	E.Rf = new Element('Rf', 'Rutherfordium', 104);
-	E.Db = new Element('Db', 'Dubnium', 105);
-	E.Sg = new Element('Sg', 'Seaborgium', 106);
-	E.Bh = new Element('Bh', 'Bohrium', 107);
-	E.Hs = new Element('Hs', 'Hassium', 108);
-	E.Mt = new Element('Mt', 'Meitnerium', 109);
-	E.Ds = new Element('Ds', 'Darmstadtium', 110);
-	E.Rg = new Element('Rg', 'Roentgenium', 111);
-	E.Cn = new Element('Cn', 'Copernicium', 112);
-	E.Uut = new Element('Uut', 'Ununtrium', 113);
-	E.Uuq = new Element('Uuq', 'Ununquadium', 114);
-	E.Uup = new Element('Uup', 'Ununpentium', 115);
-	E.Uuh = new Element('Uuh', 'Ununhexium', 116);
-	E.Uus = new Element('Uus', 'Ununseptium', 117);
-	E.Uuo = new Element('Uuo', 'Ununoctium', 118);
-	
-	// add implicit hydrogens to these elements
-	E.B.addH = true;
-	E.C.addH = true;
-	E.N.addH = true;
-	E.O.addH = true;
-	E.F.addH = true;
-	E.Si.addH = true;
-	E.P.addH = true;
-	E.S.addH = true;
-	E.Cl.addH = true;
-	E.As.addH = true;
-	E.Se.addH = true;
-	E.Br.addH = true;
-	E.Te.addH = true;
-	E.I.addH = true;
-	E.At.addH = true;
-
-	// set up jmol colors
-	E.H.jmolColor = '#FFFFFF';
-	E.He.jmolColor = '#D9FFFF';
-	E.Li.jmolColor = '#CC80FF';
-	E.Be.jmolColor = '#C2FF00';
-	E.B.jmolColor = '#FFB5B5';
-	E.C.jmolColor = '#909090';
-	E.N.jmolColor = '#3050F8';
-	E.O.jmolColor = '#FF0D0D';
-	E.F.jmolColor = '#90E050';
-	E.Ne.jmolColor = '#B3E3F5';
-	E.Na.jmolColor = '#AB5CF2';
-	E.Mg.jmolColor = '#8AFF00';
-	E.Al.jmolColor = '#BFA6A6';
-	E.Si.jmolColor = '#F0C8A0';
-	E.P.jmolColor = '#FF8000';
-	E.S.jmolColor = '#FFFF30';
-	E.Cl.jmolColor = '#1FF01F';
-	E.Ar.jmolColor = '#80D1E3';
-	E.K.jmolColor = '#8F40D4';
-	E.Ca.jmolColor = '#3DFF00';
-	E.Sc.jmolColor = '#E6E6E6';
-	E.Ti.jmolColor = '#BFC2C7';
-	E.V.jmolColor = '#A6A6AB';
-	E.Cr.jmolColor = '#8A99C7';
-	E.Mn.jmolColor = '#9C7AC7';
-	E.Fe.jmolColor = '#E06633';
-	E.Co.jmolColor = '#F090A0';
-	E.Ni.jmolColor = '#50D050';
-	E.Cu.jmolColor = '#C88033';
-	E.Zn.jmolColor = '#7D80B0';
-	E.Ga.jmolColor = '#C28F8F';
-	E.Ge.jmolColor = '#668F8F';
-	E.As.jmolColor = '#BD80E3';
-	E.Se.jmolColor = '#FFA100';
-	E.Br.jmolColor = '#A62929';
-	E.Kr.jmolColor = '#5CB8D1';
-	E.Rb.jmolColor = '#702EB0';
-	E.Sr.jmolColor = '#00FF00';
-	E.Y.jmolColor = '#94FFFF';
-	E.Zr.jmolColor = '#94E0E0';
-	E.Nb.jmolColor = '#73C2C9';
-	E.Mo.jmolColor = '#54B5B5';
-	E.Tc.jmolColor = '#3B9E9E';
-	E.Ru.jmolColor = '#248F8F';
-	E.Rh.jmolColor = '#0A7D8C';
-	E.Pd.jmolColor = '#006985';
-	E.Ag.jmolColor = '#C0C0C0';
-	E.Cd.jmolColor = '#FFD98F';
-	E.In.jmolColor = '#A67573';
-	E.Sn.jmolColor = '#668080';
-	E.Sb.jmolColor = '#9E63B5';
-	E.Te.jmolColor = '#D47A00';
-	E.I.jmolColor = '#940094';
-	E.Xe.jmolColor = '#429EB0';
-	E.Cs.jmolColor = '#57178F';
-	E.Ba.jmolColor = '#00C900';
-	E.La.jmolColor = '#70D4FF';
-	E.Ce.jmolColor = '#FFFFC7';
-	E.Pr.jmolColor = '#D9FFC7';
-	E.Nd.jmolColor = '#C7FFC7';
-	E.Pm.jmolColor = '#A3FFC7';
-	E.Sm.jmolColor = '#8FFFC7';
-	E.Eu.jmolColor = '#61FFC7';
-	E.Gd.jmolColor = '#45FFC7';
-	E.Tb.jmolColor = '#30FFC7';
-	E.Dy.jmolColor = '#1FFFC7';
-	E.Ho.jmolColor = '#00FF9C';
-	E.Er.jmolColor = '#00E675';
-	E.Tm.jmolColor = '#00D452';
-	E.Yb.jmolColor = '#00BF38';
-	E.Lu.jmolColor = '#00AB24';
-	E.Hf.jmolColor = '#4DC2FF';
-	E.Ta.jmolColor = '#4DA6FF';
-	E.W.jmolColor = '#2194D6';
-	E.Re.jmolColor = '#267DAB';
-	E.Os.jmolColor = '#266696';
-	E.Ir.jmolColor = '#175487';
-	E.Pt.jmolColor = '#D0D0E0';
-	E.Au.jmolColor = '#FFD123';
-	E.Hg.jmolColor = '#B8B8D0';
-	E.Tl.jmolColor = '#A6544D';
-	E.Pb.jmolColor = '#575961';
-	E.Bi.jmolColor = '#9E4FB5';
-	E.Po.jmolColor = '#AB5C00';
-	E.At.jmolColor = '#754F45';
-	E.Rn.jmolColor = '#428296';
-	E.Fr.jmolColor = '#420066';
-	E.Ra.jmolColor = '#007D00';
-	E.Ac.jmolColor = '#70ABFA';
-	E.Th.jmolColor = '#00BAFF';
-	E.Pa.jmolColor = '#00A1FF';
-	E.U.jmolColor = '#008FFF';
-	E.Np.jmolColor = '#0080FF';
-	E.Pu.jmolColor = '#006BFF';
-	E.Am.jmolColor = '#545CF2';
-	E.Cm.jmolColor = '#785CE3';
-	E.Bk.jmolColor = '#8A4FE3';
-	E.Cf.jmolColor = '#A136D4';
-	E.Es.jmolColor = '#B31FD4';
-	E.Fm.jmolColor = '#B31FBA';
-	E.Md.jmolColor = '#B30DA6';
-	E.No.jmolColor = '#BD0D87';
-	E.Lr.jmolColor = '#C70066';
-	E.Rf.jmolColor = '#CC0059';
-	E.Db.jmolColor = '#D1004F';
-	E.Sg.jmolColor = '#D90045';
-	E.Bh.jmolColor = '#E00038';
-	E.Hs.jmolColor = '#E6002E';
-	E.Mt.jmolColor = '#EB0026';
-	E.Ds.jmolColor = '#000000';
-	E.Rg.jmolColor = '#000000';
-	E.Cn.jmolColor = '#000000';
-	E.Uut.jmolColor = '#000000';
-	E.Uuq.jmolColor = '#000000';
-	E.Uup.jmolColor = '#000000';
-	E.Uuh.jmolColor = '#000000';
-	E.Uus.jmolColor = '#000000';
-	E.Uuo.jmolColor = '#000000';
-
-	for ( var i = 0, ii = SYMBOLS.length; i < ii; i++) {
-		E[SYMBOLS[i]].pymolColor = E[SYMBOLS[i]].jmolColor;
-	}
+	E.H = new Element('H', 'Hydrogen', 1, false, '#FFFFFF', 0.31, 1.2, 1, 1);
+	E.He = new Element('He', 'Helium', 2, false, '#D9FFFF', 0.28, 1.4, 0, 4);
+	E.Li = new Element('Li', 'Lithium', 3, false, '#CC80FF', 1.28, 1.82, 1, 7);
+	E.Be = new Element('Be', 'Beryllium', 4, false, '#C2FF00', 0.96, 0, 2, 9);
+	E.B = new Element('B', 'Boron', 5, true, '#FFB5B5', 0.84, 0, 3, 11);
+	E.C = new Element('C', 'Carbon', 6, true, '#909090', 0.76, 1.7, 4, 12);
+	E.N = new Element('N', 'Nitrogen', 7, true, '#3050F8', 0.71, 1.55, 3, 14);
+	E.O = new Element('O', 'Oxygen', 8, true, '#FF0D0D', 0.66, 1.52, 2, 16);
+	E.F = new Element('F', 'Fluorine', 9, true, '#90E050', 0.57, 1.47, 1, 19);
+	E.Ne = new Element('Ne', 'Neon', 10, false, '#B3E3F5', 0.58, 1.54, 0, 20);
+	E.Na = new Element('Na', 'Sodium', 11, false, '#AB5CF2', 1.66, 2.27, 1, 23);
+	E.Mg = new Element('Mg', 'Magnesium', 12, false, '#8AFF00', 1.41, 1.73, 0, 24);
+	E.Al = new Element('Al', 'Aluminum', 13, false, '#BFA6A6', 1.21, 0, 0, 27);
+	E.Si = new Element('Si', 'Silicon', 14, true, '#F0C8A0', 1.11, 2.1, 4, 28);
+	E.P = new Element('P', 'Phosphorus', 15, true, '#FF8000', 1.07, 1.8, 3, 31);
+	E.S = new Element('S', 'Sulfur', 16, true, '#FFFF30', 1.05, 1.8, 2, 32);
+	E.Cl = new Element('Cl', 'Chlorine', 17, true, '#1FF01F', 1.02, 1.75, 1, 35);
+	E.Ar = new Element('Ar', 'Argon', 18, false, '#80D1E3', 1.06, 1.88, 0, 40);
+	E.K = new Element('K', 'Potassium', 19, false, '#8F40D4', 2.03, 2.75, 0, 39);
+	E.Ca = new Element('Ca', 'Calcium', 20, false, '#3DFF00', 1.76, 0, 0, 40);
+	E.Sc = new Element('Sc', 'Scandium', 21, false, '#E6E6E6', 1.7, 0, 0, 45);
+	E.Ti = new Element('Ti', 'Titanium', 22, false, '#BFC2C7', 1.6, 0, 1, 48);
+	E.V = new Element('V', 'Vanadium', 23, false, '#A6A6AB', 1.53, 0, 1, 51);
+	E.Cr = new Element('Cr', 'Chromium', 24, false, '#8A99C7', 1.39, 0, 2, 52);
+	E.Mn = new Element('Mn', 'Manganese', 25, false, '#9C7AC7', 1.39, 0, 3, 55);
+	E.Fe = new Element('Fe', 'Iron', 26, false, '#E06633', 1.32, 0, 2, 56);
+	E.Co = new Element('Co', 'Cobalt', 27, false, '#F090A0', 1.26, 0, 1, 59);
+	E.Ni = new Element('Ni', 'Nickel', 28, false, '#50D050', 1.24, 1.63, 1, 58);
+	E.Cu = new Element('Cu', 'Copper', 29, false, '#C88033', 1.32, 1.4, 0, 63);
+	E.Zn = new Element('Zn', 'Zinc', 30, false, '#7D80B0', 1.22, 1.39, 0, 64);
+	E.Ga = new Element('Ga', 'Gallium', 31, false, '#C28F8F', 1.22, 1.87, 0, 69);
+	E.Ge = new Element('Ge', 'Germanium', 32, false, '#668F8F', 1.2, 0, 4, 74);
+	E.As = new Element('As', 'Arsenic', 33, true, '#BD80E3', 1.19, 1.85, 3, 75);
+	E.Se = new Element('Se', 'Selenium', 34, true, '#FFA100', 1.2, 1.9, 2, 80);
+	E.Br = new Element('Br', 'Bromine', 35, true, '#A62929', 1.2, 1.85, 1, 79);
+	E.Kr = new Element('Kr', 'Krypton', 36, false, '#5CB8D1', 1.16, 2.02, 0, 84);
+	E.Rb = new Element('Rb', 'Rubidium', 37, false, '#702EB0', 2.2, 0, 0, 85);
+	E.Sr = new Element('Sr', 'Strontium', 38, false, '#00FF00', 1.95, 0, 0, 88);
+	E.Y = new Element('Y', 'Yttrium', 39, false, '#94FFFF', 1.9, 0, 0, 89);
+	E.Zr = new Element('Zr', 'Zirconium', 40, false, '#94E0E0', 1.75, 0, 0, 90);
+	E.Nb = new Element('Nb', 'Niobium', 41, false, '#73C2C9', 1.64, 0, 1, 93);
+	E.Mo = new Element('Mo', 'Molybdenum', 42, false, '#54B5B5', 1.54, 0, 2, 98);
+	E.Tc = new Element('Tc', 'Technetium', 43, false, '#3B9E9E', 1.47, 0, 3, 0);
+	E.Ru = new Element('Ru', 'Ruthenium', 44, false, '#248F8F', 1.46, 0, 2, 102);
+	E.Rh = new Element('Rh', 'Rhodium', 45, false, '#0A7D8C', 1.42, 0, 1, 103);
+	E.Pd = new Element('Pd', 'Palladium', 46, false, '#006985', 1.39, 1.63, 0, 106);
+	E.Ag = new Element('Ag', 'Silver', 47, false, '#C0C0C0', 1.45, 1.72, 0, 107);
+	E.Cd = new Element('Cd', 'Cadmium', 48, false, '#FFD98F', 1.44, 1.58, 0, 114);
+	E.In = new Element('In', 'Indium', 49, false, '#A67573', 1.42, 1.93, 0, 115);
+	E.Sn = new Element('Sn', 'Tin', 50, false, '#668080', 1.39, 2.17, 4, 120);
+	E.Sb = new Element('Sb', 'Antimony', 51, false, '#9E63B5', 1.39, 0, 3, 121);
+	E.Te = new Element('Te', 'Tellurium', 52, true, '#D47A00', 1.38, 2.06, 2, 130);
+	E.I = new Element('I', 'Iodine', 53, true, '#940094', 1.39, 1.98, 1, 127);
+	E.Xe = new Element('Xe', 'Xenon', 54, false, '#429EB0', 1.4, 2.16, 0, 132);
+	E.Cs = new Element('Cs', 'Cesium', 55, false, '#57178F', 2.44, 0, 0, 133);
+	E.Ba = new Element('Ba', 'Barium', 56, false, '#00C900', 2.15, 0, 0, 138);
+	E.La = new Element('La', 'Lanthanum', 57, false, '#70D4FF', 2.07, 0, 0, 139);
+	E.Ce = new Element('Ce', 'Cerium', 58, false, '#FFFFC7', 2.04, 0, 0, 140);
+	E.Pr = new Element('Pr', 'Praseodymium', 59, false, '#D9FFC7', 2.03, 0, 0, 141);
+	E.Nd = new Element('Nd', 'Neodymium', 60, false, '#C7FFC7', 2.01, 0, 0, 142);
+	E.Pm = new Element('Pm', 'Promethium', 61, false, '#A3FFC7', 1.99, 0, 0, 0);
+	E.Sm = new Element('Sm', 'Samarium', 62, false, '#8FFFC7', 1.98, 0, 0, 152);
+	E.Eu = new Element('Eu', 'Europium', 63, false, '#61FFC7', 1.98, 0, 0, 153);
+	E.Gd = new Element('Gd', 'Gadolinium', 64, false, '#45FFC7', 1.96, 0, 0, 158);
+	E.Tb = new Element('Tb', 'Terbium', 65, false, '#30FFC7', 1.94, 0, 0, 159);
+	E.Dy = new Element('Dy', 'Dysprosium', 66, false, '#1FFFC7', 1.92, 0, 0, 164);
+	E.Ho = new Element('Ho', 'Holmium', 67, false, '#00FF9C', 1.92, 0, 0, 165);
+	E.Er = new Element('Er', 'Erbium', 68, false, '#00E675', 1.89, 0, 0, 166);
+	E.Tm = new Element('Tm', 'Thulium', 69, false, '#00D452', 1.9, 0, 0, 169);
+	E.Yb = new Element('Yb', 'Ytterbium', 70, false, '#00BF38', 1.87, 0, 0, 174);
+	E.Lu = new Element('Lu', 'Lutetium', 71, false, '#00AB24', 1.87, 0, 0, 175);
+	E.Hf = new Element('Hf', 'Hafnium', 72, false, '#4DC2FF', 1.75, 0, 0, 180);
+	E.Ta = new Element('Ta', 'Tantalum', 73, false, '#4DA6FF', 1.7, 0, 1, 181);
+	E.W = new Element('W', 'Tungsten', 74, false, '#2194D6', 1.62, 0, 2, 184);
+	E.Re = new Element('Re', 'Rhenium', 75, false, '#267DAB', 1.51, 0, 3, 187);
+	E.Os = new Element('Os', 'Osmium', 76, false, '#266696', 1.44, 0, 2, 192);
+	E.Ir = new Element('Ir', 'Iridium', 77, false, '#175487', 1.41, 0, 3, 193);
+	E.Pt = new Element('Pt', 'Platinum', 78, false, '#D0D0E0', 1.36, 1.75, 0, 195);
+	E.Au = new Element('Au', 'Gold', 79, false, '#FFD123', 1.36, 1.66, 1, 197);
+	E.Hg = new Element('Hg', 'Mercury', 80, false, '#B8B8D0', 1.32, 1.55, 0, 202);
+	E.Tl = new Element('Tl', 'Thallium', 81, false, '#A6544D', 1.45, 1.96, 0, 205);
+	E.Pb = new Element('Pb', 'Lead', 82, false, '#575961', 1.46, 2.02, 4, 208);
+	E.Bi = new Element('Bi', 'Bismuth', 83, false, '#9E4FB5', 1.48, 0, 3, 209);
+	E.Po = new Element('Po', 'Polonium', 84, false, '#AB5C00', 1.4, 0, 2, 0);
+	E.At = new Element('At', 'Astatine', 85, true, '#754F45', 1.5, 0, 1, 0);
+	E.Rn = new Element('Rn', 'Radon', 86, false, '#428296', 1.5, 0, 0, 0);
+	E.Fr = new Element('Fr', 'Francium', 87, false, '#420066', 2.6, 0, 0, 0);
+	E.Ra = new Element('Ra', 'Radium', 88, false, '#007D00', 2.21, 0, 0, 0);
+	E.Ac = new Element('Ac', 'Actinium', 89, false, '#70ABFA', 2.15, 0, 0, 0);
+	E.Th = new Element('Th', 'Thorium', 90, false, '#00BAFF', 2.06, 0, 0, 232);
+	E.Pa = new Element('Pa', 'Protactinium', 91, false, '#00A1FF', 2, 0, 0, 231);
+	E.U = new Element('U', 'Uranium', 92, false, '#008FFF', 1.96, 1.86, 0, 238);
+	E.Np = new Element('Np', 'Neptunium', 93, false, '#0080FF', 1.9, 0, 0, 0);
+	E.Pu = new Element('Pu', 'Plutonium', 94, false, '#006BFF', 1.87, 0, 0, 0);
+	E.Am = new Element('Am', 'Americium', 95, false, '#545CF2', 1.8, 0, 0, 0);
+	E.Cm = new Element('Cm', 'Curium', 96, false, '#785CE3', 1.69, 0, 0, 0);
+	E.Bk = new Element('Bk', 'Berkelium', 97, false, '#8A4FE3', 0, 0, 0, 0);
+	E.Cf = new Element('Cf', 'Californium', 98, false, '#A136D4', 0, 0, 0, 0);
+	E.Es = new Element('Es', 'Einsteinium', 99, false, '#B31FD4', 0, 0, 0, 0);
+	E.Fm = new Element('Fm', 'Fermium', 100, false, '#B31FBA', 0, 0, 0, 0);
+	E.Md = new Element('Md', 'Mendelevium', 101, false, '#B30DA6', 0, 0, 0, 0);
+	E.No = new Element('No', 'Nobelium', 102, false, '#BD0D87', 0, 0, 0, 0);
+	E.Lr = new Element('Lr', 'Lawrencium', 103, false, '#C70066', 0, 0, 0, 0);
+	E.Rf = new Element('Rf', 'Rutherfordium', 104, false, '#CC0059', 0, 0, 0, 0);
+	E.Db = new Element('Db', 'Dubnium', 105, false, '#D1004F', 0, 0, 0, 0);
+	E.Sg = new Element('Sg', 'Seaborgium', 106, false, '#D90045', 0, 0, 0, 0);
+	E.Bh = new Element('Bh', 'Bohrium', 107, false, '#E00038', 0, 0, 0, 0);
+	E.Hs = new Element('Hs', 'Hassium', 108, false, '#E6002E', 0, 0, 0, 0);
+	E.Mt = new Element('Mt', 'Meitnerium', 109, false, '#EB0026', 0, 0, 0, 0);
+	E.Ds = new Element('Ds', 'Darmstadtium', 110, false, '#000000', 0, 0, 0, 0);
+	E.Rg = new Element('Rg', 'Roentgenium', 111, false, '#000000', 0, 0, 0, 0);
+	E.Cn = new Element('Cn', 'Copernicium', 112, false, '#000000', 0, 0, 0, 0);
+	E.Uut = new Element('Uut', 'Ununtrium', 113, false, '#000000', 0, 0, 0, 0);
+	E.Uuq = new Element('Uuq', 'Ununquadium', 114, false, '#000000', 0, 0, 0, 0);
+	E.Uup = new Element('Uup', 'Ununpentium', 115, false, '#000000', 0, 0, 0, 0);
+	E.Uuh = new Element('Uuh', 'Ununhexium', 116, false, '#000000', 0, 0, 0, 0);
+	E.Uus = new Element('Uus', 'Ununseptium', 117, false, '#000000', 0, 0, 0, 0);
+	E.Uuo = new Element('Uuo', 'Ununoctium', 118, false, '#000000', 0, 0, 0, 0);
 
 	E.H.pymolColor = '#E6E6E6';
 	E.C.pymolColor = '#33FF33';
@@ -1422,484 +1302,6 @@ ChemDoodle.ELEMENT = (function(SYMBOLS) {
 	E.O.pymolColor = '#FF4D4D';
 	E.F.pymolColor = '#B3FFFF';
 	E.S.pymolColor = '#E6C640';
-
-	// set up covalent radii
-	E.H.covalentRadius = 0.31;
-	E.He.covalentRadius = 0.28;
-	E.Li.covalentRadius = 1.28;
-	E.Be.covalentRadius = 0.96;
-	E.B.covalentRadius = 0.84;
-	E.C.covalentRadius = 0.76;
-	E.N.covalentRadius = 0.71;
-	E.O.covalentRadius = 0.66;
-	E.F.covalentRadius = 0.57;
-	E.Ne.covalentRadius = 0.58;
-	E.Na.covalentRadius = 1.66;
-	E.Mg.covalentRadius = 1.41;
-	E.Al.covalentRadius = 1.21;
-	E.Si.covalentRadius = 1.11;
-	E.P.covalentRadius = 1.07;
-	E.S.covalentRadius = 1.05;
-	E.Cl.covalentRadius = 1.02;
-	E.Ar.covalentRadius = 1.06;
-	E.K.covalentRadius = 2.03;
-	E.Ca.covalentRadius = 1.76;
-	E.Sc.covalentRadius = 1.7;
-	E.Ti.covalentRadius = 1.6;
-	E.V.covalentRadius = 1.53;
-	E.Cr.covalentRadius = 1.39;
-	E.Mn.covalentRadius = 1.39;
-	E.Fe.covalentRadius = 1.32;
-	E.Co.covalentRadius = 1.26;
-	E.Ni.covalentRadius = 1.24;
-	E.Cu.covalentRadius = 1.32;
-	E.Zn.covalentRadius = 1.22;
-	E.Ga.covalentRadius = 1.22;
-	E.Ge.covalentRadius = 1.2;
-	E.As.covalentRadius = 1.19;
-	E.Se.covalentRadius = 1.2;
-	E.Br.covalentRadius = 1.2;
-	E.Kr.covalentRadius = 1.16;
-	E.Rb.covalentRadius = 2.2;
-	E.Sr.covalentRadius = 1.95;
-	E.Y.covalentRadius = 1.9;
-	E.Zr.covalentRadius = 1.75;
-	E.Nb.covalentRadius = 1.64;
-	E.Mo.covalentRadius = 1.54;
-	E.Tc.covalentRadius = 1.47;
-	E.Ru.covalentRadius = 1.46;
-	E.Rh.covalentRadius = 1.42;
-	E.Pd.covalentRadius = 1.39;
-	E.Ag.covalentRadius = 1.45;
-	E.Cd.covalentRadius = 1.44;
-	E.In.covalentRadius = 1.42;
-	E.Sn.covalentRadius = 1.39;
-	E.Sb.covalentRadius = 1.39;
-	E.Te.covalentRadius = 1.38;
-	E.I.covalentRadius = 1.39;
-	E.Xe.covalentRadius = 1.4;
-	E.Cs.covalentRadius = 2.44;
-	E.Ba.covalentRadius = 2.15;
-	E.La.covalentRadius = 2.07;
-	E.Ce.covalentRadius = 2.04;
-	E.Pr.covalentRadius = 2.03;
-	E.Nd.covalentRadius = 2.01;
-	E.Pm.covalentRadius = 1.99;
-	E.Sm.covalentRadius = 1.98;
-	E.Eu.covalentRadius = 1.98;
-	E.Gd.covalentRadius = 1.96;
-	E.Tb.covalentRadius = 1.94;
-	E.Dy.covalentRadius = 1.92;
-	E.Ho.covalentRadius = 1.92;
-	E.Er.covalentRadius = 1.89;
-	E.Tm.covalentRadius = 1.9;
-	E.Yb.covalentRadius = 1.87;
-	E.Lu.covalentRadius = 1.87;
-	E.Hf.covalentRadius = 1.75;
-	E.Ta.covalentRadius = 1.7;
-	E.W.covalentRadius = 1.62;
-	E.Re.covalentRadius = 1.51;
-	E.Os.covalentRadius = 1.44;
-	E.Ir.covalentRadius = 1.41;
-	E.Pt.covalentRadius = 1.36;
-	E.Au.covalentRadius = 1.36;
-	E.Hg.covalentRadius = 1.32;
-	E.Tl.covalentRadius = 1.45;
-	E.Pb.covalentRadius = 1.46;
-	E.Bi.covalentRadius = 1.48;
-	E.Po.covalentRadius = 1.4;
-	E.At.covalentRadius = 1.5;
-	E.Rn.covalentRadius = 1.5;
-	E.Fr.covalentRadius = 2.6;
-	E.Ra.covalentRadius = 2.21;
-	E.Ac.covalentRadius = 2.15;
-	E.Th.covalentRadius = 2.06;
-	E.Pa.covalentRadius = 2.0;
-	E.U.covalentRadius = 1.96;
-	E.Np.covalentRadius = 1.9;
-	E.Pu.covalentRadius = 1.87;
-	E.Am.covalentRadius = 1.8;
-	E.Cm.covalentRadius = 1.69;
-	E.Bk.covalentRadius = 0.0;
-	E.Cf.covalentRadius = 0.0;
-	E.Es.covalentRadius = 0.0;
-	E.Fm.covalentRadius = 0.0;
-	E.Md.covalentRadius = 0.0;
-	E.No.covalentRadius = 0.0;
-	E.Lr.covalentRadius = 0.0;
-	E.Rf.covalentRadius = 0.0;
-	E.Db.covalentRadius = 0.0;
-	E.Sg.covalentRadius = 0.0;
-	E.Bh.covalentRadius = 0.0;
-	E.Hs.covalentRadius = 0.0;
-	E.Mt.covalentRadius = 0.0;
-	E.Ds.covalentRadius = 0.0;
-	E.Rg.covalentRadius = 0.0;
-	E.Cn.covalentRadius = 0.0;
-	E.Uut.covalentRadius = 0.0;
-	E.Uuq.covalentRadius = 0.0;
-	E.Uup.covalentRadius = 0.0;
-	E.Uuh.covalentRadius = 0.0;
-	E.Uus.covalentRadius = 0.0;
-	E.Uuo.covalentRadius = 0.0;
-
-	// set up vdW radii
-	E.H.vdWRadius = 1.2;
-	E.He.vdWRadius = 1.4;
-	E.Li.vdWRadius = 1.82;
-	E.Be.vdWRadius = 0.0;
-	E.B.vdWRadius = 0.0;
-	E.C.vdWRadius = 1.7;
-	E.N.vdWRadius = 1.55;
-	E.O.vdWRadius = 1.52;
-	E.F.vdWRadius = 1.47;
-	E.Ne.vdWRadius = 1.54;
-	E.Na.vdWRadius = 2.27;
-	E.Mg.vdWRadius = 1.73;
-	E.Al.vdWRadius = 0.0;
-	E.Si.vdWRadius = 2.1;
-	E.P.vdWRadius = 1.8;
-	E.S.vdWRadius = 1.8;
-	E.Cl.vdWRadius = 1.75;
-	E.Ar.vdWRadius = 1.88;
-	E.K.vdWRadius = 2.75;
-	E.Ca.vdWRadius = 0.0;
-	E.Sc.vdWRadius = 0.0;
-	E.Ti.vdWRadius = 0.0;
-	E.V.vdWRadius = 0.0;
-	E.Cr.vdWRadius = 0.0;
-	E.Mn.vdWRadius = 0.0;
-	E.Fe.vdWRadius = 0.0;
-	E.Co.vdWRadius = 0.0;
-	E.Ni.vdWRadius = 1.63;
-	E.Cu.vdWRadius = 1.4;
-	E.Zn.vdWRadius = 1.39;
-	E.Ga.vdWRadius = 1.87;
-	E.Ge.vdWRadius = 0.0;
-	E.As.vdWRadius = 1.85;
-	E.Se.vdWRadius = 1.9;
-	E.Br.vdWRadius = 1.85;
-	E.Kr.vdWRadius = 2.02;
-	E.Rb.vdWRadius = 0.0;
-	E.Sr.vdWRadius = 0.0;
-	E.Y.vdWRadius = 0.0;
-	E.Zr.vdWRadius = 0.0;
-	E.Nb.vdWRadius = 0.0;
-	E.Mo.vdWRadius = 0.0;
-	E.Tc.vdWRadius = 0.0;
-	E.Ru.vdWRadius = 0.0;
-	E.Rh.vdWRadius = 0.0;
-	E.Pd.vdWRadius = 1.63;
-	E.Ag.vdWRadius = 1.72;
-	E.Cd.vdWRadius = 1.58;
-	E.In.vdWRadius = 1.93;
-	E.Sn.vdWRadius = 2.17;
-	E.Sb.vdWRadius = 0.0;
-	E.Te.vdWRadius = 2.06;
-	E.I.vdWRadius = 1.98;
-	E.Xe.vdWRadius = 2.16;
-	E.Cs.vdWRadius = 0.0;
-	E.Ba.vdWRadius = 0.0;
-	E.La.vdWRadius = 0.0;
-	E.Ce.vdWRadius = 0.0;
-	E.Pr.vdWRadius = 0.0;
-	E.Nd.vdWRadius = 0.0;
-	E.Pm.vdWRadius = 0.0;
-	E.Sm.vdWRadius = 0.0;
-	E.Eu.vdWRadius = 0.0;
-	E.Gd.vdWRadius = 0.0;
-	E.Tb.vdWRadius = 0.0;
-	E.Dy.vdWRadius = 0.0;
-	E.Ho.vdWRadius = 0.0;
-	E.Er.vdWRadius = 0.0;
-	E.Tm.vdWRadius = 0.0;
-	E.Yb.vdWRadius = 0.0;
-	E.Lu.vdWRadius = 0.0;
-	E.Hf.vdWRadius = 0.0;
-	E.Ta.vdWRadius = 0.0;
-	E.W.vdWRadius = 0.0;
-	E.Re.vdWRadius = 0.0;
-	E.Os.vdWRadius = 0.0;
-	E.Ir.vdWRadius = 0.0;
-	E.Pt.vdWRadius = 1.75;
-	E.Au.vdWRadius = 1.66;
-	E.Hg.vdWRadius = 1.55;
-	E.Tl.vdWRadius = 1.96;
-	E.Pb.vdWRadius = 2.02;
-	E.Bi.vdWRadius = 0.0;
-	E.Po.vdWRadius = 0.0;
-	E.At.vdWRadius = 0.0;
-	E.Rn.vdWRadius = 0.0;
-	E.Fr.vdWRadius = 0.0;
-	E.Ra.vdWRadius = 0.0;
-	E.Ac.vdWRadius = 0.0;
-	E.Th.vdWRadius = 0.0;
-	E.Pa.vdWRadius = 0.0;
-	E.U.vdWRadius = 1.86;
-	E.Np.vdWRadius = 0.0;
-	E.Pu.vdWRadius = 0.0;
-	E.Am.vdWRadius = 0.0;
-	E.Cm.vdWRadius = 0.0;
-	E.Bk.vdWRadius = 0.0;
-	E.Cf.vdWRadius = 0.0;
-	E.Es.vdWRadius = 0.0;
-	E.Fm.vdWRadius = 0.0;
-	E.Md.vdWRadius = 0.0;
-	E.No.vdWRadius = 0.0;
-	E.Lr.vdWRadius = 0.0;
-	E.Rf.vdWRadius = 0.0;
-	E.Db.vdWRadius = 0.0;
-	E.Sg.vdWRadius = 0.0;
-	E.Bh.vdWRadius = 0.0;
-	E.Hs.vdWRadius = 0.0;
-	E.Mt.vdWRadius = 0.0;
-	E.Ds.vdWRadius = 0.0;
-	E.Rg.vdWRadius = 0.0;
-	E.Cn.vdWRadius = 0.0;
-	E.Uut.vdWRadius = 0.0;
-	E.Uuq.vdWRadius = 0.0;
-	E.Uup.vdWRadius = 0.0;
-	E.Uuh.vdWRadius = 0.0;
-	E.Uus.vdWRadius = 0.0;
-	E.Uuo.vdWRadius = 0.0;
-
-	E.H.valency = 1;
-	E.He.valency = 0;
-	E.Li.valency = 1;
-	E.Be.valency = 2;
-	E.B.valency = 3;
-	E.C.valency = 4;
-	E.N.valency = 3;
-	E.O.valency = 2;
-	E.F.valency = 1;
-	E.Ne.valency = 0;
-	E.Na.valency = 1;
-	E.Mg.valency = 0;
-	E.Al.valency = 0;
-	E.Si.valency = 4;
-	E.P.valency = 3;
-	E.S.valency = 2;
-	E.Cl.valency = 1;
-	E.Ar.valency = 0;
-	E.K.valency = 0;
-	E.Ca.valency = 0;
-	E.Sc.valency = 0;
-	E.Ti.valency = 1;
-	E.V.valency = 1;
-	E.Cr.valency = 2;
-	E.Mn.valency = 3;
-	E.Fe.valency = 2;
-	E.Co.valency = 1;
-	E.Ni.valency = 1;
-	E.Cu.valency = 0;
-	E.Zn.valency = 0;
-	E.Ga.valency = 0;
-	E.Ge.valency = 4;
-	E.As.valency = 3;
-	E.Se.valency = 2;
-	E.Br.valency = 1;
-	E.Kr.valency = 0;
-	E.Rb.valency = 0;
-	E.Sr.valency = 0;
-	E.Y.valency = 0;
-	E.Zr.valency = 0;
-	E.Nb.valency = 1;
-	E.Mo.valency = 2;
-	E.Tc.valency = 3;
-	E.Ru.valency = 2;
-	E.Rh.valency = 1;
-	E.Pd.valency = 0;
-	E.Ag.valency = 0;
-	E.Cd.valency = 0;
-	E.In.valency = 0;
-	E.Sn.valency = 4;
-	E.Sb.valency = 3;
-	E.Te.valency = 2;
-	E.I.valency = 1;
-	E.Xe.valency = 0;
-	E.Cs.valency = 0;
-	E.Ba.valency = 0;
-	E.La.valency = 0;
-	E.Ce.valency = 0;
-	E.Pr.valency = 0;
-	E.Nd.valency = 0;
-	E.Pm.valency = 0;
-	E.Sm.valency = 0;
-	E.Eu.valency = 0;
-	E.Gd.valency = 0;
-	E.Tb.valency = 0;
-	E.Dy.valency = 0;
-	E.Ho.valency = 0;
-	E.Er.valency = 0;
-	E.Tm.valency = 0;
-	E.Yb.valency = 0;
-	E.Lu.valency = 0;
-	E.Hf.valency = 0;
-	E.Ta.valency = 1;
-	E.W.valency = 2;
-	E.Re.valency = 3;
-	E.Os.valency = 2;
-	E.Ir.valency = 3;
-	E.Pt.valency = 0;
-	E.Au.valency = 1;
-	E.Hg.valency = 0;
-	E.Tl.valency = 0;
-	E.Pb.valency = 4;
-	E.Bi.valency = 3;
-	E.Po.valency = 2;
-	E.At.valency = 1;
-	E.Rn.valency = 0;
-	E.Fr.valency = 0;
-	E.Ra.valency = 0;
-	E.Ac.valency = 0;
-	E.Th.valency = 0;
-	E.Pa.valency = 0;
-	E.U.valency = 0;
-	E.Np.valency = 0;
-	E.Pu.valency = 0;
-	E.Am.valency = 0;
-	E.Cm.valency = 0;
-	E.Bk.valency = 0;
-	E.Cf.valency = 0;
-	E.Es.valency = 0;
-	E.Fm.valency = 0;
-	E.Md.valency = 0;
-	E.No.valency = 0;
-	E.Lr.valency = 0;
-	E.Rf.valency = 0;
-	E.Db.valency = 0;
-	E.Sg.valency = 0;
-	E.Bh.valency = 0;
-	E.Hs.valency = 0;
-	E.Mt.valency = 0;
-	E.Ds.valency = 0;
-	E.Rg.valency = 0;
-	E.Cn.valency = 0;
-	E.Uut.valency = 0;
-	E.Uuq.valency = 0;
-	E.Uup.valency = 0;
-	E.Uuh.valency = 0;
-	E.Uus.valency = 0;
-	E.Uuo.valency = 0;
-
-	E.H.mass = 1;
-	E.He.mass = 4;
-	E.Li.mass = 7;
-	E.Be.mass = 9;
-	E.B.mass = 11;
-	E.C.mass = 12;
-	E.N.mass = 14;
-	E.O.mass = 16;
-	E.F.mass = 19;
-	E.Ne.mass = 20;
-	E.Na.mass = 23;
-	E.Mg.mass = 24;
-	E.Al.mass = 27;
-	E.Si.mass = 28;
-	E.P.mass = 31;
-	E.S.mass = 32;
-	E.Cl.mass = 35;
-	E.Ar.mass = 40;
-	E.K.mass = 39;
-	E.Ca.mass = 40;
-	E.Sc.mass = 45;
-	E.Ti.mass = 48;
-	E.V.mass = 51;
-	E.Cr.mass = 52;
-	E.Mn.mass = 55;
-	E.Fe.mass = 56;
-	E.Co.mass = 59;
-	E.Ni.mass = 58;
-	E.Cu.mass = 63;
-	E.Zn.mass = 64;
-	E.Ga.mass = 69;
-	E.Ge.mass = 74;
-	E.As.mass = 75;
-	E.Se.mass = 80;
-	E.Br.mass = 79;
-	E.Kr.mass = 84;
-	E.Rb.mass = 85;
-	E.Sr.mass = 88;
-	E.Y.mass = 89;
-	E.Zr.mass = 90;
-	E.Nb.mass = 93;
-	E.Mo.mass = 98;
-	E.Tc.mass = 0;
-	E.Ru.mass = 102;
-	E.Rh.mass = 103;
-	E.Pd.mass = 106;
-	E.Ag.mass = 107;
-	E.Cd.mass = 114;
-	E.In.mass = 115;
-	E.Sn.mass = 120;
-	E.Sb.mass = 121;
-	E.Te.mass = 130;
-	E.I.mass = 127;
-	E.Xe.mass = 132;
-	E.Cs.mass = 133;
-	E.Ba.mass = 138;
-	E.La.mass = 139;
-	E.Ce.mass = 140;
-	E.Pr.mass = 141;
-	E.Nd.mass = 142;
-	E.Pm.mass = 0;
-	E.Sm.mass = 152;
-	E.Eu.mass = 153;
-	E.Gd.mass = 158;
-	E.Tb.mass = 159;
-	E.Dy.mass = 164;
-	E.Ho.mass = 165;
-	E.Er.mass = 166;
-	E.Tm.mass = 169;
-	E.Yb.mass = 174;
-	E.Lu.mass = 175;
-	E.Hf.mass = 180;
-	E.Ta.mass = 181;
-	E.W.mass = 184;
-	E.Re.mass = 187;
-	E.Os.mass = 192;
-	E.Ir.mass = 193;
-	E.Pt.mass = 195;
-	E.Au.mass = 197;
-	E.Hg.mass = 202;
-	E.Tl.mass = 205;
-	E.Pb.mass = 208;
-	E.Bi.mass = 209;
-	E.Po.mass = 0;
-	E.At.mass = 0;
-	E.Rn.mass = 0;
-	E.Fr.mass = 0;
-	E.Ra.mass = 0;
-	E.Ac.mass = 0;
-	E.Th.mass = 232;
-	E.Pa.mass = 231;
-	E.U.mass = 238;
-	E.Np.mass = 0;
-	E.Pu.mass = 0;
-	E.Am.mass = 0;
-	E.Cm.mass = 0;
-	E.Bk.mass = 0;
-	E.Cf.mass = 0;
-	E.Es.mass = 0;
-	E.Fm.mass = 0;
-	E.Md.mass = 0;
-	E.No.mass = 0;
-	E.Lr.mass = 0;
-	E.Rf.mass = 0;
-	E.Db.mass = 0;
-	E.Sg.mass = 0;
-	E.Bh.mass = 0;
-	E.Hs.mass = 0;
-	E.Mt.mass = 0;
-	E.Ds.mass = 0;
-	E.Rg.mass = 0;
-	E.Cn.mass = 0;
-	E.Uut.mass = 0;
-	E.Uuq.mass = 0;
-	E.Uup.mass = 0;
-	E.Uuh.mass = 0;
-	E.Uus.mass = 0;
-	E.Uuo.mass = 0;
 
 	return E;
 
@@ -1915,126 +1317,43 @@ ChemDoodle.RESIDUE = (function() {
 	'use strict';
 	var R = [];
 
-	function Residue(symbol, name) {
+	function Residue(symbol, name, polar, aminoColor, shapelyColor) {
 		this.symbol = symbol;
 		this.name = name;
+		this.polar = polar;
+		this.aminoColor = aminoColor;
+		this.shapelyColor = shapelyColor;
 	}
 
-	R.Ala = new Residue('Ala', 'Alanine');
-	R.Arg = new Residue('Arg', 'Arginine');
-	R.Asn = new Residue('Asn', 'Asparagine');
-	R.Asp = new Residue('Asp', 'Aspartic Acid');
-	R.Cys = new Residue('Cys', 'Cysteine');
-	R.Gln = new Residue('Gln', 'Glutamine');
-	R.Glu = new Residue('Glu', 'Glutamic Acid');
-	R.Gly = new Residue('Gly', 'Glycine');
-	R.His = new Residue('His', 'Histidine');
-	R.Ile = new Residue('Ile', 'Isoleucine');
-	R.Leu = new Residue('Leu', 'Leucine');
-	R.Lys = new Residue('Lys', 'Lysine');
-	R.Met = new Residue('Met', 'Methionine');
-	R.Phe = new Residue('Phe', 'Phenylalanine');
-	R.Pro = new Residue('Pro', 'Proline');
-	R.Ser = new Residue('Ser', 'Serine');
-	R.Thr = new Residue('Thr', 'Threonine');
-	R.Trp = new Residue('Trp', 'Tryptophan');
-	R.Tyr = new Residue('Tyr', 'Tyrosine');
-	R.Val = new Residue('Val', 'Valine');
-	R.Asx = new Residue('Asx', 'Asparagine/Aspartic Acid');
-	R.Glx = new Residue('Glx', 'Glutamine/Glutamic Acid');
-	R['*'] = new Residue('*', 'Other');
-	R.A = new Residue('A', 'Adenine');
-	R.G = new Residue('G', 'Guanine');
-	R.I = new Residue('I', '');
-	R.C = new Residue('C', 'Cytosine');
-	R.T = new Residue('T', 'Thymine');
-	R.U = new Residue('U', 'Uracil');
-
-	// set up polar/non-polar
-	R.Ala.polar = false;
-	R.Arg.polar = true;
-	R.Asn.polar = true;
-	R.Asp.polar = true;
-	R.Cys.polar = true;
-	R.Gln.polar = true;
-	R.Glu.polar = true;
-	R.Gly.polar = false;
-	R.His.polar = true;
-	R.Ile.polar = false;
-	R.Leu.polar = false;
-	R.Lys.polar = true;
-	R.Met.polar = false;
-	R.Phe.polar = false;
-	R.Pro.polar = false;
-	R.Ser.polar = true;
-	R.Thr.polar = true;
-	R.Trp.polar = true;
-	R.Tyr.polar = true;
-	R.Val.polar = false;
-	R.Asx.polar = true;
-	R.Glx.polar = true;
-
-	// set up amino colors
-	R.Ala.aminoColor = '#C8C8C8';
-	R.Arg.aminoColor = '#145AFF';
-	R.Asn.aminoColor = '#00DCDC';
-	R.Asp.aminoColor = '#E60A0A';
-	R.Cys.aminoColor = '#E6E600';
-	R.Gln.aminoColor = '#00DCDC';
-	R.Glu.aminoColor = '#E60A0A';
-	R.Gly.aminoColor = '#EBEBEB';
-	R.His.aminoColor = '#8282D2';
-	R.Ile.aminoColor = '#0F820F';
-	R.Leu.aminoColor = '#0F820F';
-	R.Lys.aminoColor = '#145AFF';
-	R.Met.aminoColor = '#E6E600';
-	R.Phe.aminoColor = '#3232AA';
-	R.Pro.aminoColor = '#DC9682';
-	R.Ser.aminoColor = '#FA9600';
-	R.Thr.aminoColor = '#FA9600';
-	R.Trp.aminoColor = '#B45AB4';
-	R.Tyr.aminoColor = '#3232AA';
-	R.Val.aminoColor = '#0F820F';
-	R.Asx.aminoColor = '#FF69B4';
-	R.Glx.aminoColor = '#FF69B4';
-	R['*'].aminoColor = '#BEA06E';
-	R.A.aminoColor = '#BEA06E';
-	R.G.aminoColor = '#BEA06E';
-	R.I.aminoColor = '#BEA06E';
-	R.C.aminoColor = '#BEA06E';
-	R.T.aminoColor = '#BEA06E';
-	R.U.aminoColor = '#BEA06E';
-
-	// set up shapely colors
-	R.Ala.shapelyColor = '#8CFF8C';
-	R.Arg.shapelyColor = '#00007C';
-	R.Asn.shapelyColor = '#FF7C70';
-	R.Asp.shapelyColor = '#A00042';
-	R.Cys.shapelyColor = '#FFFF70';
-	R.Gln.shapelyColor = '#FF4C4C';
-	R.Glu.shapelyColor = '#660000';
-	R.Gly.shapelyColor = '#FFFFFF';
-	R.His.shapelyColor = '#7070FF';
-	R.Ile.shapelyColor = '#004C00';
-	R.Leu.shapelyColor = '#455E45';
-	R.Lys.shapelyColor = '#4747B8';
-	R.Met.shapelyColor = '#B8A042';
-	R.Phe.shapelyColor = '#534C52';
-	R.Pro.shapelyColor = '#525252';
-	R.Ser.shapelyColor = '#FF7042';
-	R.Thr.shapelyColor = '#B84C00';
-	R.Trp.shapelyColor = '#4F4600';
-	R.Tyr.shapelyColor = '#8C704C';
-	R.Val.shapelyColor = '#FF8CFF';
-	R.Asx.shapelyColor = '#FF00FF';
-	R.Glx.shapelyColor = '#FF00FF';
-	R['*'].shapelyColor = '#FF00FF';
-	R.A.shapelyColor = '#A0A0FF';
-	R.G.shapelyColor = '#FF7070';
-	R.I.shapelyColor = '#80FFFF';
-	R.C.shapelyColor = '#FF8C4B';
-	R.T.shapelyColor = '#A0FFA0';
-	R.U.shapelyColor = '#FF8080';
+	R.Ala = new Residue('Ala', 'Alanine', false, '#C8C8C8', '#8CFF8C');
+	R.Arg = new Residue('Arg', 'Arginine', true, '#145AFF', '#00007C');
+	R.Asn = new Residue('Asn', 'Asparagine', true, '#00DCDC', '#FF7C70');
+	R.Asp = new Residue('Asp', 'Aspartic Acid', true, '#E60A0A', '#A00042');
+	R.Cys = new Residue('Cys', 'Cysteine', true, '#E6E600', '#FFFF70');
+	R.Gln = new Residue('Gln', 'Glutamine', true, '#00DCDC', '#FF4C4C');
+	R.Glu = new Residue('Glu', 'Glutamic Acid', true, '#E60A0A', '#660000');
+	R.Gly = new Residue('Gly', 'Glycine', false, '#EBEBEB', '#FFFFFF');
+	R.His = new Residue('His', 'Histidine', true, '#8282D2', '#7070FF');
+	R.Ile = new Residue('Ile', 'Isoleucine', false, '#0F820F', '#004C00');
+	R.Leu = new Residue('Leu', 'Leucine', false, '#0F820F', '#455E45');
+	R.Lys = new Residue('Lys', 'Lysine', true, '#145AFF', '#4747B8');
+	R.Met = new Residue('Met', 'Methionine', false, '#E6E600', '#B8A042');
+	R.Phe = new Residue('Phe', 'Phenylalanine', false, '#3232AA', '#534C52');
+	R.Pro = new Residue('Pro', 'Proline', false, '#DC9682', '#525252');
+	R.Ser = new Residue('Ser', 'Serine', true, '#FA9600', '#FF7042');
+	R.Thr = new Residue('Thr', 'Threonine', true, '#FA9600', '#B84C00');
+	R.Trp = new Residue('Trp', 'Tryptophan', true, '#B45AB4', '#4F4600');
+	R.Tyr = new Residue('Tyr', 'Tyrosine', true, '#3232AA', '#8C704C');
+	R.Val = new Residue('Val', 'Valine', false, '#0F820F', '#FF8CFF');
+	R.Asx = new Residue('Asx', 'Asparagine/Aspartic Acid', true, '#FF69B4', '#FF00FF');
+	R.Glx = new Residue('Glx', 'Glutamine/Glutamic Acid', true, '#FF69B4', '#FF00FF');
+	R['*'] = new Residue('*', 'Other', false, '#BEA06E', '#FF00FF');
+	R.A = new Residue('A', 'Adenine', false, '#BEA06E', '#A0A0FF');
+	R.G = new Residue('G', 'Guanine', false, '#BEA06E', '#FF7070');
+	R.I = new Residue('I', '', false, '#BEA06E', '#80FFFF');
+	R.C = new Residue('C', 'Cytosine', false, '#BEA06E', '#FF8C4B');
+	R.T = new Residue('T', 'Thymine', false, '#BEA06E', '#A0FFA0');
+	R.U = new Residue('U', 'Uracil', false, '#BEA06E', '#FF8080');
 
 	return R;
 
@@ -2258,9 +1577,9 @@ ChemDoodle.RESIDUE = (function() {
 //
 //  Copyright 2009 iChemLabs, LLC.  All rights reserved.
 //
-//  $Revision: 4403 $
+//  $Revision: 4459 $
 //  $Author: kevin $
-//  $LastChangedDate: 2013-06-09 14:16:09 -0400 (Sun, 09 Jun 2013) $
+//  $LastChangedDate: 2013-08-06 14:09:43 -0400 (Tue, 06 Aug 2013) $
 //
 
 (function(ELEMENT, extensions, math, structures, m, m4) {
@@ -2321,14 +1640,7 @@ ChemDoodle.RESIDUE = (function() {
 		}
 		var font = extensions.getFontString(specs.atoms_font_size_2D, specs.atoms_font_families_2D, specs.atoms_font_bold_2D, specs.atoms_font_italic_2D);
 		ctx.font = font;
-		ctx.fillStyle = specs.atoms_color;
-		if (!this.any && this.rgroup === -1) {
-			if (specs.atoms_useJMOLColors) {
-				ctx.fillStyle = ELEMENT[this.label].jmolColor;
-			} else if (specs.atoms_usePYMOLColors) {
-				ctx.fillStyle = ELEMENT[this.label].pymolColor;
-			}
-		}
+		ctx.fillStyle = this.getElementColor(specs.atoms_useJMOLColors, specs.atoms_usePYMOLColors, specs.atoms_color, 2);
 		var hAngle;
 		if (this.isLone && !specs.atoms_displayAllCarbonLabels_2D || specs.atoms_circles_2D) {
 			ctx.beginPath();
@@ -2544,16 +1856,20 @@ ChemDoodle.RESIDUE = (function() {
 				la = angleData.largest;
 			}
 			var things = [];
-			for(var i = 0; i<this.numLonePair; i++){
-				things.push({t:2});
+			for ( var i = 0; i < this.numLonePair; i++) {
+				things.push({
+					t : 2
+				});
 			}
-			for(var i = 0; i<this.numRadical; i++){
-				things.push({t:1});
+			for ( var i = 0; i < this.numRadical; i++) {
+				things.push({
+					t : 1
+				});
 			}
-			if (hAngle === undefined && m.abs(la - 2*m.PI/as.length) < m.PI / 60) {
-				var mid = m.ceil(things.length/as.length);
-				for(var i = 0, ii = things.length; i<ii; i+=mid, ali+=la){
-					this.drawElectrons(ctx, specs, things.slice(i, m.min(things.length, i+mid)), ali, la, hAngle);
+			if (hAngle === undefined && m.abs(la - 2 * m.PI / as.length) < m.PI / 60) {
+				var mid = m.ceil(things.length / as.length);
+				for ( var i = 0, ii = things.length; i < ii; i += mid, ali += la) {
+					this.drawElectrons(ctx, specs, things.slice(i, m.min(things.length, i + mid)), ali, la, hAngle);
 				}
 			} else {
 				this.drawElectrons(ctx, specs, things, ali, la, hAngle);
@@ -2607,7 +1923,7 @@ ChemDoodle.RESIDUE = (function() {
 			ctx.stroke();
 		}
 	};
-	_.render = function(gl, specs) {
+	_.render = function(gl, specs, noColor) {
 		if (this.specs) {
 			specs = this.specs;
 		}
@@ -2617,14 +1933,18 @@ ChemDoodle.RESIDUE = (function() {
 			radius = 1;
 		}
 		m4.scale(transform, [ radius, radius, radius ]);
+
 		// colors
-		var color = specs.atoms_color;
-		if (specs.atoms_useJMOLColors) {
-			color = ELEMENT[this.label].jmolColor;
-		} else if (specs.atoms_usePYMOLColors) {
-			color = ELEMENT[this.label].pymolColor;
+		if (!noColor) {
+			var color = specs.atoms_color;
+			if (specs.atoms_useJMOLColors) {
+				color = ELEMENT[this.label].jmolColor;
+			} else if (specs.atoms_usePYMOLColors) {
+				color = ELEMENT[this.label].pymolColor;
+			}
+			gl.material.setDiffuseColor(color);
 		}
-		gl.material.setDiffuseColor(color);
+
 		// render
 		gl.setMatrixUniforms(transform);
 		var buffer = this.renderAsStar ? gl.starBuffer : gl.sphereBuffer;
@@ -2702,14 +2022,34 @@ ChemDoodle.RESIDUE = (function() {
 		bounds.expand3D(this.x, this.y, this.z);
 		return bounds;
 	};
-
+	/**
+	 * Get Color by atom element.
+	 *
+	 * @param {boolean} useJMOLColors
+	 * @param {boolean} usePYMOLColors
+	 * @param {string} color The default color
+	 * @param {number} dim The render dimension
+	 * @return {string} The atom element color
+	 */
+	_.getElementColor = function(useJMOLColors, usePYMOLColors, color, dim) {
+		if(dim==2 && this.any || this.rgroup !== -1){
+			return color;
+		}
+		if (useJMOLColors) {
+			color = ELEMENT[this.label].jmolColor;
+		} else if (usePYMOLColors) {
+			color = ELEMENT[this.label].pymolColor;
+		}
+		return color;
+	};
+	
 })(ChemDoodle.ELEMENT, ChemDoodle.extensions, ChemDoodle.math, ChemDoodle.structures, Math, mat4);
 //
 //  Copyright 2009 iChemLabs, LLC.  All rights reserved.
 //
-//  $Revision: 4230 $
+//  $Revision: 4500 $
 //  $Author: kevin $
-//  $LastChangedDate: 2013-04-14 18:56:04 -0400 (Sun, 14 Apr 2013) $
+//  $LastChangedDate: 2013-09-06 14:28:15 -0400 (Fri, 06 Sep 2013) $
 //
 
 (function(ELEMENT, extensions, structures, math, m, m4, v3) {
@@ -2830,12 +2170,8 @@ ChemDoodle.RESIDUE = (function() {
 		ctx.lineCap = specs.bonds_ends_2D;
 		if (specs.bonds_useJMOLColors || specs.bonds_usePYMOLColors) {
 			var linearGradient = ctx.createLinearGradient(x1, y1, x2, y2);
-			var color1 = ELEMENT[this.a1.label].jmolColor;
-			var color2 = ELEMENT[this.a2.label].jmolColor;
-			if (specs.atoms_usePYMOLColors) {
-				var color1 = ELEMENT[this.a1.label].pymolColor;
-				var color2 = ELEMENT[this.a2.label].pymolColor;
-			}
+			var color1 = this.a1.getElementColor(specs.bonds_useJMOLColors, specs.bonds_usePYMOLColors, specs.atoms_color, 2);
+			var color2 = this.a2.getElementColor(specs.bonds_useJMOLColors, specs.bonds_usePYMOLColors, specs.atoms_color, 2);
 			linearGradient.addColorStop(0, color1);
 			if (!specs.bonds_colorGradient) {
 				linearGradient.addColorStop(0.5, color1);
@@ -2847,26 +2183,26 @@ ChemDoodle.RESIDUE = (function() {
 		}
 		switch (this.bondOrder) {
 		case 0:
-			var dx = x2-x1;
-			var dy = y2-y1;
+			var dx = x2 - x1;
+			var dy = y2 - y1;
 			var innerDist = m.sqrt(dx * dx + dy * dy);
-			var num = m.floor(innerDist/specs.bonds_dotSize_2D);
-			var remainder = (innerDist-(num-1)*specs.bonds_dotSize_2D)/2;
-			if(num%2===1){
-				remainder+=specs.bonds_dotSize_2D/4;
-			}else{
-				remainder-=specs.bonds_dotSize_2D/4;
-				num+=2;
+			var num = m.floor(innerDist / specs.bonds_dotSize_2D);
+			var remainder = (innerDist - (num - 1) * specs.bonds_dotSize_2D) / 2;
+			if (num % 2 === 1) {
+				remainder += specs.bonds_dotSize_2D / 4;
+			} else {
+				remainder -= specs.bonds_dotSize_2D / 4;
+				num += 2;
 			}
-			num/=2;
+			num /= 2;
 			var angle = this.a1.angle(this.a2);
-			var xs = x1+remainder*Math.cos(angle);
-			var ys = y1-remainder*Math.sin(angle);
+			var xs = x1 + remainder * Math.cos(angle);
+			var ys = y1 - remainder * Math.sin(angle);
 			ctx.beginPath();
-			for(var i = 0; i<num; i++){
-				ctx.arc(xs, ys, specs.bonds_dotSize_2D/2, 0, m.PI * 2, false);
-				xs+=2*specs.bonds_dotSize_2D*Math.cos(angle);
-				ys-=2*specs.bonds_dotSize_2D*Math.sin(angle);
+			for ( var i = 0; i < num; i++) {
+				ctx.arc(xs, ys, specs.bonds_dotSize_2D / 2, 0, m.PI * 2, false);
+				xs += 2 * specs.bonds_dotSize_2D * Math.cos(angle);
+				ys -= 2 * specs.bonds_dotSize_2D * Math.sin(angle);
 			}
 			ctx.fill();
 			break;
@@ -2997,16 +2333,16 @@ ChemDoodle.RESIDUE = (function() {
 					var flip = !this.ring || (this.ring.center.angle(this.a1) > this.ring.center.angle(this.a2) && !(this.ring.center.angle(this.a1) - this.ring.center.angle(this.a2) > m.PI) || (this.ring.center.angle(this.a1) - this.ring.center.angle(this.a2) < -m.PI));
 					if (flip) {
 						ctx.moveTo(cx1, cy1);
-						if(this.bondOrder===2){
+						if (this.bondOrder === 2) {
 							ctx.lineTo(cx3, cy3);
-						}else{
+						} else {
 							extensions.contextHashTo(ctx, cx1, cy1, cx3, cy3, specs.bonds_hashSpacing_2D, specs.bonds_hashSpacing_2D);
 						}
 					} else {
 						ctx.moveTo(cx2, cy2);
-						if(this.bondOrder===2){
+						if (this.bondOrder === 2) {
 							ctx.lineTo(cx4, cy4);
-						}else{
+						} else {
 							extensions.contextHashTo(ctx, cx2, cy2, cx4, cy4, specs.bonds_hashSpacing_2D, specs.bonds_hashSpacing_2D);
 						}
 					}
@@ -3029,9 +2365,9 @@ ChemDoodle.RESIDUE = (function() {
 				ctx.moveTo(cx1, cy1);
 				ctx.lineTo(cx4, cy4);
 				ctx.moveTo(cx2, cy2);
-				if(this.bondOrder===2){
+				if (this.bondOrder === 2) {
 					ctx.lineTo(cx3, cy3);
-				}else{
+				} else {
 					extensions.contextHashTo(ctx, cx2, cy2, cx3, cy3, specs.bonds_hashSpacing_2D, specs.bonds_hashSpacing_2D);
 				}
 				ctx.stroke();
@@ -3079,49 +2415,42 @@ ChemDoodle.RESIDUE = (function() {
 			ctx.stroke();
 		}
 	};
-	_.render = function(gl, specs) {
+	/**
+	 * 
+	 * @param {WegGLRenderingContext} gl
+	 * @param {structures.VisualSpecifications} specs 
+	 * @param {boolean} asSegments Using cylinder/solid line or segmented pills/dashed line
+	 * @return {void}
+	 */
+	_.render = function(gl, specs, asSegments) {
 		if (this.specs) {
 			specs = this.specs;
 		}
 		// this is the elongation vector for the cylinder
-		var height = (specs.bonds_renderAsLines_3D ? 1.1 : 1.001) * this.a1.distance3D(this.a2) / (specs.bonds_useJMOLColors || specs.bonds_usePYMOLColors ? 2 : 1);
+		var height = this.a1.distance3D(this.a2);
 		if (height === 0) {
 			// if there is no height, then no point in rendering this bond,
 			// just return
 			return;
 		}
-		var scaleVector = [ specs.bonds_cylinderDiameter_3D / 2, height, specs.bonds_cylinderDiameter_3D / 2 ];
+
+		// scale factor for cylinder/pill radius.
+		// when scale pill, the cap will affected too.
+		var radiusScale = specs.bonds_cylinderDiameter_3D / 2;
+
+		// atom1 color and atom2 color
+		var a1Color = specs.bonds_color;
+		var a2Color;
+
 		// transform to the atom as well as the opposite atom (for Jmol and
 		// PyMOL
 		// color splits)
 		var transform = m4.translate(gl.modelViewMatrix, [ this.a1.x, this.a1.y, this.a1.z ], []);
 		var transformOpposite;
-		// align bond
+
+		// vector from atom1 to atom2
 		var a2b = [ this.a2.x - this.a1.x, this.a2.y - this.a1.y, this.a2.z - this.a1.z ];
-		if (specs.bonds_useJMOLColors || specs.bonds_usePYMOLColors) {
-			v3.scale(a2b, .5);
-			transformOpposite = m4.translate(gl.modelViewMatrix, [ this.a2.x, this.a2.y, this.a2.z ], []);
-		}
-		// calculate the translations for unsaturated bonds
-		var others = [ 0 ];
-		var saturatedCross;
-		if (specs.bonds_showBondOrders_3D) {
-			switch (this.bondOrder) {
-			case 2:
-				others = [ -specs.bonds_cylinderDiameter_3D, specs.bonds_cylinderDiameter_3D ];
-				break;
-			case 3:
-				others = [ -1.2 * specs.bonds_cylinderDiameter_3D, 0, 1.2 * specs.bonds_cylinderDiameter_3D ];
-				break;
-			}
-			if (others.length > 1) {
-				var z = [ 0, 0, 1 ];
-				var inverse = m4.inverse(gl.rotationMatrix, []);
-				m4.multiplyVec3(inverse, z);
-				saturatedCross = v3.cross(a2b, z, []);
-				v3.normalize(saturatedCross);
-			}
-		}
+
 		// calculate the rotation
 		var y = [ 0, 1, 0 ];
 		var ang = 0;
@@ -3135,6 +2464,509 @@ ChemDoodle.RESIDUE = (function() {
 			ang = extensions.vec3AngleFrom(y, a2b);
 			axis = v3.cross(y, a2b, []);
 		}
+
+
+		var useJMOLColors = specs.bonds_useJMOLColors;
+		var usePYMOLColors = specs.bonds_usePYMOLColors;
+
+		// the specs will use JMol or PyMol color are
+		// - Line
+		// - Stick
+		// - Wireframe
+		if (useJMOLColors || usePYMOLColors) {
+
+			a1Color = this.a1.getElementColor(useJMOLColors, usePYMOLColors, a1Color);
+			a2Color = this.a2.getElementColor(useJMOLColors, usePYMOLColors, specs.bonds_color);
+
+			// the transformOpposite will use for split color.
+			// just make it splited if the color different.
+			if(a1Color != a2Color) {
+				transformOpposite = m4.translate(gl.modelViewMatrix, [ this.a2.x, this.a2.y, this.a2.z ], []);
+			}
+		}
+
+		// calculate the translations for unsaturated bonds.
+		// represenattio use saturatedCross are
+		// - Line
+		// - Wireframe
+		// - Ball and Stick
+		// just Stick will set bonds_showBondOrders_3D to false
+		var others = [ 0 ];
+		var saturatedCross;
+
+		if(asSegments) { // block for draw bond as segmented line/pill
+
+			if (specs.bonds_showBondOrders_3D && this.bondOrder > 1) {
+
+				// The "0.5" part set here,
+				// the other part (1) will render as cylinder
+				others = [/*-specs.bonds_cylinderDiameter_3D, */ specs.bonds_cylinderDiameter_3D];
+
+				var z = [ 0, 0, 1 ];
+				var inverse = m4.inverse(gl.rotationMatrix, []);
+				m4.multiplyVec3(inverse, z);
+				saturatedCross = v3.cross(a2b, z, []);
+				v3.normalize(saturatedCross);
+			}
+
+			var segmentScale = 1;
+
+			var spaceBetweenPill = specs.bonds_pillSpacing_3D;
+
+			var pillHeight = specs.bonds_pillHeight_3D;
+
+			if(this.bondOrder == 0) {
+
+				if(specs.bonds_renderAsLines_3D) {
+					pillHeight = spaceBetweenPill;
+				} else {
+					pillHeight = specs.bonds_pillDiameter_3D;
+
+					// Detect Ball and Stick representation
+					if(pillHeight < specs.bonds_cylinderDiameter_3D) {
+						pillHeight /= 2;
+					}
+
+					segmentScale = pillHeight / 2;
+					height /= segmentScale;
+					spaceBetweenPill /= segmentScale / 2;
+				}
+
+			}
+
+			// total space need for one pill, iclude the space.
+			var totalSpaceForPill = pillHeight + spaceBetweenPill;
+
+			// segmented pills for one bond.
+			var totalPillsPerBond = height / totalSpaceForPill;
+
+			// segmented one unit pill for one bond
+			var pillsPerBond = m.floor(totalPillsPerBond);
+
+			var extraSegmentedSpace = height - totalSpaceForPill * pillsPerBond;
+
+			var paddingSpace = (spaceBetweenPill + specs.bonds_pillDiameter_3D + extraSegmentedSpace) / 2;
+
+			// pillSegmentsLength will change if both atom1 and atom2 color used for rendering
+			var pillSegmentsLength = pillsPerBond;
+
+			if(transformOpposite) {
+				// floor will effected for odd pills, because one pill at the center
+				// will replace with splited pills
+				pillSegmentsLength = m.floor(pillsPerBond / 2);
+			}
+
+			// render bonds
+			for ( var i = 0, ii = others.length; i < ii; i++) {
+				var transformUse = m4.set(transform, []);
+
+				if (others[i] !== 0) {
+					m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
+				}
+				if (ang !== 0) {
+					m4.rotate(transformUse, ang, axis);
+				}
+
+				if(segmentScale != 1) {
+					m4.scale(transformUse, [ segmentScale, segmentScale, segmentScale ]);
+				}
+
+				// colors
+				if(a1Color) gl.material.setDiffuseColor(a1Color);
+
+				m4.translate(transformUse, [0, paddingSpace, 0]);
+
+				for(var j = 0; j < pillSegmentsLength; j++) {
+
+					if (specs.bonds_renderAsLines_3D) {
+						if(this.bondOrder == 0) {
+							gl.setMatrixUniforms(transformUse);
+							gl.drawArrays(gl.POINTS, 0, 1);
+						} else {
+							m4.scale(transformUse, [1, pillHeight, 1]);
+
+							gl.setMatrixUniforms(transformUse);
+							gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+
+							m4.scale(transformUse, [1, 1/pillHeight, 1]);
+						}
+					} else {
+						gl.setMatrixUniforms(transformUse);
+						if(this.bondOrder == 0) {
+							gl.drawElements(gl.TRIANGLES, gl.sphereBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);					
+						} else {
+							gl.drawElements(gl.TRIANGLES, gl.pillBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);					
+						}
+					}
+
+					m4.translate(transformUse, [0, totalSpaceForPill, 0]);
+				}
+
+
+				// if rendering segmented pill use atom1 and atom2 color
+				if (transformOpposite) {
+					// parameter for calculate splited pills
+					var scaleY, halfOneMinScaleY;
+
+					if (specs.bonds_renderAsLines_3D) {
+						scaleY = pillHeight;
+						// if(this.bondOrder != 0) {
+						// 	scaleY -= spaceBetweenPill;
+						// }
+						scaleY /= 2;
+						halfOneMinScaleY = 0;
+					} else {
+						scaleY = 2/3;
+						halfOneMinScaleY = (1 - scaleY) / 2;
+					}
+
+					// if count of pills per bound is odd,
+					// then draw the splited pills of atom1
+					if(pillsPerBond % 2 != 0) {
+
+						m4.scale(transformUse, [1, scaleY, 1]);
+
+						gl.setMatrixUniforms(transformUse);
+
+						if (specs.bonds_renderAsLines_3D) {
+
+							if(this.bondOrder == 0) {
+								gl.drawArrays(gl.POINTS, 0, 1);
+							} else {
+								gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+							}
+
+						} else {
+
+							if(this.bondOrder == 0) {
+								gl.drawElements(gl.TRIANGLES, gl.sphereBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);					
+							} else {
+								gl.drawElements(gl.TRIANGLES, gl.pillBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);					
+							}
+							
+						}
+
+						m4.translate(transformUse, [0, totalSpaceForPill * (1 + halfOneMinScaleY), 0]);
+					
+						m4.scale(transformUse, [1, 1/scaleY, 1]);
+					}
+
+					// prepare to render the atom2
+
+					m4.set(transformOpposite, transformUse);
+					if (others[i] !== 0) {
+						m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
+					}
+					// don't check for 0 here as that means it should be rotated
+					// by PI, but PI will be negated
+					m4.rotate(transformUse, ang + m.PI, axis);
+
+					if(segmentScale != 1) {
+						m4.scale(transformUse, [ segmentScale, segmentScale, segmentScale ]);
+					}
+
+					// colors
+					if(a2Color) gl.material.setDiffuseColor(a2Color);
+					
+					m4.translate(transformUse, [0, paddingSpace, 0]);
+
+
+					// draw the remain pills which use the atom2 color
+					for(var j = 0; j < pillSegmentsLength; j++) {
+
+						if (specs.bonds_renderAsLines_3D) {
+							if(this.bondOrder == 0) {
+								gl.setMatrixUniforms(transformUse);
+								gl.drawArrays(gl.POINTS, 0, 1);
+							} else {
+								m4.scale(transformUse, [1, pillHeight, 1]);
+
+								gl.setMatrixUniforms(transformUse);
+								gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+
+								m4.scale(transformUse, [1, 1/pillHeight, 1]);
+							}
+						} else {
+							gl.setMatrixUniforms(transformUse);
+							if(this.bondOrder == 0) {
+								gl.drawElements(gl.TRIANGLES, gl.sphereBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);					
+							} else {
+								gl.drawElements(gl.TRIANGLES, gl.pillBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);					
+							}
+						}
+
+						m4.translate(transformUse, [0, totalSpaceForPill, 0]);
+					}
+
+					// draw the splited center pills of atom2
+					if(pillsPerBond % 2 != 0) {
+
+						m4.scale(transformUse, [1, scaleY, 1]);
+
+						gl.setMatrixUniforms(transformUse);
+
+						if (specs.bonds_renderAsLines_3D) {
+
+							if(this.bondOrder == 0) {
+								gl.drawArrays(gl.POINTS, 0, 1);
+							} else {
+								gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+							}
+
+						} else {
+
+							if(this.bondOrder == 0) {
+								gl.drawElements(gl.TRIANGLES, gl.sphereBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);					
+							} else {
+								gl.drawElements(gl.TRIANGLES, gl.pillBuffer.vertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);					
+							}
+
+						}
+
+						m4.translate(transformUse, [0, totalSpaceForPill * (1 + halfOneMinScaleY), 0]);
+					
+						m4.scale(transformUse, [1, 1/scaleY, 1]);
+					}
+				}
+			}
+		} else {
+			// calculate the translations for unsaturated bonds.
+			// represenation that use saturatedCross are
+			// - Line
+			// - Wireframe
+			// - Ball and Stick
+			// just Stick will set bonds_showBondOrders_3D to false
+			if (specs.bonds_showBondOrders_3D) {
+
+				switch (this.bondOrder) {
+				// the 0 and 0.5 bond order will draw as segmented pill.
+				// so we not set that here.
+				// case 0:
+				// case 0.5: break;
+
+				case 1.5:
+					// The "1" part set here,
+					// the other part (0.5) will render as segmented pill
+					others = [ -specs.bonds_cylinderDiameter_3D /*, specs.bonds_cylinderDiameter_3D */];
+					break;
+				case 2:
+					others = [ -specs.bonds_cylinderDiameter_3D, specs.bonds_cylinderDiameter_3D ];
+					break;
+				case 3:
+					others = [ -1.2 * specs.bonds_cylinderDiameter_3D, 0, 1.2 * specs.bonds_cylinderDiameter_3D ];
+					break;
+				}
+
+				// saturatedCross just need for need for bondorder greather than 1
+				if(this.bondOrder > 1) {
+					var z = [ 0, 0, 1 ];
+					var inverse = m4.inverse(gl.rotationMatrix, []);
+					m4.multiplyVec3(inverse, z);
+					saturatedCross = v3.cross(a2b, z, []);
+					v3.normalize(saturatedCross);
+				}
+			}
+			// for Stick representation, we just change the cylinder radius
+			else {
+
+				switch (this.bondOrder) {
+				case 0:
+					radiusScale *= 0.25;
+					break;
+				case 0.5:
+				case 1.5:
+					radiusScale *= 0.5;
+					break;
+				}
+			}
+
+
+			// if transformOpposite is set, the it mean the color must be splited.
+			// so the heigh of cylinder will be half.
+			// one half for atom1 color the other for atom2 color
+			if(transformOpposite) {
+				height /= 2;
+			}
+
+			// Radius of cylinder already defined when initialize cylinder mesh,
+			// so at this rate, the scale just needed for Y to strech
+			// cylinder to bond length (height) and X and Z for radius.
+			var scaleVector = [ radiusScale, height, radiusScale ];
+
+			// render bonds
+			for ( var i = 0, ii = others.length; i < ii; i++) {
+				var transformUse = m4.set(transform, []);
+				if (others[i] !== 0) {
+					m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
+				}
+				if (ang !== 0) {
+					m4.rotate(transformUse, ang, axis);
+				}
+				m4.scale(transformUse, scaleVector);
+				
+				// colors
+				if(a1Color) gl.material.setDiffuseColor(a1Color);
+
+				// render
+				gl.setMatrixUniforms(transformUse);
+				if (specs.bonds_renderAsLines_3D) {
+					gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+				} else {
+					gl.drawArrays(gl.TRIANGLE_STRIP, 0, gl.cylinderBuffer.vertexPositionBuffer.numItems);
+				}
+
+				// if transformOpposite is set, then a2Color also shoudl be seted as well.
+				if (transformOpposite) {
+
+					m4.set(transformOpposite, transformUse);
+					if (others[i] !== 0) {
+						m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
+					}
+					// don't check for 0 here as that means it should be rotated
+					// by PI, but PI will be negated
+					m4.rotate(transformUse, ang + m.PI, axis);
+					m4.scale(transformUse, scaleVector);
+
+					// colors
+					if(a2Color) gl.material.setDiffuseColor(a2Color);
+
+					// render
+					gl.setMatrixUniforms(transformUse);
+					if (specs.bonds_renderAsLines_3D) {
+						gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
+					} else {
+						gl.drawArrays(gl.TRIANGLE_STRIP, 0, gl.cylinderBuffer.vertexPositionBuffer.numItems);
+					}
+				}
+
+			}
+		}
+	};
+	/**
+	 * 
+	 * @param {WegGLRenderingContext} gl
+	 * @param {structures.VisualSpecifications} specs 
+	 * @return {void}
+	 */
+	_.renderPicker = function(gl, specs) {
+
+		// gl.cylinderBuffer.bindBuffers(gl);
+		// gl.material.setDiffuseColor(
+		// 	this.bondOrder == 0   ? '#FF0000' : // merah
+		// 	this.bondOrder == 0.5 ? '#FFFF00' : // kuning
+		// 	this.bondOrder == 1   ? '#FF00FF' : // ungu
+		// 	this.bondOrder == 1.5 ? '#00FF00' : // hijau
+		// 	this.bondOrder == 2   ? '#00FFFF' : // cyan
+		// 	this.bondOrder == 3   ? '#0000FF' : // biru
+		// 	'#FFFFFF');
+		// gl.material.setAlpha(1);
+
+
+		if (this.specs) {
+			specs = this.specs;
+		}
+		// this is the elongation vector for the cylinder
+		var height = this.a1.distance3D(this.a2);
+		if (height === 0) {
+			// if there is no height, then no point in rendering this bond,
+			// just return
+			return;
+		}
+
+		// scale factor for cylinder/pill radius.
+		// when scale pill, the cap will affected too.
+		var radiusScale = specs.bonds_cylinderDiameter_3D / 2;
+
+		// transform to the atom as well as the opposite atom (for Jmol and
+		// PyMOL
+		// color splits)
+		var transform = m4.translate(gl.modelViewMatrix, [ this.a1.x, this.a1.y, this.a1.z ], []);
+
+		// vector from atom1 to atom2
+		var a2b = [ this.a2.x - this.a1.x, this.a2.y - this.a1.y, this.a2.z - this.a1.z ];
+
+		// calculate the rotation
+		var y = [ 0, 1, 0 ];
+		var ang = 0;
+		var axis;
+		if (this.a1.x === this.a2.x && this.a1.z === this.a2.z) {
+			axis = [ 0, 0, 1 ];
+			if (this.a2.y < this.a1.y) {
+				ang = m.PI;
+			}
+		} else {
+			ang = extensions.vec3AngleFrom(y, a2b);
+			axis = v3.cross(y, a2b, []);
+		}
+
+		// calculate the translations for unsaturated bonds.
+		// represenattio use saturatedCross are
+		// - Line
+		// - WIreframe
+		// - Ball and Stick
+		// just Stick will set bonds_showBondOrders_3D to false
+		var others = [ 0 ];
+		var saturatedCross;
+
+		if (specs.bonds_showBondOrders_3D) {
+
+			if (specs.bonds_renderAsLines_3D) {
+
+				switch (this.bondOrder) {
+
+				case 1.5:
+				case 2:
+					others = [ -specs.bonds_cylinderDiameter_3D, specs.bonds_cylinderDiameter_3D ];
+					break;
+				case 3:
+					others = [ -1.2 * specs.bonds_cylinderDiameter_3D, 0, 1.2 * specs.bonds_cylinderDiameter_3D ];
+					break;
+				}
+
+				// saturatedCross just need for need for bondorder greather than 1
+				if(this.bondOrder > 1) {
+					var z = [ 0, 0, 1 ];
+					var inverse = m4.inverse(gl.rotationMatrix, []);
+					m4.multiplyVec3(inverse, z);
+					saturatedCross = v3.cross(a2b, z, []);
+					v3.normalize(saturatedCross);
+				}
+
+			} else {
+
+				switch (this.bondOrder) {
+				case 1.5:
+				case 2:
+					radiusScale *= 3;
+					break;
+				case 3:
+					radiusScale *= 3.4;
+					break;
+				}
+
+			}
+
+		} else {
+			// this is for Stick repersentation because Stick not have bonds_showBondOrders_3D
+
+			switch (this.bondOrder) {
+
+			case 0:
+				radiusScale *= 0.25;
+				break;
+			case 0.5:
+			case 1.5:
+				radiusScale *= 0.5;
+				break;
+			}
+
+		}
+
+		// Radius of cylinder already defined when initialize cylinder mesh,
+		// so at this rate, the scale just needed for Y to strech
+		// cylinder to bond length (height) and X and Z for radius.
+		var scaleVector = [ radiusScale, height, radiusScale ];
+
 		// render bonds
 		for ( var i = 0, ii = others.length; i < ii; i++) {
 			var transformUse = m4.set(transform, []);
@@ -3145,14 +2977,7 @@ ChemDoodle.RESIDUE = (function() {
 				m4.rotate(transformUse, ang, axis);
 			}
 			m4.scale(transformUse, scaleVector);
-			// colors
-			var color = specs.bonds_color;
-			if (specs.bonds_useJMOLColors) {
-				color = ELEMENT[this.a1.label].jmolColor;
-			} else if (specs.bonds_usePYMOLColors) {
-				color = ELEMENT[this.a1.label].pymolColor;
-			}
-			gl.material.setDiffuseColor(color);
+
 			// render
 			gl.setMatrixUniforms(transformUse);
 			if (specs.bonds_renderAsLines_3D) {
@@ -3160,28 +2985,10 @@ ChemDoodle.RESIDUE = (function() {
 			} else {
 				gl.drawArrays(gl.TRIANGLE_STRIP, 0, gl.cylinderBuffer.vertexPositionBuffer.numItems);
 			}
-			if (specs.bonds_useJMOLColors || specs.bonds_usePYMOLColors) {
-				m4.set(transformOpposite, transformUse);
-				if (others[i] !== 0) {
-					m4.translate(transformUse, v3.scale(saturatedCross, others[i], []));
-				}
-				// don't check for 0 here as that means it should be rotated
-				// by PI, but PI will be negated
-				m4.rotate(transformUse, ang + m.PI, axis);
-				m4.scale(transformUse, scaleVector);
-				// colors
-				gl.material.setDiffuseColor(specs.bonds_usePYMOLColors ? ELEMENT[this.a2.label].pymolColor : ELEMENT[this.a2.label].jmolColor);
-				// render
-				gl.setMatrixUniforms(transformUse);
-				if (specs.bonds_renderAsLines_3D) {
-					gl.drawArrays(gl.LINES, 0, gl.lineBuffer.vertexPositionBuffer.numItems);
-				} else {
-					gl.drawArrays(gl.TRIANGLE_STRIP, 0, gl.cylinderBuffer.vertexPositionBuffer.numItems);
-				}
-			}
+
 		}
 	};
-
+	
 })(ChemDoodle.ELEMENT, ChemDoodle.extensions, ChemDoodle.structures, ChemDoodle.math, Math, mat4, vec3);
 //
 //  Copyright 2009 iChemLabs, LLC.  All rights reserved.
@@ -3220,9 +3027,9 @@ ChemDoodle.RESIDUE = (function() {
 //
 //  Copyright 2009 iChemLabs, LLC.  All rights reserved.
 //
-//  $Revision: 4238 $
+//  $Revision: 4459 $
 //  $Author: kevin $
-//  $LastChangedDate: 2013-04-17 17:08:36 -0400 (Wed, 17 Apr 2013) $
+//  $LastChangedDate: 2013-08-06 14:09:43 -0400 (Tue, 06 Aug 2013) $
 //
 
 (function(c, math, structures, RESIDUE, m) {
@@ -3260,6 +3067,8 @@ ChemDoodle.RESIDUE = (function() {
 		}
 	};
 	_.render = function(gl, specs) {
+		// uncomment this to render the picking frame
+		// return this.renderPickFrame(gl, specs, []);
 		if (this.specs) {
 			specs = this.specs;
 		}
@@ -3303,6 +3112,11 @@ ChemDoodle.RESIDUE = (function() {
 			}
 		}
 		if (specs.bonds_display) {
+			// Array for Half Bonds. It is needed because Half Bonds use the
+			// pill buffer.
+			var asPills = [];
+			// Array for 0 bond order.
+			var asSpheres = [];
 			if (this.bonds.length > 0) {
 				if (specs.bonds_renderAsLines_3D) {
 					gl.lineWidth(specs.bonds_width_2D);
@@ -3316,7 +3130,54 @@ ChemDoodle.RESIDUE = (function() {
 			for ( var i = 0, ii = this.bonds.length; i < ii; i++) {
 				var b = this.bonds[i];
 				if (!isMacro || b.a1.hetatm) {
-					b.render(gl, specs);
+					// Check if render as segmented pill will used.
+					if (specs.bonds_showBondOrders_3D) {
+						if (b.bondOrder == 0) {
+							// 0 bond order
+							asSpheres.push(b);
+						} else if (b.bondOrder == 0.5) {
+							// 0.5 bond order
+							asPills.push(b);
+						} else {
+							if (b.bondOrder == 1.5) {
+								// For 1.5 bond order, the "1" part will render
+								// as cylinder, and the "0.5" part will render
+								// as segmented pills
+								asPills.push(b);
+							}
+							b.render(gl, specs);
+						}
+					} else {
+						// this will render the Stick representation
+						b.render(gl, specs);
+					}
+
+				}
+			}
+			// Render the Half Bond
+			if (asPills.length > 0) {
+				// if bonds_renderAsLines_3D is true, then lineBuffer will
+				// binded.
+				// so in here we just need to check if we need to change
+				// the binding buffer to pillBuffer or not.
+				if (!specs.bonds_renderAsLines_3D) {
+					gl.pillBuffer.bindBuffers(gl);
+				}
+				for ( var i = 0, ii = asPills.length; i < ii; i++) {
+					asPills[i].render(gl, specs, true);
+				}
+			}
+			// Render zero bond order
+			if (asSpheres.length > 0) {
+				// if bonds_renderAsLines_3D is true, then lineBuffer will
+				// binded.
+				// so in here we just need to check if we need to change
+				// the binding buffer to pillBuffer or not.
+				if (!specs.bonds_renderAsLines_3D) {
+					gl.sphereBuffer.bindBuffers(gl);
+				}
+				for ( var i = 0, ii = asSpheres.length; i < ii; i++) {
+					asSpheres[i].render(gl, specs, true);
 				}
 			}
 		}
@@ -3509,6 +3370,68 @@ ChemDoodle.RESIDUE = (function() {
 			// gl.enable(gl.DEPTH_TEST);
 		}
 	};
+	_.renderPickFrame = function(gl, specs, objects) {
+		if (this.specs) {
+			specs = this.specs;
+		}
+		var isMacro = this.atoms.length > 0 && this.atoms[0].hetatm !== undefined;
+		if (specs.bonds_display) {
+			if (this.bonds.length > 0) {
+				if (specs.bonds_renderAsLines_3D) {
+					gl.lineWidth(specs.bonds_width_2D);
+					gl.lineBuffer.bindBuffers(gl);
+				} else {
+					gl.cylinderBuffer.bindBuffers(gl);
+				}
+			}
+			for ( var i = 0, ii = this.bonds.length; i < ii; i++) {
+				var b = this.bonds[i];
+				if (!isMacro || b.a1.hetatm) {
+					gl.material.setDiffuseColor(math.idx2color(objects.length));
+					b.renderPicker(gl, specs);
+					objects.push(b);
+				}
+			}
+		}
+		if (specs.atoms_display) {
+			for ( var i = 0, ii = this.atoms.length; i < ii; i++) {
+				var a = this.atoms[i];
+				a.bondNumber = 0;
+				a.renderAsStar = false;
+			}
+			for ( var i = 0, ii = this.bonds.length; i < ii; i++) {
+				var b = this.bonds[i];
+				b.a1.bondNumber++;
+				b.a2.bondNumber++;
+			}
+			if (this.atoms.length > 0) {
+				gl.sphereBuffer.bindBuffers(gl);
+			}
+			var asStars = [];
+			for ( var i = 0, ii = this.atoms.length; i < ii; i++) {
+				var a = this.atoms[i];
+				if (!isMacro || (a.hetatm && (specs.macro_showWater || !a.isWater))) {
+					if (specs.atoms_nonBondedAsStars_3D && a.bondNumber === 0) {
+						a.renderAsStar = true;
+						asStars.push(a);
+					} else {
+						gl.material.setDiffuseColor(math.idx2color(objects.length));
+						a.render(gl, specs, true);
+						objects.push(a);
+					}
+				}
+			}
+			if (asStars.length > 0) {
+				gl.starBuffer.bindBuffers(gl);
+				for ( var i = 0, ii = asStars.length; i < ii; i++) {
+					var a = asStars[i];
+					gl.material.setDiffuseColor(math.idx2color(objects.length));
+					a.render(gl, specs, true);
+					objects.push(a);
+				}
+			}
+		}
+	};
 	_.getCenter3D = function() {
 		if (this.atoms.length === 1) {
 			return new structures.Atom('C', this.atoms[0].x, this.atoms[0].y, this.atoms[0].z);
@@ -3521,18 +3444,12 @@ ChemDoodle.RESIDUE = (function() {
 				var chain = this.chains[i];
 				for ( var j = 0, jj = chain.length; j < jj; j++) {
 					var residue = chain[j];
-					minX = m.min(residue.cp1.x, minX);
-					minY = m.min(residue.cp1.y, minY);
-					minZ = m.min(residue.cp1.z, minZ);
-					maxX = m.max(residue.cp1.x, maxX);
-					maxY = m.max(residue.cp1.y, maxY);
-					maxZ = m.max(residue.cp1.z, maxZ);
-					minX = m.min(residue.cp2.x, minX);
-					minY = m.min(residue.cp2.y, minY);
-					minZ = m.min(residue.cp2.z, minZ);
-					maxX = m.max(residue.cp2.x, maxX);
-					maxY = m.max(residue.cp2.y, maxY);
-					maxZ = m.max(residue.cp2.z, maxZ);
+					minX = m.min(residue.cp1.x, residue.cp2.x, minX);
+					minY = m.min(residue.cp1.y, residue.cp2.y, minY);
+					minZ = m.min(residue.cp1.z, residue.cp2.z, minZ);
+					maxX = m.max(residue.cp1.x, residue.cp2.x, maxX);
+					maxY = m.max(residue.cp1.y, residue.cp2.y, maxY);
+					maxZ = m.max(residue.cp1.z, residue.cp2.z, maxZ);
 				}
 			}
 		}
@@ -3571,14 +3488,10 @@ ChemDoodle.RESIDUE = (function() {
 				var chain = this.chains[i];
 				for ( var j = 0, jj = chain.length; j < jj; j++) {
 					var residue = chain[j];
-					minX = m.min(residue.cp1.x, minX);
-					minY = m.min(residue.cp1.y, minY);
-					maxX = m.max(residue.cp1.x, maxX);
-					maxY = m.max(residue.cp1.y, maxY);
-					minX = m.min(residue.cp2.x, minX);
-					minY = m.min(residue.cp2.y, minY);
-					maxX = m.max(residue.cp2.x, maxX);
-					maxY = m.max(residue.cp2.y, maxY);
+					minX = m.min(residue.cp1.x, residue.cp2.x, minX);
+					minY = m.min(residue.cp1.y, residue.cp2.y, minY);
+					maxX = m.max(residue.cp1.x, residue.cp2.x, maxX);
+					maxY = m.max(residue.cp1.y, residue.cp2.y, maxY);
 				}
 			}
 			minX -= 30;
@@ -5097,7 +5010,7 @@ ChemDoodle.RESIDUE = (function() {
 	var _ = d3.Arrow.prototype = new d3._Mesh();
 	_.getLength = function() {
 		return 3;
-	}
+	};
 
 })(ChemDoodle.structures.d3, Math);
 //
@@ -6015,9 +5928,212 @@ ChemDoodle.RESIDUE = (function() {
 //
 //  Copyright 2009 iChemLabs, LLC.  All rights reserved.
 //
-//  $Revision: 4238 $
+//  $Revision: 4131 $
 //  $Author: kevin $
-//  $LastChangedDate: 2013-04-17 17:08:36 -0400 (Wed, 17 Apr 2013) $
+//  $LastChangedDate: 2013-02-18 21:02:56 -0500 (Mon, 18 Feb 2013) $
+//
+
+(function(d3, document) {
+	'use strict';
+	d3.Picker = function() {
+	};
+	var _ = d3.Picker.prototype;
+
+	_.init = function(gl) {
+		// setup for picking system
+		this.framebuffer = gl.createFramebuffer();
+
+		// set pick texture
+		var texture2D = gl.createTexture();
+		var renderbuffer = gl.createRenderbuffer();
+
+		gl.bindTexture(gl.TEXTURE_2D, texture2D);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+		gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
+
+		// set framebuffer and bind the texture and renderbuffer
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture2D, 0);
+		gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuffer);
+
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	};
+
+	_.setDimension = function(gl, width, height) {
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+
+		// get binded depth attachment renderbuffer
+		var renderbuffer = gl.getFramebufferAttachmentParameter(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.FRAMEBUFFER_ATTACHMENT_OBJECT_NAME);
+		if (gl.isRenderbuffer(renderbuffer)) {
+			// set renderbuffer dimension
+			gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
+			gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+			gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+		}
+
+		// get binded color attachment texture 2d
+		var texture2D = gl.getFramebufferAttachmentParameter(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.FRAMEBUFFER_ATTACHMENT_OBJECT_NAME);
+		if (gl.isTexture(texture2D)) {
+			// set texture dimension
+			gl.bindTexture(gl.TEXTURE_2D, texture2D);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+			gl.bindTexture(gl.TEXTURE_2D, null);
+		}
+
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+	};
+
+	_.pick = function(gl, molecules, specs, x, y) {
+		var object = undefined;
+
+		// current clear color
+		var cs = gl.getParameter(gl.COLOR_CLEAR_VALUE);
+
+		gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
+
+		gl.clearColor(1.0, 1.0, 1.0, 0.0);
+		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+		// disable foging effect
+		gl.fogging.setMode(0);
+
+		// not need the normal for diffuse light, we need flat color
+		gl.disableVertexAttribArray(gl.shader.vertexNormalAttribute);
+
+		var objects = [];
+
+		gl.material.setAlpha(255);
+		for ( var i = 0, ii = molecules.length; i < ii; i++) {
+			molecules[i].renderPickFrame(gl, specs, objects);
+		}
+
+		// flush as this is seen in documentation
+		gl.flush();
+
+		var rgba = new Uint8Array(4);
+		gl.readPixels(x - 2, y + 2, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, rgba);
+
+		var idxMolecule = rgba[3];
+		if (idxMolecule > 0) {
+			var idxAtom = rgba[2] | (rgba[1] << 8) | (rgba[0] << 16);
+			object = objects[idxAtom];
+		}
+
+		// release a little bit memory
+		objects = undefined;
+
+		// reenable the normal attribute
+		gl.enableVertexAttribArray(gl.shader.vertexNormalAttribute);
+
+		// enable fogging
+		gl.fogging.setMode(specs.fog_mode_3D);
+
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+		// set back the clear color
+		gl.clearColor(cs[0], cs[1], cs[2], cs[3]);
+
+		return object;
+	};
+
+})(ChemDoodle.structures.d3, document);
+//
+//  Copyright 2009 iChemLabs, LLC.  All rights reserved.
+//
+//  $Revision: 4131 $
+//  $Author: kevin $
+//  $LastChangedDate: 2013-02-18 21:02:56 -0500 (Mon, 18 Feb 2013) $
+//
+
+(function(d3, m) {
+	'use strict';
+
+	/**
+	 * @constructor d3.Pill
+	 * @inherit {d3._Mesh}
+	 * @param {number}
+	 *            height Height of pill including the rounded cap
+	 * @param {number}
+	 *            radius Radius of pill
+	 * @param {number}
+	 *            latitudeBands Total bands of latitute division on one pill's
+	 *            cap
+	 * @param {number}
+	 *            longitudeBands Total bands of longitude division on one pill's
+	 *            cap and cylinder part
+	 */
+	d3.Pill = function(radius, height, latitudeBands, longitudeBands) {
+
+		var capHeightScale = 1;
+		var capDiameter = 2 * radius;
+
+		height -= capDiameter;
+
+		if (height < 0) {
+			capHeightScale = 0;
+			height += capDiameter;
+		} else if (height < capDiameter) {
+			capHeightScale = height / capDiameter;
+			height = capDiameter;
+		}
+
+		// update latitude and logintude band for two caps.
+		// latitudeBands *= 2;
+		// longitudeBands *= 2;
+
+		var positionData = [];
+		var normalData = [];
+		for ( var latNumber = 0; latNumber <= latitudeBands; latNumber++) {
+			var theta = latNumber * m.PI / latitudeBands;
+			var sinTheta = m.sin(theta);
+			var cosTheta = m.cos(theta) * capHeightScale;
+
+			// console.log(cosTheta);
+
+			for ( var longNumber = 0; longNumber <= longitudeBands; longNumber++) {
+				var phi = longNumber * 2 * m.PI / longitudeBands;
+				var sinPhi = m.sin(phi);
+				var cosPhi = m.cos(phi);
+
+				var x = cosPhi * sinTheta;
+				var y = cosTheta;
+				var z = sinPhi * sinTheta;
+
+				normalData.push(x, y, z);
+				positionData.push(radius * x, radius * y + (latNumber < latitudeBands / 2 ? height : 0), radius * z);
+			}
+		}
+
+		var indexData = [];
+		longitudeBands += 1;
+		for ( var latNumber = 0; latNumber < latitudeBands; latNumber++) {
+			for ( var longNumber = 0; longNumber < longitudeBands; longNumber++) {
+				var first = (latNumber * longitudeBands) + (longNumber % longitudeBands);
+				var second = first + longitudeBands;
+				indexData.push(first, first + 1, second);
+				if (longNumber < longitudeBands - 1) {
+					indexData.push(second, first + 1, second + 1);
+				}
+			}
+		}
+
+		this.storeData(positionData, normalData, indexData);
+	};
+	d3.Pill.prototype = new d3._Mesh();
+
+})(ChemDoodle.structures.d3, Math);
+//
+//  Copyright 2009 iChemLabs, LLC.  All rights reserved.
+//
+//  $Revision: 4500 $
+//  $Author: kevin $
+//  $LastChangedDate: 2013-09-06 14:28:15 -0400 (Fri, 06 Sep 2013) $
 //
 
 (function(d3, document) {
@@ -6037,15 +6153,22 @@ ChemDoodle.RESIDUE = (function() {
 
 		gl.attachShader(gl.program, vertexShader);
 		gl.attachShader(gl.program, fragmentShader);
+		
+		// the vertex position location must be explicit set to '0',
+		// to prefent vertex normal become location '0'.
+		// It's needed because later normal must be disabled for
+		// rendering on picking framebuffer
+		this.vertexPositionAttribute = 0;
+		gl.bindAttribLocation(gl.program, this.vertexPositionAttribute, 'a_vertex_position');
+
 		gl.linkProgram(gl.program);
 
 		if (!gl.getProgramParameter(gl.program, gl.LINK_STATUS)) {
-			alert('Could not initialize shaders: ' + gl.getProgramInfoLog(program));
+			alert('Could not initialize shaders: ' + gl.getProgramInfoLog(gl.program));
 		}
 
 		gl.useProgram(gl.program);
 
-		this.vertexPositionAttribute = gl.getAttribLocation(gl.program, 'a_vertex_position');
 		gl.enableVertexAttribArray(this.vertexPositionAttribute);
 
 		this.vertexNormalAttribute = gl.getAttribLocation(gl.program, 'a_vertex_normal');
@@ -6082,6 +6205,7 @@ ChemDoodle.RESIDUE = (function() {
 	};
 	_.loadDefaultVertexShader = function(gl) {
 		var sb = [
+		'precision mediump float;',
 		// phong shader
 		'struct Light',
 			'{',
@@ -6110,32 +6234,25 @@ ChemDoodle.RESIDUE = (function() {
 		'uniform mat4 u_projection_matrix;',
 		'uniform mat3 u_normal_matrix;',
 		// sent to the fragment shader
-		'varying vec4 v_diffuse;',
+		'varying vec3 v_diffuse;',
 		'varying vec4 v_ambient;',
 		'varying vec3 v_normal;',
-		'varying vec3 v_light_direction;',
 		'void main(void)',
 			'{',
-				'if(length(a_vertex_normal)==0.0){',
-					'v_normal = a_vertex_normal;',
-				'}else{',
-					'v_normal = normalize(u_normal_matrix * a_vertex_normal);',
-				'}',
-				
-				'vec4 diffuse = vec4(u_light.diffuse_color, 1.0);',
-				'v_light_direction = u_light.direction;',
+				'v_normal = length(a_vertex_normal)==0.0 ? a_vertex_normal : normalize(u_normal_matrix * a_vertex_normal);',
 				
 				'v_ambient = vec4(u_material.ambient_color, 1.0);',
-				'v_diffuse = vec4(u_material.diffuse_color, 1.0) * diffuse;',
+				'v_diffuse = u_material.diffuse_color * u_light.diffuse_color;',
 				
 				'gl_Position = u_projection_matrix * u_model_view_matrix * vec4(a_vertex_position, 1.0);',
 				// just to make sure the w is 1
 				'gl_Position /= gl_Position.w;',
+				'gl_PointSize = 2.0;',
 			'}'
-		];
+		].join(''); // reduce memory to hold the array value
 		
 		var shader = gl.createShader(gl.VERTEX_SHADER);
-		gl.shaderSource(shader, sb.join(''));
+		gl.shaderSource(shader, sb);
 		gl.compileShader(shader);
 		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 			alert('Vertex shader failed to compile: ' + gl.getShaderInfoLog(shader));
@@ -6178,20 +6295,19 @@ ChemDoodle.RESIDUE = (function() {
 		'uniform Fog u_fog;',
 					
 		// from the vertex shader
-		'varying vec4 v_diffuse;',
+		'varying vec3 v_diffuse;',
 		'varying vec4 v_ambient;',
 		'varying vec3 v_normal;',
-		'varying vec3 v_light_direction;',
 		'void main(void)',
 			'{',
 				'if(length(v_normal)==0.0){',
-					'gl_FragColor = vec4(v_diffuse.rgba);',
+					'gl_FragColor = vec4(vec3(v_diffuse.rgb),u_material.alpha);',
 				'}else{',
-					'float nDotL = max(dot(v_normal, v_light_direction), 0.0);',
-					'vec4 color = vec4(v_diffuse.rgb*nDotL, v_diffuse.a);',
+					'float nDotL = max(dot(v_normal, u_light.direction), 0.0);',
+					'vec4 color = vec4(v_diffuse*nDotL, 1.0);',
 					'float nDotHV = max(dot(v_normal, u_light.half_vector), 0.0);',
-					'vec4 specular = vec4(u_material.specular_color * u_light.specular_color, 1.0);',
-					'color+=vec4(specular.rgb * pow(nDotHV, u_material.shininess), specular.a);',
+					'vec3 specular = u_material.specular_color * u_light.specular_color;',
+					'color+=vec4(specular * pow(nDotHV, u_material.shininess), 1.0);',
 
 					// set the color
 					'gl_FragColor = color+v_ambient;',
@@ -6225,10 +6341,10 @@ ChemDoodle.RESIDUE = (function() {
 					 // 'gl_FragColor = vec4(vec3(fogFactor), 1.0);',
 				'}',
 			'}'
-		];
+		].join('');
 		
 		var shader = gl.createShader(gl.FRAGMENT_SHADER);
-		gl.shaderSource(shader, sb.join(''));
+		gl.shaderSource(shader, sb);
 		gl.compileShader(shader);
 		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 			alert('Fragment shader failed to compile: ' + gl.getShaderInfoLog(shader));
@@ -6662,7 +6778,7 @@ ChemDoodle.RESIDUE = (function() {
 //
 
 (function(d3) {
-
+	'use strict';
 	d3.TextShader = function() {
 	};
 
@@ -6680,7 +6796,7 @@ ChemDoodle.RESIDUE = (function() {
 		gl.linkProgram(gl.programLabel);
 
 		if (!gl.getProgramParameter(gl.programLabel, gl.LINK_STATUS)) {
-			alert('Could not initialize shaders: ' + gl.getProgramInfoLog(programLabel));
+			alert('Could not initialize shaders: ' + gl.getProgramInfoLog(gl.programLabel));
 		}
 
 		// assign attribute properties
@@ -6697,7 +6813,8 @@ ChemDoodle.RESIDUE = (function() {
 	};
 	_.loadDefaultVertexShader = function(gl) {
 		var sb = [
-
+		'precision mediump float;',
+		  		
 		'attribute vec3 a_vertex_position;', 'attribute vec2 a_vertex_texcoord;', 'attribute vec2 a_translation;', 'attribute float a_z_depth;',
 
 		'uniform mat4 u_model_view_matrix;', 'uniform mat4 u_projection_matrix;', 'uniform vec2 u_dimension;',
@@ -6722,10 +6839,10 @@ ChemDoodle.RESIDUE = (function() {
 
 		'gl_Position.z = depth_pos.z / depth_pos.w;',
 
-		'v_texcoord = a_vertex_texcoord;', '}' ];
+		'v_texcoord = a_vertex_texcoord;', '}' ].join('');
 
 		var shader = gl.createShader(gl.VERTEX_SHADER);
-		gl.shaderSource(shader, sb.join(''));
+		gl.shaderSource(shader, sb);
 		gl.compileShader(shader);
 		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 			alert('Vertex shader failed to compile: ' + gl.getShaderInfoLog(shader));
@@ -6734,7 +6851,8 @@ ChemDoodle.RESIDUE = (function() {
 		return shader;
 	};
 	_.loadDefaultFragmentShader = function(gl) {
-		var sb = [ 'precision mediump float;',
+		var sb = [
+		'precision mediump float;',
 
 		// our texture
 		'uniform sampler2D u_image;',
@@ -6747,10 +6865,10 @@ ChemDoodle.RESIDUE = (function() {
 		// 'if(gl_FragColor.a == 0.0) discard;',
 
 		// 'gl_FragColor = vec4(1.0,1.0,1.0,1.0);',
-		'}' ];
+		'}' ].join('');
 
 		var shader = gl.createShader(gl.FRAGMENT_SHADER);
-		gl.shaderSource(shader, sb.join(''));
+		gl.shaderSource(shader, sb);
 		gl.compileShader(shader);
 		if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 			alert('Fragment shader failed to compile: ' + gl.getShaderInfoLog(shader));
@@ -7160,9 +7278,9 @@ ChemDoodle.RESIDUE = (function() {
 //
 //  Copyright 2009 iChemLabs, LLC.  All rights reserved.
 //
-//  $Revision: 4405 $
+//  $Revision: 4459 $
 //  $Author: kevin $
-//  $LastChangedDate: 2013-06-09 19:12:35 -0400 (Sun, 09 Jun 2013) $
+//  $LastChangedDate: 2013-08-06 14:09:43 -0400 (Tue, 06 Aug 2013) $
 //
 
 (function(c, structures, m) {
@@ -7241,6 +7359,11 @@ ChemDoodle.RESIDUE = (function() {
 	c.default_bonds_resolution_3D = 60;
 	c.default_bonds_renderAsLines_3D = false;
 	c.default_bonds_cylinderDiameter_3D = .3;
+	c.default_bonds_pillLatitudeResolution_3D = 10;
+	c.default_bonds_pillLongitudeResolution_3D = 20;
+	c.default_bonds_pillHeight_3D = .3;
+	c.default_bonds_pillSpacing_3D = .1;
+	c.default_bonds_pillDiameter_3D = .3;
 	c.default_bonds_materialAmbientColor_3D = '#222222';
 	c.default_bonds_materialSpecularColor_3D = '#555555';
 	c.default_bonds_materialShininess_3D = 32;
@@ -7402,6 +7525,11 @@ ChemDoodle.RESIDUE = (function() {
 		this.bonds_resolution_3D = c.default_bonds_resolution_3D;
 		this.bonds_renderAsLines_3D = c.default_bonds_renderAsLines_3D;
 		this.bonds_cylinderDiameter_3D = c.default_bonds_cylinderDiameter_3D;
+		this.bonds_pillHeight_3D = c.default_bonds_pillHeight_3D;
+		this.bonds_pillLatitudeResolution_3D = c.default_bonds_pillLatitudeResolution_3D;
+		this.bonds_pillLongitudeResolution_3D = c.default_bonds_pillLongitudeResolution_3D;
+		this.bonds_pillSpacing_3D = c.default_bonds_pillSpacing_3D;
+		this.bonds_pillDiameter_3D = c.default_bonds_pillDiameter_3D;
 		this.bonds_materialAmbientColor_3D = c.default_bonds_materialAmbientColor_3D;
 		this.bonds_materialSpecularColor_3D = c.default_bonds_materialSpecularColor_3D;
 		this.bonds_materialShininess_3D = c.default_bonds_materialShininess_3D;
@@ -7503,6 +7631,7 @@ ChemDoodle.RESIDUE = (function() {
 			this.bonds_useJMOLColors = false;
 			this.bonds_cylinderDiameter_3D = .3;
 			this.bonds_materialAmbientColor_3D = c.default_atoms_materialAmbientColor_3D;
+			this.bonds_pillDiameter_3D = .15;
 		} else if (representation === 'van der Waals Spheres') {
 			this.bonds_display = false;
 			this.atoms_vdwMultiplier_3D = 1;
@@ -7513,7 +7642,7 @@ ChemDoodle.RESIDUE = (function() {
 			this.bonds_materialAmbientColor_3D = this.atoms_materialAmbientColor_3D;
 		} else if (representation === 'Wireframe') {
 			this.atoms_useVDWDiameters_3D = false;
-			this.bonds_cylinderDiameter_3D = .05;
+			this.bonds_cylinderDiameter_3D = this.bonds_pillDiameter_3D = .05;
 			this.atoms_sphereDiameter_3D = .15;
 			this.bonds_materialAmbientColor_3D = c.default_atoms_materialAmbientColor_3D;
 		} else if (representation === 'Line') {
@@ -8444,9 +8573,9 @@ ChemDoodle.RESIDUE = (function() {
 //
 //  Copyright 2009 iChemLabs, LLC.  All rights reserved.
 //
-//  $Revision: 4137 $
+//  $Revision: 4500 $
 //  $Author: kevin $
-//  $LastChangedDate: 2013-02-22 12:46:00 -0500 (Fri, 22 Feb 2013) $
+//  $LastChangedDate: 2013-09-06 14:28:15 -0400 (Fri, 06 Sep 2013) $
 //
 
 (function(c, ELEMENT, io, structures) {
@@ -8531,7 +8660,7 @@ ChemDoodle.RESIDUE = (function() {
 		sb.push('Molecule from ChemDoodle Web Components\n\nhttp://www.ichemlabs.com\n');
 		sb.push(this.fit(molecule.atoms.length.toString(), 3));
 		sb.push(this.fit(molecule.bonds.length.toString(), 3));
-		sb.push('  0  0  0  0            999 v2000\n');
+		sb.push('  0  0  0  0            999 V2000\n');
 		var p = molecule.getCenter();
 		for ( var i = 0, ii = molecule.atoms.length; i < ii; i++) {
 			var a = molecule.atoms[i];
@@ -8586,7 +8715,13 @@ ChemDoodle.RESIDUE = (function() {
 			}
 			sb.push(this.fit((molecule.atoms.indexOf(b.a1) + 1).toString(), 3));
 			sb.push(this.fit((molecule.atoms.indexOf(b.a2) + 1).toString(), 3));
-			sb.push(this.fit(b.bondOrder.toString(), 3));
+			var btype = b.bondOrder;
+			if(btype==1.5){
+				btype = 4;
+			}else if(btype>3 || btype%1!=0){
+				btype = 1;
+			}
+			sb.push(this.fit(btype, 3));
 			sb.push('  ');
 			sb.push(stereo);
 			sb.push('     0  0\n');
@@ -9723,60 +9858,64 @@ ChemDoodle.monitor = (function(featureDetection, q, document) {
 	_.shapes = undefined;
 	_.emptyMessage = undefined;
 	_.image = undefined;
-	_.repaint = function() {
-		if (this.test) {
-			return;
-		}
-		var canvas = document.getElementById(this.id);
-		if (canvas.getContext) {
-			var ctx = canvas.getContext('2d');
-			if (this.pixelRatio !== 1 && canvas.width === this.width) {
-				canvas.width = this.width * this.pixelRatio;
-				canvas.height = this.height * this.pixelRatio;
-				ctx.scale(this.pixelRatio, this.pixelRatio);
-			}
-			if (!this.image) {
-				if (this.specs.backgroundColor && this.bgCache !== canvas.style.backgroundColor) {
-					canvas.style.backgroundColor = this.specs.backgroundColor;
-					this.bgCache = canvas.style.backgroundColor;
-				}
-				// clearRect is correct, but doesn't work as expected on Android
-				// ctx.clearRect(0, 0, this.width, this.height);
-				ctx.fillStyle = this.specs.backgroundColor;
-				ctx.fillRect(0, 0, this.width, this.height);
-			} else {
-				ctx.drawImage(this.image, 0, 0);
-			}
-			if (this.innerRepaint) {
-				this.innerRepaint(ctx);
-			} else {
-				if (this.molecules.length !== 0 || this.shapes.length !== 0) {
-					ctx.save();
-					ctx.translate(this.width / 2, this.height / 2);
-					ctx.rotate(this.specs.rotateAngle);
-					ctx.scale(this.specs.scale, this.specs.scale);
-					ctx.translate(-this.width / 2, -this.height / 2);
-					for ( var i = 0, ii = this.molecules.length; i < ii; i++) {
-						this.molecules[i].check(true);
-						this.molecules[i].draw(ctx, this.specs);
-					}
-					for ( var i = 0, ii = this.shapes.length; i < ii; i++) {
-						this.shapes[i].draw(ctx, this.specs);
-					}
-					ctx.restore();
-				} else if (this.emptyMessage) {
-					ctx.fillStyle = '#737683';
-					ctx.textAlign = 'center';
-					ctx.textBaseline = 'middle';
-					ctx.font = '18px Helvetica, Verdana, Arial, Sans-serif';
-					ctx.fillText(this.emptyMessage, this.width / 2, this.height / 2);
-				}
-			}
-			if (this.drawChildExtras) {
-				this.drawChildExtras(ctx);
-			}
-		}
-	};
+    _.repaint = function(doExtras) {
+	       // by default, we want to show logo/help
+	    doExtras = typeof doExtras !== 'undefined' ? doExtras : true;
+        if (this.test) {
+            return;
+        }
+        var canvas = document.getElementById(this.id);
+        if (canvas.getContext) {
+            var ctx = canvas.getContext('2d');
+            if (this.pixelRatio !== 1 && canvas.width === this.width) {
+                canvas.width = this.width * this.pixelRatio;
+                canvas.height = this.height * this.pixelRatio;
+                ctx.scale(this.pixelRatio, this.pixelRatio);
+            }
+            if (!this.image) {
+                if (this.specs.backgroundColor && this.bgCache !== canvas.style.backgroundColor) {
+                    canvas.style.backgroundColor = this.specs.backgroundColor;
+                    this.bgCache = canvas.style.backgroundColor;
+                }
+                // clearRect is correct, but doesn't work as expected on Android
+                // ctx.clearRect(0, 0, this.width, this.height);
+                ctx.fillStyle = this.specs.backgroundColor;
+                ctx.fillRect(0, 0, this.width, this.height);
+            } else {
+                ctx.drawImage(this.image, 0, 0);
+            }
+            if (this.innerRepaint) {
+                this.innerRepaint(ctx);
+            } else {
+                if (this.molecules.length !== 0 || this.shapes.length !== 0) {
+                    ctx.save();
+                    ctx.translate(this.width / 2, this.height / 2);
+                    ctx.rotate(this.specs.rotateAngle);
+                    ctx.scale(this.specs.scale, this.specs.scale);
+                    ctx.translate(-this.width / 2, -this.height / 2);
+                    for ( var i = 0, ii = this.molecules.length; i < ii; i++) {
+                        this.molecules[i].check(true);
+                        this.molecules[i].draw(ctx, this.specs);
+                    }
+                    for ( var i = 0, ii = this.shapes.length; i < ii; i++) {
+                        this.shapes[i].draw(ctx, this.specs);
+                    }
+                    ctx.restore();
+                } else if (this.emptyMessage) {
+                    ctx.fillStyle = '#737683';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = '18px Helvetica, Verdana, Arial, Sans-serif';
+                    ctx.fillText(this.emptyMessage, this.width / 2, this.height / 2);
+                }
+            }
+            if (this.drawChildExtras && doExtras) {
+                this.drawChildExtras(ctx);
+            }
+
+        }
+    };
+	
 	_.resize = function(w, h) {
 		var cap = q('#' + this.id);
 		cap.attr({
@@ -11087,9 +11226,9 @@ ChemDoodle.monitor = (function(featureDetection, q, document) {
 //
 //  Copyright 2009 iChemLabs, LLC.  All rights reserved.
 //
-//  $Revision: 4403 $
+//  $Revision: 4500 $
 //  $Author: kevin $
-//  $LastChangedDate: 2013-06-09 14:16:09 -0400 (Sun, 09 Jun 2013) $
+//  $LastChangedDate: 2013-09-06 14:28:15 -0400 (Fri, 06 Sep 2013) $
 
 (function(c, extensions, math, structures, d3, RESIDUE, m, document, m4, m3, v3, window) {
 	'use strict';
@@ -11109,11 +11248,11 @@ ChemDoodle.monitor = (function(featureDetection, q, document) {
 			bounds.expand(this.molecules[i].getBounds3D());
 		}
 		// build fog parameter
-		var maxDimension3D = m.max(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY, bounds.maxZ - bounds.minZ) / 2 + 3;
+		var maxDimension3D = v3.dist([bounds.maxX, bounds.maxY, bounds.maxZ], [bounds.minX, bounds.minY, bounds.minZ]) / 2 + 1.5;
 
 		var fov = 45;
 		var theta = fov / 360 * Math.PI;
-		var tanTheta = Math.tan(theta);
+		var tanTheta = Math.tan(theta) / 0.8; 
 		var top = maxDimension3D;
 		this.depth = top / tanTheta;
 		var near = m.max(this.depth - top, 0.1);
@@ -11215,6 +11354,23 @@ ChemDoodle.monitor = (function(featureDetection, q, document) {
 			this.gl.flush();
 		}
 	};
+	_.pick = function(x, y) {
+		if (this.gl) {
+			var gl = this.gl;
+
+			// set up the model view matrix to the specified transformations
+			m4.multiply(this.translationMatrix, this.rotationMatrix, this.gl.modelViewMatrix);
+			this.gl.rotationMatrix = this.rotationMatrix;
+
+			// use default projection matrix to draw the molecule
+			var pUniform = this.gl.getUniformLocation(this.gl.program, 'u_projection_matrix');
+			this.gl.uniformMatrix4fv(pUniform, false, this.gl.projectionMatrix);
+
+			// draw with pick framebuffer
+			return this.picker.pick(gl, this.molecules, this.specs, x, this.height - y);
+		}
+		return undefined;
+	};
 	_.center = function() {
 		var canvas = document.getElementById(this.id);
 		var p = new structures.Atom();
@@ -11308,6 +11464,7 @@ ChemDoodle.monitor = (function(featureDetection, q, document) {
 			this.gl.sphereBuffer = new d3.Sphere(1, this.specs.atoms_resolution_3D, this.specs.atoms_resolution_3D);
 			this.gl.starBuffer = new d3.Star();
 			this.gl.cylinderBuffer = new d3.Cylinder(1, 1, this.specs.bonds_resolution_3D);
+			this.gl.pillBuffer = new d3.Pill(this.specs.bonds_pillDiameter_3D / 2, this.specs.bonds_pillHeight_3D, this.specs.bonds_pillLatitudeResolution_3D, this.specs.bonds_pillLongitudeResolution_3D);
 			this.gl.lineBuffer = new d3.Line();
 			this.gl.arrowBuffer = new d3.Arrow(0.3, this.specs.compass_resolution_3D);
 			// add label
@@ -11452,6 +11609,11 @@ ChemDoodle.monitor = (function(featureDetection, q, document) {
 				var normalMatrix = m3.transpose(m4.toInverseMat3(mvMatrix, []));
 				this.uniformMatrix3fv(nUL, false, normalMatrix);
 			};
+
+			// set framebuffer
+			this.picker = new d3.Picker();
+			this.picker.init(this.gl);
+			this.picker.setDimension(this.gl, this.width, this.height);
 		}
 	};
 	_.mousedown = function(e) {
