@@ -1,5 +1,27 @@
-// From eLabChem
-// Based on ChemDoodle Web Components 5.2.3
+/********************************************************************************
+*  This file is part of eLabChem (http://github.com/martinp23/elabchem)         *
+*  Copyright (c) 2013 Martin Peeks (martinp23@googlemail.com)                   *
+*                                                                               *
+*    eLabChem is free software: you can redistribute it and/or modify           *
+*    it under the terms of the GNU Affero General Public License as             *
+*    published by the Free Software Foundation, either version 3 of             *
+*    the License, or (at your option) any later version.                        *
+*                                                                               *
+*    eLabChem is distributed in the hope that it will be useful,                *
+*    but WITHOUT ANY WARRANTY; without even the implied                         *
+*    warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR                    *
+*    PURPOSE.  See the GNU Affero General Public License for more details.      *
+*                                                                               *
+*    You should have received a copy of the GNU Affero General Public           *
+*    License along with eLabChem.  If not, see <http://www.gnu.org/licenses/>.  *
+*                                                                               *
+*   eLabChem is a fork of elabFTW. This file incorporates work covered by the   *
+*   copyright notice below.                                                     *                                                               
+*                                                                               *
+********************************************************************************/
+
+//
+// ChemDoodle Web Components 5.2.3
 //
 // http://web.chemdoodle.com
 //
@@ -18,21 +40,16 @@
 // are not obligated to do so. If you do not wish to do so, delete this
 // exception statement from your version.
 //
-// As an additional exception to the GPL, you may distribute this
-// packed form of the code without the copy of the GPL license normally
-// required, provided you include this license notice and a URL through
-// which recipients can access the corresponding unpacked source code.
-//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
 // Please contact iChemLabs <http://www.ichemlabs.com/contact-us> for
 // alternate licensing options.
-//
-// With changes by Martin Peeks (martinp23@googlemail.com)
-// http://github.com/martinp23/elabchem
 
 //
 //  $Revision: 2974 $
