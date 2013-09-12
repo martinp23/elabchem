@@ -39,19 +39,11 @@ if(isset($_SESSION['prefs']['display'])) {
 <a href='compounds.php?mode=create'><img src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/create.gif" alt="" /> Add a new compound</a>
 </div></div>
 <div class='item'>
-    <div class='align_left'>
+    <div style='width:500px; margin:auto;'>
         
         <!-- even though this is a search form, we are submitting with POST because query strings might be long 
             when involving chemistry queries -->
         <form name="search" method="post" onsubmit='return preSubmit();' action="compounds.php">
-            <!-- SUBMIT BUTTON -->
-            <button class='submit_search_button' type='submit'>
-                <img src='themes/<?php echo $_SESSION['prefs']['theme'];?>/img/submit.png' name='Submit' value='Submit' />
-                <p>FIND</p>
-            </button>
-            
-          
-            <br />
             <div id='search_inputs_div'>
             <p class='inline'>Search for: </p>
             <label class='search_inputs'><input name="validated" value="y" type="checkbox" class='search_inputs' <?php
@@ -195,7 +187,11 @@ for($i=1; $i<=5; $i++) {
 
             </div>
             </div>
-
+        <div class='center' style='margin-top:16px;'>
+                <button class='button' value='Submit' type='submit'>
+                Launch search
+                </button>
+        </div>
         </form>
         
     </div>
