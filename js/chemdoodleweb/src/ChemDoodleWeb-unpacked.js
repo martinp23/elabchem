@@ -1,5 +1,5 @@
-//
-// ChemDoodle Web Components 5.2.3
+// From eLabChem
+// Based on ChemDoodle Web Components 5.2.3
 //
 // http://web.chemdoodle.com
 //
@@ -18,19 +18,23 @@
 // are not obligated to do so. If you do not wish to do so, delete this
 // exception statement from your version.
 //
+// As an additional exception to the GPL, you may distribute this
+// packed form of the code without the copy of the GPL license normally
+// required, provided you include this license notice and a URL through
+// which recipients can access the corresponding unpacked source code.
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-//
 // Please contact iChemLabs <http://www.ichemlabs.com/contact-us> for
 // alternate licensing options.
 //
-//
-//  Copyright 2009 iChemLabs, LLC.  All rights reserved.
+// With changes by Martin Peeks (martinp23@googlemail.com)
+// http://github.com/martinp23/elabchem
+
+
 //
 //  $Revision: 2934 $
 //  $Author: kevin $
@@ -9854,60 +9858,64 @@ ChemDoodle.monitor = (function(featureDetection, q, document) {
 	_.shapes = undefined;
 	_.emptyMessage = undefined;
 	_.image = undefined;
-	_.repaint = function() {
-		if (this.test) {
-			return;
-		}
-		var canvas = document.getElementById(this.id);
-		if (canvas.getContext) {
-			var ctx = canvas.getContext('2d');
-			if (this.pixelRatio !== 1 && canvas.width === this.width) {
-				canvas.width = this.width * this.pixelRatio;
-				canvas.height = this.height * this.pixelRatio;
-				ctx.scale(this.pixelRatio, this.pixelRatio);
-			}
-			if (!this.image) {
-				if (this.specs.backgroundColor && this.bgCache !== canvas.style.backgroundColor) {
-					canvas.style.backgroundColor = this.specs.backgroundColor;
-					this.bgCache = canvas.style.backgroundColor;
-				}
-				// clearRect is correct, but doesn't work as expected on Android
-				// ctx.clearRect(0, 0, this.width, this.height);
-				ctx.fillStyle = this.specs.backgroundColor;
-				ctx.fillRect(0, 0, this.width, this.height);
-			} else {
-				ctx.drawImage(this.image, 0, 0);
-			}
-			if (this.innerRepaint) {
-				this.innerRepaint(ctx);
-			} else {
-				if (this.molecules.length !== 0 || this.shapes.length !== 0) {
-					ctx.save();
-					ctx.translate(this.width / 2, this.height / 2);
-					ctx.rotate(this.specs.rotateAngle);
-					ctx.scale(this.specs.scale, this.specs.scale);
-					ctx.translate(-this.width / 2, -this.height / 2);
-					for ( var i = 0, ii = this.molecules.length; i < ii; i++) {
-						this.molecules[i].check(true);
-						this.molecules[i].draw(ctx, this.specs);
-					}
-					for ( var i = 0, ii = this.shapes.length; i < ii; i++) {
-						this.shapes[i].draw(ctx, this.specs);
-					}
-					ctx.restore();
-				} else if (this.emptyMessage) {
-					ctx.fillStyle = '#737683';
-					ctx.textAlign = 'center';
-					ctx.textBaseline = 'middle';
-					ctx.font = '18px Helvetica, Verdana, Arial, Sans-serif';
-					ctx.fillText(this.emptyMessage, this.width / 2, this.height / 2);
-				}
-			}
-			if (this.drawChildExtras) {
-				this.drawChildExtras(ctx);
-			}
-		}
-	};
+    _.repaint = function(doExtras) {
+	       // by default, we want to show logo/help
+	    doExtras = typeof doExtras !== 'undefined' ? doExtras : true;
+        if (this.test) {
+            return;
+        }
+        var canvas = document.getElementById(this.id);
+        if (canvas.getContext) {
+            var ctx = canvas.getContext('2d');
+            if (this.pixelRatio !== 1 && canvas.width === this.width) {
+                canvas.width = this.width * this.pixelRatio;
+                canvas.height = this.height * this.pixelRatio;
+                ctx.scale(this.pixelRatio, this.pixelRatio);
+            }
+            if (!this.image) {
+                if (this.specs.backgroundColor && this.bgCache !== canvas.style.backgroundColor) {
+                    canvas.style.backgroundColor = this.specs.backgroundColor;
+                    this.bgCache = canvas.style.backgroundColor;
+                }
+                // clearRect is correct, but doesn't work as expected on Android
+                // ctx.clearRect(0, 0, this.width, this.height);
+                ctx.fillStyle = this.specs.backgroundColor;
+                ctx.fillRect(0, 0, this.width, this.height);
+            } else {
+                ctx.drawImage(this.image, 0, 0);
+            }
+            if (this.innerRepaint) {
+                this.innerRepaint(ctx);
+            } else {
+                if (this.molecules.length !== 0 || this.shapes.length !== 0) {
+                    ctx.save();
+                    ctx.translate(this.width / 2, this.height / 2);
+                    ctx.rotate(this.specs.rotateAngle);
+                    ctx.scale(this.specs.scale, this.specs.scale);
+                    ctx.translate(-this.width / 2, -this.height / 2);
+                    for ( var i = 0, ii = this.molecules.length; i < ii; i++) {
+                        this.molecules[i].check(true);
+                        this.molecules[i].draw(ctx, this.specs);
+                    }
+                    for ( var i = 0, ii = this.shapes.length; i < ii; i++) {
+                        this.shapes[i].draw(ctx, this.specs);
+                    }
+                    ctx.restore();
+                } else if (this.emptyMessage) {
+                    ctx.fillStyle = '#737683';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = '18px Helvetica, Verdana, Arial, Sans-serif';
+                    ctx.fillText(this.emptyMessage, this.width / 2, this.height / 2);
+                }
+            }
+            if (this.drawChildExtras && doExtras) {
+                this.drawChildExtras(ctx);
+            }
+
+        }
+    };
+	
 	_.resize = function(w, h) {
 		var cap = q('#' + this.id);
 		cap.attr({
