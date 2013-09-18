@@ -534,7 +534,6 @@ $status = $exp_data['status'];
 	            	var prodGridData = dataViewProducts.getItems();
 	       			for (var i=0; i<dbdata.products.length; i++) {
 	       				productsResults.push({"cpd_name": dbdata.products[i].name, "mwt":dbdata.products[i].mwt, "inchi":dbdata.products[i].inchi, "cpd_id":dbdata.products[i].id, "cas_number":dbdata.products[i].cas_number, "mdl":this.productsArr[i]});
-		       			
 		       			for (var j=0; j<prodGridData.length; j++) {
 		       				if(prodGridData[j].inchi === productsResults[i].inchi) {
 		       					// if this is satisfied, our product already exists once in the table. The name from the table should therefore be correct, so let's use it.
@@ -558,8 +557,7 @@ $status = $exp_data['status'];
 	       					}
 	       				}
 	       				if(!foundName) {
-	       					productsResults.push({"cpd_name": prodGridData[i].cpd_name, "mwt": prodGridData[i].mwt})
-	       					productsResults[productsResults.length-1].namefixed = true;
+	       					productsResults.push({"cpd_name": prodGridData[i].cpd_name, "mwt": prodGridData[i].mwt, "namefixed": true})
 	       				}
 	       			}
 	       			// at this point we should have an array of objects in productsResults which describes all the *known* possible products of the reaction
@@ -580,7 +578,11 @@ $status = $exp_data['status'];
 						code += "<div class='prodDialogInputContainer'>";
 						// first product name. If the name is already in the table, the field is disabled and read-only. Otherwise, they can change it.
 						code += "<label for='prodName"+i+ "'>Name:</label>";
-						code += "<input type='text' id='prodName"+i+"' style='width:60%' class='prodDialogInputText' value='" + productsResults[i]['cpd_name'] +"' ";
+						if(productsResults[i]['cpd_name'] !== undefined) {
+						  code += "<input type='text' id='prodName"+i+"' style='width:60%' class='prodDialogInputText' value='" + productsResults[i]['cpd_name'] +"' ";
+						} else {
+                          code += "<input type='text' id='prodName"+i+"' style='width:60%' class='prodDialogInputText' value='unknown' ";						    
+						}
 						if(productsResults[i]['namefixed']) {
 							code +=	"disabled='disabled' ";
 						}
