@@ -108,6 +108,17 @@ function percentFormatter(row, cell, value, columnDef, dataContext) {
     return result + "%";
 }
 
+function equivFormatter(row, cell, value, columnDef, dataContext) {
+    if (dataContext.equiv === undefined || dataContext.equiv === null) {
+        return "";
+    }
+    if (dataContext.cpd_type === 'Solvent') {
+        return "";
+    }
+    var result = Math.round(100 * value) / 100;    
+    return result;
+}
+
 function massTotalsFormatter(totals, columnDef) {
     var val = totals.sum && totals.sum[columnDef.field];
     if (val != null) {

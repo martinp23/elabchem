@@ -34,7 +34,7 @@ var columns = [
     {id: "solvent", name: "Solvent", field: "solvent", init_visible:false, editor:Slick.Editors.Text},
     {id: "wtpercent", name: "w/w %", field: "wtpercent", init_visible:false, editor:FloatEditor, formatter:wtpercentFormatter},
     {id: "density", name: "Density", field: "density", init_visible:true, editor:chemEditor, formatter:densityFormatter},
-    {id: "equiv", name: "Equiv.", field: "equiv", init_visible:true, editor:FloatEditor},
+    {id: "equiv", name: "Equiv.", field: "equiv", init_visible:true, editor:FloatEditor, formatter:equivFormatter},
     {id: "limiting", name: "Limiting", field: "limiting", init_visible:true, editor:Slick.Editors.Checkbox, cssClass: "cell-limiting", formatter:Slick.Formatters.Checkmark},
     {id: "cas_number", name: "CAS number", field: "cas_number", init_visible:false, editor:Slick.Editors.Text},
     {id: "supplier", name: "Supplier", field: "supplier", init_visible:false, editor:Slick.Editors.Text},
