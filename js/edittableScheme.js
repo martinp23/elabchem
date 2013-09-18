@@ -40,24 +40,18 @@ if(rxn !== "") {
 reactionCanvas.repaint();
 
 
-function updateScheme() 
-{
-    var rxnnew = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), reactionCanvas.getShapes());
-    if (rxnnew !== rxn)
-    {
-        rxn = rxnnew;
-    }   
-}
-
 function updateStoichTable()
-{
-    updateScheme();
-    var allMolecules = rxn.split('$MOL\n'),
-            counts = rxn.split('\n')[4],
-            numReact = parseInt(counts.substring(0,3), 10),
-            numProd = parseInt(counts.substring(3,6), 10),     
-            reactants = [],
-            products = [];
+{   
+    rxn = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), reactionCanvas.getShapes());
+    if(rxn == "") {
+        return;
+    }
+    var allMolecules = rxn.split('$MOL\n');
+    var counts = rxn.split('\n')[4];
+    var numReact = parseInt(counts.substring(0,3), 10);
+    var numProd = parseInt(counts.substring(3,6), 10);    
+    var reactants = [];
+    var products = [];
             
     for (var i = 1; i <= numReact; i++) {
         reactants.push(allMolecules[i]);
@@ -203,9 +197,9 @@ function updateStoichTable()
         });
 }
 
-$("canvas").on("mouseout", function() {
-    updateScheme();
-});
+// $("canvas").on("mouseout", function() {
+    // updateScheme();
+// });
 
 function getLimitIndex(gridData) {
     var limitIndex;

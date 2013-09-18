@@ -494,7 +494,11 @@ $status = $exp_data['status'];
 		  		resizable:false});
   		function showAddProductDialog() {
   			//first we want to get our list of products present in the scheme
-  			updateScheme();
+  			rxn = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), reactionCanvas.getShapes());
+  			if(rxn == "") {
+  			    $('#addProductDialog').dialog('open');
+                return;
+  			}
 		    var allMolecules = rxn.split('$MOL\n'),
 	            counts = rxn.split('\n')[4],
 	            numReact = parseInt(counts.substring(0,3), 10),

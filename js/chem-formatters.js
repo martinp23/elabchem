@@ -79,7 +79,7 @@ function concFormatter(row, cell, value, columnDef, dataContext) {
 }
 
 function wtpercentFormatter(row, cell, value, columnDef, dataContext) {
-	if (dataContext.wtpercent === undefined) {
+	if (isNaN(dataContext.wtpercent) || dataContext.wtpercent === null || dataContext.wtpercent === undefined) {
 		return "";
 	}
     if (dataContext.cpd_type === 'Solvent') {
@@ -89,7 +89,7 @@ function wtpercentFormatter(row, cell, value, columnDef, dataContext) {
 }
 
 function densityFormatter(row, cell, value, columnDef, dataContext) {
-	if (dataContext.density === undefined) {
+	if (isNaN(dataContext.density) || dataContext.density === null || dataContext.density === undefined) {
 		return "";
 	}
 	var units = dataContext.density_units || "g/mL";
@@ -98,7 +98,7 @@ function densityFormatter(row, cell, value, columnDef, dataContext) {
 }
 
 function percentFormatter(row, cell, value, columnDef, dataContext) {
-    if (dataContext.yield === undefined) {
+    if (dataContext.yield === undefined || dataContext.yield === null) {
         return "";
     }
     if (dataContext.cpd_type === 'Solvent') {
