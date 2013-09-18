@@ -270,9 +270,9 @@ if (isset($_GET['q'])) { // if there is a query
     // If there are no experiments, display a little message
     if ($count == 0) {
         $message = "<strong>Welcome to eLabFTW.</strong> 
-            Click the <a style='color:blue;' href='create_item.php?type=exp'>
+            Hover over the 
             <img src='themes/".$_SESSION['prefs']['theme']."/img/create.gif' alt='Create experiment' />
-            Create experiment</a> button to get started."; 
+            Create experiment button to get started."; 
         echo display_message('info', $message);
     } else {
         while ($experiments = $req->fetch()) {
