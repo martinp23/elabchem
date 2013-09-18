@@ -89,6 +89,11 @@ if($expdata['type'] == 'chemsingle' || $expdata['type'] == 'chemparallel') {
 		'tableid' => $rev_data['rev_stoictab_id']));
 	if ($req->rowcount() != 0) {
 		while($gridRow = $req->fetch(PDO::FETCH_ASSOC)) {
+		    if($gridRow['limiting'] == 1) {
+		        $gridRow['limiting'] = true;
+		    } else {
+		        $gridRow['limiting'] = false;
+		    }
 			$gridDatadb[] = $gridRow;
 		}	
 	}
