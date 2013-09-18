@@ -136,32 +136,44 @@ function chemEditor(args) {
 		switch(args.column.id) {
 			case "mwt":
 				$value.val(fromSI(item.mwt, item.mwt_units));
-				$units.val(item.mwt_units);			
+				if(item.mwt_units !== undefined) {
+				    $units.val(item.mwt_units);
+				}			
 				siValue = item.mwt;
 				break;
 			case "mass":
 				$value.val(fromSI(item.mass, item.mass_units));
-				$units.val(item.mass_units);
+				if(item.mass_units !== undefined) {
+				    $units.val(item.mass_units);
+				}
 				siValue = item.mass;
 				break;
 			case "mol":
 				$value.val(fromSI(item.mol, item.mol_units));
-				$units.val(item.mol_units);
+				if(item.mol_units !== undefined) {
+				    $units.val(item.mol_units);
+				}
 				siValue = item.mol;
 				break;
 			case "vol":
 				$value.val(fromSI(item.vol, item.vol_units));
-				$units.val(item.vol_units);
+				if(item.vol_units !== undefined) {
+				    $units.val(item.vol_units);
+				}
 				siValue = item.vol;
 				break;
 			case "conc":
 				$value.val(fromSI(item.conc, item.conc_units));
-				$units.val(item.conc_units);
+				if(item.conc_units !== undefined) {
+				    $units.val(item.conc_units);    
+				}
 				siValue = item.conc;
 				break;
 			case "density":
 				$value.val(fromSI(item.density, item.density_units));
-				$units.val(item.density_units);
+				if(item.density_units !== undefined) {
+				    $units.val(item.density_units);
+				}
 				siValue = item.density;
 				break;
 			default:
