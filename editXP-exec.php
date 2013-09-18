@@ -268,7 +268,7 @@ $bdd->beginTransaction();
 			        'equiv' => isset($grid[$i]['equiv']) ? $grid[$i]['equiv'] : null,
 			        'conc' => isset($grid[$i]['conc']) ? $grid[$i]['conc'] : null,
 			        'solvent' => isset($grid[$i]['solvent']) ? $grid[$i]['solvent'] : null,
-			        'limiting' => isset($grid[$i]['limiting']) ? $grid[$i]['limiting'] : null,
+			        'limiting' => isset($grid[$i]['limiting']) ? $grid[$i]['limiting'] : 0,
 			        'notes' => isset($grid[$i]['notes']) ? $grid[$i]['notes'] : null,
 			        'weightpercent' => isset($grid[$i]['weightpercent']) ? $grid[$i]['weightpercent'] : null,
 			        'mwt_units' => isset($grid[$i]['mwt_units']) ? $grid[$i]['mwt_units'] : null,
