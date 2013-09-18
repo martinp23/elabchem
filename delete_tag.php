@@ -65,7 +65,7 @@ if ($_POST['type'] == 'exp' ){
     $req = $bdd->prepare($sql);
     $req->execute();
     $data = $req->fetch();
-   if($data['userid'] == $_SESSION['userid']){
+   if($data['userid_creator'] == $_SESSION['userid']){
        // SQL for DELETE TAG
         $sql = "DELETE FROM experiments_tags WHERE id=".$id;
         $req = $bdd->prepare($sql);

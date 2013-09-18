@@ -186,18 +186,12 @@ $(function() {
 			case "conc":
 				// conc has been changed. We just need to update vol to have same amount (mol)
 				allData[args.row].vol = args.item.mol / args.item.conc;
-				if(!allData[args.row].vol_units) {
-					// if units not already set, make them something sensible
-					allData[args.row].vol_units = getVolUnits(allData[args.row].vol);
-				}
+				allData[args.row].vol_units = getVolUnits(allData[args.row].vol);
 				break;
 			case "density":
 				// density has been changed. we want to keep mass constant so we change vol 
 				allData[args.row].vol = args.item.mass / args.item.density;
-				if(!allData[args.row].vol_units) {
-					// if units not already set, make them something sensible
-					allData[args.row].vol_units = getVolUnits(allData[args.row].vol);
-				}
+				allData[args.row].vol_units = getVolUnits(allData[args.row].vol);
 				break;
 			case "limiting":
 				// changed limiting reagent. We need to untick the old limiting reagent
@@ -248,7 +242,9 @@ $(function() {
 				} else {
 				    allData[i].mol_units = getMolUnits(allData[i].mol);
                     allData[i].mass_units = getMassUnits(allData[i].mass);
-                    allData[i].vol_units = getVolUnits(allData[i].vol);
+                    if(allData[i].vol !== undefined) {
+                        allData[i].vol_units = getVolUnits(allData[i].vol);
+                    }
 				}
 			}			
 		}

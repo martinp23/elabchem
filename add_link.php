@@ -62,7 +62,7 @@ $sql = "SELECT userid_creator FROM experiments WHERE id = ".$item_id;
 $req = $bdd->prepare($sql);
 $req->execute();
 $data = $req->fetch();
-if ($data['userid'] == $_SESSION['userid']) {
+if ($data['userid_creator'] == $_SESSION['userid']) {
     // SQL for addlink
     $sql = "INSERT INTO experiments_links (item_id, link_id) VALUES(:item_id, :link_id)";
     $req = $bdd->prepare($sql);

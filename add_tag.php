@@ -67,7 +67,7 @@ if (strlen($tag) > 0) {
         $req = $bdd->prepare($sql);
         $req->execute();
         $data = $req->fetch();
-        if ($data['userid'] == $_SESSION['userid']) {
+        if ($data['userid_creator'] == $_SESSION['userid']) {
             // SQL for addtag
             $sql = "INSERT INTO experiments_tags (tag, item_id, userid) VALUES(:tag, :item_id, :userid)";
             $req = $bdd->prepare($sql);
