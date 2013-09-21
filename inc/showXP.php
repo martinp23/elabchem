@@ -62,7 +62,7 @@ require_once("themes/".$_SESSION['prefs']['theme']."/highlight.css");
         <input id='big_search_input' type='search' name='q' size='50' placeholder='Type your search' />
     </form>
     <br />
-    <a href="create_item.php?type=exp" class='trigger1' id='exp_create'><img src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/create.gif" alt="" /> Create experiment</a> | 
+    <a href="#" class='trigger1' id='exp_create'><img src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/create.gif" alt="" /> Create experiment</a> | 
     <a href='#' class='trigger'><img src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/duplicate.png" alt="" /> Create from template</a> |
     <a onmouseover="changeSrc('<?php echo $_SESSION['prefs']['theme'];?>')" onmouseout="stopAnim('<?php echo $_SESSION['prefs']['theme'];?>')" href='experiments.php?mode=show&q=runningonly'><img id='runningimg' src="themes/<?php echo $_SESSION['prefs']['theme'];?>/img/running.fix.png" alt="running" /> Show running experiments</a>
 </div><!-- end submenu -->
@@ -302,24 +302,34 @@ echo "key('".$_SESSION['prefs']['shortcuts']['create']."', function(){location.h
 $(document).ready(function(){
 	$(".toggle_container").hide();
 	$(".create-choices").hide();
-	$("a.trigger").click(function(){
-		$('div.toggle_container').slideToggle(1);
-	});
+    $("a.trigger").click(function(){
+       $('div.toggle_container').slideToggle(1);
+       <?php if(CHEMISTRY) { ?>
+       $('div.create-choices').slideUp();    
+       <?php } ?>
+       return false;
+    });
+    
+    $("a.trigger").mouseover(function(){
+       <?php if(CHEMISTRY) { ?>
+            $('div.create-choices').slideUp();    
+       <?php } ?>
+        $('div.toggle_container').slideDown();
+    });
 	<?php if(CHEMISTRY) { ?>
 		$("#exp_create").attr('href', '#');
 		$("a.trigger").mouseover(function(){
 			$('div.create-choices').slideUp();
+			$('div.toggle_container').slideDown();
 		});
 		$("a.trigger1").mouseover(function(){
 			$('div.create-choices').slideDown();
 			$('div.toggle_container').slideUp();
 		});
 		$("a.trigger1").click(function(){
-			$('div.create-choices').slideDown();
+			$('div.create-choices').slideToggle(1);
 			$('div.toggle_container').slideUp();
-		});
-		$("#top-wrapper").mouseleave(function(){
-			$('div.create-choices').slideUp();
+			return false;
 		});
 	<?php } ?>
 });
@@ -348,9 +358,7 @@ $(document).ready(function(){
 
     // EXPERIMENTS TEMPLATE HIDDEN DIV
 	$(".toggle_container").hide();
-	$("a.trigger").click(function(){
-		$('div.toggle_container').slideToggle(1);
-	});
+
     // KEYBOARD SHORTCUTS
     key('<?php echo $_SESSION['prefs']['shortcuts']['create'];?>', function(){
         location.href = 'create_item.php?type=exp'
