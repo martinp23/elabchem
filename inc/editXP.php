@@ -405,7 +405,7 @@ $status = $exp_data['status'];
 				// if equiv has been changed, updated mol and yield%
 				
 				var colName = gridProducts.getColumns()[args.cell].id;
-				if (colName === 'mass' || colName === 'mwt' || colName === 'equiv') {
+				if (colName === 'mass' || colName === 'mwt' || colName === 'equiv' || colName === 'purity') {
 					var dataViewData = dataViewProducts.getItems();
 					dataViewProducts.beginUpdate();
 					// var dataViewIndex;
