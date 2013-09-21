@@ -406,7 +406,7 @@ CREATE TABLE IF NOT EXISTS `rxn_stoichiometry` (
   `notes` text,
   `formula` varchar(50) DEFAULT NULL,
   `conc` float unsigned DEFAULT NULL,
-  `weightpercent` float unsigned DEFAULT NULL,
+  `wtpercent` float unsigned DEFAULT NULL,
   `mwt_units` varchar(10) DEFAULT NULL,
   `mass_units` varchar(10) DEFAULT NULL,
   `mol_units` varchar(10) DEFAULT NULL,

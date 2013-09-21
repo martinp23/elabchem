@@ -245,9 +245,9 @@ $bdd->beginTransaction();
 			$grid = json_decode($grid, true);
 			for ($i = 0; $i < count($grid); $i++) {
 				$sql = "INSERT INTO rxn_stoichiometry(exp_id, table_rev_id, row_id, cpd_name, cpd_id, cas_number, cpd_type, supplier, batch_ref,
-				mwt, mass, vol, mol, density, equiv, conc, solvent, limiting, notes, weightpercent, mwt_units, mass_units, mol_units, vol_units,
+				mwt, mass, vol, mol, density, equiv, conc, solvent, limiting, notes, wtpercent, mwt_units, mass_units, mol_units, vol_units,
 				density_units, conc_units, formula, inchi) VALUES(:exp_id, :table_rev_id, :row_id, :cpd_name, :cpd_id, :cas_number, :cpd_type, :supplier, :batch_ref,
-				:mwt, :mass, :vol, :mol, :density, :equiv, :conc, :solvent, :limiting, :notes, :weightpercent, :mwt_units, :mass_units, :mol_units, :vol_units,
+				:mwt, :mass, :vol, :mol, :density, :equiv, :conc, :solvent, :limiting, :notes, :wtpercent, :mwt_units, :mass_units, :mol_units, :vol_units,
 				:density_units, :conc_units, :formula, :inchi)";
 				$req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
 				$values = array(
@@ -270,7 +270,7 @@ $bdd->beginTransaction();
 			        'solvent' => isset($grid[$i]['solvent']) ? $grid[$i]['solvent'] : null,
 			        'limiting' => isset($grid[$i]['limiting']) ? ($grid[$i]['limiting'] ? 1 : 0) : 0,
 			        'notes' => isset($grid[$i]['notes']) ? $grid[$i]['notes'] : null,
-			        'weightpercent' => isset($grid[$i]['weightpercent']) ? $grid[$i]['weightpercent'] : null,
+			        'wtpercent' => isset($grid[$i]['wtpercent']) ? $grid[$i]['wtpercent'] : null,
 			        'mwt_units' => isset($grid[$i]['mwt_units']) ? $grid[$i]['mwt_units'] : null,
 			        'mass_units' => isset($grid[$i]['mass_units']) ? $grid[$i]['mass_units'] : null,
 			        'mol_units' => isset($grid[$i]['mol_units']) ? $grid[$i]['mol_units'] : null,
