@@ -42,7 +42,16 @@ reactionCanvas.repaint();
 
 function updateStoichTable()
 {   
-    rxn = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), reactionCanvas.getShapes());
+	var editorName = document.getElementById("editorSelect").value;
+	if(editorName === 'chemdoodle') {
+    	rxn = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), reactionCanvas.getShapes());
+    } else if(editorName === 'marvin') {
+    	rxn = getMarvinMol();
+    } else {
+    	alert("An error occured. Please reload the page and try again.");
+    	return false;
+    }
+    
     if(rxn == "") {
         return;
     }

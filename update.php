@@ -9,6 +9,42 @@ if(php_sapi_name() != 'cli' || !empty($_SERVER['REMOTE_ADDR'])) {
     die("<p>Thank you for using eLabFTW. <br />To update your database, run this file only from the command line.</p>");
 }
 
+require_once('admin/config.php');
+// adding marvin as an editor option
+if(!defined(USE_MARVIN)) {
+	$config_msg = "
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+			We need to define new variables in config.php:
+			define('USE_MARVIN', false);
+			define('DEFAULT_EDITOR', 'chemdoodle');
+			
+			I will do this automatically. If you want to do it manually, exit now (Ctrl-c).
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%		
+		";
+	echo $config_msg;
+	sleep(10);
+	echo "Writing config file...\n";
+	
+	$config = file_get_contents('admin/config.php');
+	
+	$addendum = "
+// allow the user to use the MarvinSketch chemical editor. You will need to manually install
+// the java libraries in lib/editors/marvin. See eLabChem README.
+define('USE_MARVIN', false);
+
+// set the default editor. Valid values are 'chemdoodle', 'marvin'
+define('DEFAULT_EDITOR', 'chemdoodle');";
+
+	$newconfig = $config . $addendum;
+	$result = file_put_contents('admin/config.php', $newconfig);
+    if ($result) {
+    echo "File written successfully.\n";
+	} else {
+	    echo "There was a problem writing the new file admin/config.php. Please do it manually.\n";
+	    echo "Use admin/config.php-EXAMPLE for inspiration.\n";
+	}
+}
+
 
 // Switching from ini_arr to config.php constants
 if (!file_exists('admin/config.php')) {

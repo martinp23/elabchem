@@ -86,6 +86,12 @@ define('CHEMISTRY', true);
 // prefix to use for chemical registration numbers, eg: ELB4636231A, prefix is ELB.
 define('CPD_PREFIX', 'ELB');
 
+// allow the user to use the MarvinSketch chemical editor. You will need to manually install
+// the java libraries in lib/editors/marvin. See eLabChem README.
+define('USE_MARVIN', false);
+
+// set the default editor. Valid values are 'chemdoodle', 'marvin'
+define('DEFAULT_EDITOR', 'chemdoodle');
 
 /*
  * Database settings

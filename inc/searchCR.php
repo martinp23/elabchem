@@ -53,6 +53,13 @@ if(isset($_SESSION['prefs']['display'])) {
 } else {
     $display = 'default';
 }
+
+$editor = DEFAULT_EDITOR;
+if(isset($_REQUEST['editor'])) {
+	if($_REQUEST['editor'] === 'chemdoodle' || $_REQUEST['editor'] === 'marvin') {
+		$editor = $_REQUEST['editor'];
+	}
+}
 ?>
 
 <!-- Advanced Search page begin -->
@@ -150,6 +157,26 @@ for($i=1; $i<=5; $i++) {
                 <script type="text/javascript" src="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.min.js"></script>
                 <script type="text/javascript" src="js/chemdoodleweb/sketcher/ChemDoodleWeb-sketcher.js"></script>
 
+<div id='sketcher'>
+	<?php if(USE_MARVIN) {
+			$out = 'Editor: <select id="editorSelect" name="editor" onChange="newEditor(this.value);"><option value="chemdoodle"'; 
+			if($editor === 'chemdoodle') {
+				$out .= " selected";
+			}
+			$out .= '>ChemDoodle</option>';
+			$out .= '<option value="marvin"';
+			if($editor === 'marvin') {
+				$out .= " selected";
+			}
+			$out .= '>MarvinSketch</option>';
+			$out .= "</select><br />";
+		} else {
+			$out = "<input type='hidden' id='editorSelect' value='chemdoodle'>";
+		}
+		echo $out;
+		?>
+		<div id = 'chemdoodle' <?php if($editor === 'marvin') {
+		echo "style='display:none;'"; }?>>
 <script type ="text/javascript">
             ChemDoodle.ELEMENT['H'].jmolColor = 'black';
             // darkens the default JMol color of sulfur so it appears on white backgrounds
@@ -171,10 +198,36 @@ for($i=1; $i<=5; $i++) {
             searchCanvas.repaint();
 
 </script>
+</div>
+    <?php if(USE_MARVIN) { ?>
+<div id='marvin' <?php if($editor === 'chemdoodle') {
+	echo "style='display:none;'"; } ?>>
+   
+   <script type="text/javascript" src="lib/editors/marvin/marvin.js"></script>
+   <script type="text/javascript">
+        msketch_name="MSketch";
+        msketch_begin("lib/editors/marvin", 500, 420);
+		if(document.getElementById('mol').value !== "") {
+			msketch_param("mol", document.getElementById('mol').value);
+		}
+        msketch_end();
+
+        function getMarvinMol() {
+        	var mol = document.MSketch.getMol("mol");
+        	if(mol.match('0  0  0  0  0  0            999 V2000')) {
+        		mol = "";
+        	}
+        	return mol;
+        }
+   </script> 
+    
+</div>
+<?php } ?>
+</div>
     <br />
 
     <div id='chem_search_inputs_div'>
-    <p class='inline'>Search type </p><select name='structsearchtype' id='structsearchtype' class='search_inputs'>
+    <p class='inline'>Search type </p><select name='structsearchtype' onChange='searchTypeChanged(this.value);' id='structsearchtype' class='search_inputs'>
 
 <option value='exact' name='status'<?php
                     if(isset($_REQUEST['structsearchtype']) && ($_REQUEST['structsearchtype'] == 'exact')) {
@@ -194,13 +247,16 @@ for($i=1; $i<=5; $i++) {
 
 </select>
     <br /><br />
-    <p class='inline'>Tanimoto coeff (0-1) </p><input type="text" name='tanimoto' id='tanimoto' class='search_inputs' value='<?php
+    <span id='tanspan' <?php if(!isset($_REQUEST['structsearchtype']) || ($_REQUEST['structsearchtype'] !== 'similarity')) {
+        echo "style='display:none;'";
+    }    
+    ?>><p class='inline'>Tanimoto coeff (0-1) </p><input type="text" name='tanimoto' id='tanimoto' class='search_inputs' value='<?php
                     if(isset($_REQUEST['tanimoto'])) {
                         echo $_REQUEST['tanimoto'];
                     } else {
                         echo '0.7';
                     }
-?>'></input>
+?>'></input></span>
     </div>
     </div>
 
@@ -218,27 +274,62 @@ for($i=1; $i<=5; $i++) {
     </div>
 </div>
 <script type='text/javascript'>function preSubmit() {
-           try {
+	if(document.getElementById("editorSelect").value === 'chemdoodle') {
+        try {
             document.getElementById('mol').value = ChemDoodle.writeMOL(searchCanvas.getMolecule());         
         } catch(e) {
             document.getElementById('mol').value = '';
         }
+    } else if(document.getElementById("editorSelect").value === 'marvin') {
+    	var mol = getMarvinMol();
+    	if(mol.substr(1,3) === 'RXN') {
+    		alert("You must only draw a single molecule/group, not a reaction.");
+    		return false;
+    	} else {
+    		document.getElementById('mol').value = mol;
+    	}
+    }
         
-        var tanimoto = document.getElementById('tanimoto').value;
-        var parsedTanimoto = parseFloat(tanimoto);
-        if(document.getElementById('structsearchtype').value === 'similarity') {
-            // if we're doing a similarity search but the tanimoto field hasn't been filled, set it to 0.7.
-            if(tanimoto === undefined || tanimoto === null || tanimoto === '') {
-                document.getElementById('tanimoto').value = '0.7';
-            } else if (parsedTanimoto === false || parsedTanimoto < 0 || parsedTanimoto > 1) {
-                alert("Tanimoto value must be between 0 and 1.");
-                return false;
-            }
-            
-        } 
+    var tanimoto = document.getElementById('tanimoto').value;
+    var parsedTanimoto = parseFloat(tanimoto);
+    if(document.getElementById('structsearchtype').value === 'similarity') {
+        // if we're doing a similarity search but the tanimoto field hasn't been filled, set it to 0.7.
+        if(tanimoto === undefined || tanimoto === null || tanimoto === '') {
+            document.getElementById('tanimoto').value = '0.7';
+        } else if (parsedTanimoto === false || parsedTanimoto < 0 || parsedTanimoto > 1) {
+            alert("Tanimoto value must be between 0 and 1.");
+            return false;
+        }
+        
+    }   
+}
 
-  
-}</script>
+function newEditor(editor) {
+	if(editor === 'chemdoodle') {
+		document.getElementById("chemdoodle").style.display = "block";
+		<?php if(USE_MARVIN) {
+			echo 'document.getElementById("marvin").style.display = "none";';
+		} ?>
+		
+	} <?php if(USE_MARVIN) { ?> else if(editor === 'marvin') {
+		document.getElementById("marvin").style.display = "block";
+		document.getElementById("chemdoodle").style.display = "none";
+	}
+	  <?php } ?>
+	 
+}
+
+function searchTypeChanged(value) {
+    <?php if(CHEMISTRY) { ?>
+        if(value === 'similarity') {
+            document.getElementById('tanspan').style.display = 'block';
+        } else {
+            document.getElementById('tanspan').style.display = 'none';
+        }
+    <?php } ?>
+}
+
+</script>
 
 <?php
 // assign variables from get

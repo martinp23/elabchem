@@ -51,6 +51,8 @@ if(isset($_GET['regid']) && !empty($_GET['regid']) && is_pos_int($_GET['regid'])
 
 $parentregno = '';
 
+$editor = DEFAULT_EDITOR;
+
 if($id > 0) {
     $sql = "SELECT reg.cpd_id, reg.regno, reg.no_structure, reg.validated, reg.userid_entrant, reg.userid_registrar, reg.is_salt, 
     reg.parent_regid, cpd.name, cpd.cas_number, cpd.pubchem_id,
@@ -243,7 +245,28 @@ if($id > 0) {
   </div>
   
 	<div id='editStructureDialog' title='Edit structure'>        
-	     <section><div class=''><div align=center style='width:450px'>
+	     <section><div class=''><div id='sketcher' align="center" style='width:500px'>
+	     	
+ 		<?php if(USE_MARVIN) {
+			$out = 'Editor: <select id="editorSelect" onChange="newEditor(this.value);"><option value="chemdoodle"'; 
+			if($editor === 'chemdoodle') {
+				$out .= " selected";
+			}
+			$out .= '>ChemDoodle</option>';
+			$out .= '<option value="marvin"';
+			if($editor === 'marvin') {
+				$out .= " selected";
+			}
+			$out .= '>MarvinSketch</option>';
+			$out .= "</select><br />";
+		} else {
+			$out = "<input type='hidden' id='editorSelect' value='chemdoodle'>";
+		}
+		echo $out;
+		?>
+		<div id = 'chemdoodle' <?php if($editor === 'marvin') {
+		echo "style='display:none;'"; }?>>	
+	     	
          <canvas id='structEdit'></canvas>
         <!-- <input type='image' href='#' src='img/loupe-15px.png' class='prodDialogLoupe' title='Get name from structure using PubChem' alt='Try to get name from structure using PubChem' onClick=\"getNameFromInchi(document.getElementById('prodName"+i+ "'), '" + productsResults[i]['inchi']+ "');\"/></div> -->        
      <script type='text/javascript'>
@@ -256,8 +279,24 @@ if($id > 0) {
             // sets the shape color to improve contrast when drawing figures
             structEditCWC.specs.shapes_color = 'c10000';
                </script>  
+
             </div>
-           
+      <?php if(USE_MARVIN) { ?>
+<div id='marvin' <?php if($editor === 'chemdoodle') {
+	echo "style='display:none;'"; } ?>>
+   
+   <script type="text/javascript" src="lib/editors/marvin/marvin.js"></script>
+   <script type="text/javascript">
+   
+        msketch_name="MSketch";
+        msketch_begin("lib/editors/marvin", 500, 420);
+		msketch_param("mol", ChemDoodle.writeMOL(viewer_display.getMolecule()));
+        msketch_end();
+   </script> 
+    
+</div>
+<?php } ?>
+</div>         
    
             <div class='structEditInputContainer'>
             <label><input type='checkbox' id='cpdSaltCheck' value="true"></input>Compound is a salt</label>
@@ -297,7 +336,7 @@ if($id > 0) {
 		  		autoOpen: false,
 		  		width: 'auto',
 		  		height: 'auto',
-		  		resizable:false});
+		  		resizable:true});
 		  		
   		function showEditStructureDialog() {
 
@@ -312,7 +351,19 @@ if($id > 0) {
 	     
   		}
   		function closeEditCpdDialog() {
-  		    var molObj = structEditCWC.getMolecule();
+  			var molObj;
+  			if(document.getElementById("editorSelect").value == 'chemdoodle') {
+  		    	molObj = structEditCWC.getMolecule();
+  		    } else if(document.getElementById("editorSelect").value == 'marvin') {
+  		    	var marmol = getMarvinMol();
+  		    	if(marmol.substr(1,3) === 'RXN') {
+		    		alert("You must only draw a single molecule/group, not a reaction.");
+		    		return false;
+		    	} else {
+  		    		molObj = ChemDoodle.readMOL(marmol);
+  		    	}
+  		    }
+  		    
             var molChanged = false;
             if(!molObj) {
                 this['mol'] = '';
@@ -343,7 +394,7 @@ if($id > 0) {
             if(this['mol'] !== ChemDoodle.writeMOL(molObj)) {    
                 $.ajax({
                     url: 'getdatafromMOL.php?q=all',
-                    data: {'mol': this['mol']},
+                    data: {'mol': ChemDoodle.writeMOL(molObj)},
                     dataType: 'json',
                     type: 'POST',
                     async: false,
@@ -424,11 +475,10 @@ if($id > 0) {
                             document.getElementById('saltCheck').onchange();
                         }
            
-                        $('#editStructureDialog').dialog('close');
                 }});
                              
                 this['mol'] = ChemDoodle.writeMOL(molObj);
-                viewer_display.loadMolecule(ChemDoodle.readMOL(ChemDoodle.writeMOL(structEditCWC.getMolecule())));
+                viewer_display.loadMolecule(ChemDoodle.readMOL(this['mol']));
             }
             $('#editStructureDialog').dialog('close');
 
@@ -449,6 +499,29 @@ if($id > 0) {
 		        }
 	    	});
   		}
+  		
+  		function newEditor(editor) {
+			if(editor === 'chemdoodle') {
+				document.getElementById("chemdoodle").style.display = "block";
+				<?php if(USE_MARVIN) {
+					echo 'document.getElementById("marvin").style.display = "none";';
+				} ?>
+				
+			} <?php if(USE_MARVIN) { ?> else if(editor === 'marvin') {
+				document.getElementById("marvin").style.display = "block";
+				document.getElementById("chemdoodle").style.display = "none";
+			}
+			  <?php } ?>
+			 
+		}
+		
+       function getMarvinMol() {
+        	var mol = document.MSketch.getMol("mol");
+        	if(mol.match('0  0  0  0  0  0            999 V2000')) {
+        		mol = "";
+        	}
+        	return mol;
+        }
   		  		
   		
 </script>

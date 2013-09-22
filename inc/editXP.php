@@ -134,6 +134,22 @@ if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') {
 
 				var rxn = <?php echo json_encode((isset($rxn_data['rxn_mdl'])) ? $rxn_data['rxn_mdl'] : '');?>;
 				var rxnOrig = rxn;
+				
+				
+	function newEditor(editor) {
+		if(editor === 'chemdoodle') {
+			document.getElementById("chemdoodle").style.display = "block";
+			<?php if(USE_MARVIN) {
+				echo 'document.getElementById("marvin").style.display = "none";';
+			} ?>
+			
+		} <?php if(USE_MARVIN) { ?> else if(editor === 'marvin') {
+			document.getElementById("marvin").style.display = "block";
+			document.getElementById("chemdoodle").style.display = "none";
+		}
+		  <?php } ?>
+		 
+	}
 		</script>
 		
 		<!-- stylesheets extra -->
@@ -249,10 +265,53 @@ $status = $exp_data['status'];
 <br /><br />
 <?php if($exp_data['type'] === 'chemsingle' || $exp_data['type'] === 'chemparallel') { ?>
 	<h4>Reaction scheme</h4><br /><div id="scheme" align="center">
-		<script type="text/javascript" src="js/edittableScheme.js"></script><br />
+		<?php if(USE_MARVIN) {
+			$out = 'Editor: <select id="editorSelect" onChange="newEditor(this.value);"><option value="chemdoodle"'; 
+			if(DEFAULT_EDITOR === 'chemdoodle' || (DEFAULT_EDITOR !== 'marvin')) {
+				$out .= " selected";
+			}
+			$out .= '>ChemDoodle</option>';
+			$out .= '<option value="marvin"';
+			if(DEFAULT_EDITOR === 'marvin') {
+				$out .= " selected";
+			}
+			$out .= '>MarvinSketch</option>';
+			$out .= "</select><br />";
+		} else {
+			$out = "<input type='hidden' id='editorSelect' value='chemdoodle'>";
+		}
+		echo $out;
+		?>
+		<div id = 'chemdoodle' <?php if(DEFAULT_EDITOR === 'marvin') {
+		echo "style='display:none;'"; }?>>
+        <script type="text/javascript" src="js/edittableScheme.js"></script></div><br />
 
-	</div>
+    <?php if(USE_MARVIN) { ?>
+<div id='marvin' <?php if(DEFAULT_EDITOR === 'chemdoodle') {
+	echo "style='display:none;'"; } ?>>
+   
+   <script type="text/javascript" src="lib/editors/marvin/marvin.js"></script>
+   <script type="text/javascript">
+        msketch_name="MSketch";
+        msketch_begin("lib/editors/marvin", 600, 420);
+        if(rxn !== "") {
+			msketch_param("mol", rxn);
+		}
+        msketch_end();
 
+        function getMarvinMol() {
+        	var mol = document.MSketch.getMol("mol");
+        	if(mol.match('0  0  0  0  0  0            999 V2000')) {
+        		mol = "";
+        	}
+        	return mol;
+        }
+   </script> 
+    
+</div>
+</div>
+<!-- end if -->
+    <?php } ?>
 	<br />
 	<div class='center' id='updateStoichTableBtn'>
 		<input type="button" href="#" name="Update" onclick="updateStoichTable()" class='button' value="Update table" />

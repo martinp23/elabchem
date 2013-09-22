@@ -50,6 +50,14 @@ $page_title='Search';
 require_once('inc/head.php');
 require_once('inc/menu.php');
 require_once('inc/info_box.php');
+
+$editor = DEFAULT_EDITOR;
+if(isset($_REQUEST['editor'])) {
+	if($_REQUEST['editor'] === 'chemdoodle' || $_REQUEST['editor'] === 'marvin') {
+		$editor = $_REQUEST['editor'];
+	}
+}
+
 ?>
 
 <!-- Advanced Search page begin -->
@@ -212,6 +220,28 @@ for($i=1; $i<=5; $i++) {
                 <script type="text/javascript" src="js/chemdoodleweb/sketcher/jquery-ui-1.9.2.custom.min.js"></script>
                 <script type="text/javascript" src="js/chemdoodleweb/sketcher/ChemDoodleWeb-sketcher.js"></script>
 
+
+
+<div id='sketcher'>
+	<?php if(USE_MARVIN) {
+			$out = 'Editor: <select id="editorSelect" name="editor" onChange="newEditor(this.value);"><option value="chemdoodle"'; 
+			if($editor === 'chemdoodle') {
+				$out .= " selected";
+			}
+			$out .= '>ChemDoodle</option>';
+			$out .= '<option value="marvin"';
+			if($editor === 'marvin') {
+				$out .= " selected";
+			}
+			$out .= '>MarvinSketch</option>';
+			$out .= "</select><br />";
+		} else {
+			$out = "<input type='hidden' id='editorSelect' value='chemdoodle'>";
+		}
+		echo $out;
+		?>
+		<div id = 'chemdoodle' <?php if($editor === 'marvin') {
+		echo "style='display:none;'"; }?>>
 <script type ="text/javascript">
             ChemDoodle.ELEMENT['H'].jmolColor = 'black';
             // darkens the default JMol color of sulfur so it appears on white backgrounds
@@ -236,6 +266,35 @@ for($i=1; $i<=5; $i++) {
             reactionCanvas.repaint();
 
 </script>
+</div>
+    <?php if(USE_MARVIN) { ?>
+<div id='marvin' <?php if($editor === 'chemdoodle') {
+	echo "style='display:none;'"; } ?>>
+   
+   <script type="text/javascript" src="lib/editors/marvin/marvin.js"></script>
+   <script type="text/javascript">
+        msketch_name="MSketch";
+        msketch_begin("lib/editors/marvin", 600, 420);
+        if(document.getElementById('rxn').value !== "") {
+			msketch_param("mol", document.getElementById('rxn').value);
+		} else if(document.getElementById('mol').value !== "") {
+			msketch_param("mol", document.getElementById('mol').value);
+		}
+        msketch_end();
+
+        function getMarvinMol() {
+        	var mol = document.MSketch.getMol("mol");
+        	if(mol.match('0  0  0  0  0  0            999 V2000')) {
+        		mol = "";
+        	}
+        	return mol;
+        }
+   </script> 
+    
+</div>
+<?php } ?>
+</div>
+
     <br />
 
     <div id='chem_search_inputs_div'>
@@ -288,19 +347,30 @@ for($i=1; $i<=5; $i++) {
 </div>
 <script type='text/javascript'>function preSubmit() {
     <?php if(CHEMISTRY) { ?>
-        var shapes = reactionCanvas.getShapes();
-        try {
-            if (shapes.length > 0) {
-                document.getElementById('mol').value = '';
-                document.getElementById('rxn').value = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), shapes);
-            } else {
-                document.getElementById('rxn').value = '';
-                document.getElementById('mol').value = ChemDoodle.writeMOL(reactionCanvas.getMolecule());         
-            }
-        } catch(e) {
-            document.getElementById('rxn').value = '';
-            document.getElementById('mol').value = '';
-        }
+    	if(document.getElementById("editorSelect").value === 'chemdoodle') {
+	        var shapes = reactionCanvas.getShapes();
+	        try {
+	            if (shapes.length > 0) {
+	                document.getElementById('mol').value = '';
+	                document.getElementById('rxn').value = ChemDoodle.writeRXN(reactionCanvas.getMolecules(), shapes);
+	            } else {
+	                document.getElementById('rxn').value = '';
+	                document.getElementById('mol').value = ChemDoodle.writeMOL(reactionCanvas.getMolecule());         
+	            }
+	        } catch(e) {
+	            document.getElementById('rxn').value = '';
+	            document.getElementById('mol').value = '';
+	        }
+	    } else if(document.getElementById("editorSelect").value === 'marvin') {
+	    	var mol = getMarvinMol();
+	    	if(mol.substr(1,3) === 'RXN') {
+	    		document.getElementById('rxn').value = mol;
+	    		document.getElementById('mol').value = '';
+	    	} else {
+	    		document.getElementById('mol').value = mol;
+	    		document.getElementById('rxn').value = '';
+	    	}
+	    }
         
         var tanimoto = document.getElementById('tanimoto').value;
         var parsedTanimoto = parseFloat(tanimoto);
@@ -342,6 +412,21 @@ function searchTypeChanged(value) {
             document.getElementById('tanspan').style.display = 'none';
         }
     <?php } ?>
+}
+
+function newEditor(editor) {
+	if(editor === 'chemdoodle') {
+		document.getElementById("chemdoodle").style.display = "block";
+		<?php if(USE_MARVIN) {
+			echo 'document.getElementById("marvin").style.display = "none";';
+		} ?>
+		
+	} <?php if(USE_MARVIN) { ?> else if(editor === 'marvin') {
+		document.getElementById("marvin").style.display = "block";
+		document.getElementById("chemdoodle").style.display = "none";
+	}
+	  <?php } ?>
+	 
 }
 </script>
 
@@ -550,8 +635,10 @@ if (isset($_REQUEST)) {
                     // results arrays and return that as result.
                     if(count($results_temp) > 1) {
                         $results_id = call_user_func_array('array_intersect', $results_temp);
-                    } else {
+                    } else if(count($results_temp) == 1){
                         $results_id = $results_temp[0];
+                    } else {
+                    	$results_id = array();
                     }
                     $results_id = array_unique($results_id);
                     $count = count($results_id); 

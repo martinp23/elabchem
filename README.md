@@ -34,7 +34,7 @@ And remember that all the files will be in the resulting "elabchem" directory, n
 
 You will also need to install [OpenBabel](http://openbabel.org/wiki/Main_Page) (from the OpenBabel homepage) and [mychem](http://mychem.sourceforge.net/), as described:
 
-#### myCcem in MAMP 2.1.4 (Mac OS X)
+#### myChem in MAMP 2.1.4 (Mac OS X)
 
 This is a bit awkward because we need to download mysql again (in a redundant installation) because MAMP doesn't expose the necessary library. This is nasty and hacky! You'd probably be better off setting up your own MAMP stack following, say ( http://silicos-it.com/cookbook/configuring_osx_for_chemoinformatics/configuring_osx_for_chemoinformatics.html#mychem-cartridge-for-openbabel ) 
 
@@ -229,6 +229,16 @@ $ sudo a2enmod rewrite
 $ sudo a2enmod ssl
 $ sudo a2ensite default-ssl
 ~~~
+
+
+# Installing the MarvinSketcher editor
+
+The default structure editor is ChemDoodle's Web Components. However, you can also install MarvinSketcher.
+
+Just get the marvin-bin-(...).zip file from [here](http://www.chemaxon.com/download/marvin/for-web-developers/) and unzip it into 
+the lib/editors directory. Marvin should end up in the lib/editors/marvin directory.
+
+Then, change the configuration variables in admin/config.php to enable the sketcher.
 
 # Bonus stage
 * It's a good idea to use a php optimizer to increase speed. I recommand installing XCache.
