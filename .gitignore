@@ -10,7 +10,6 @@ populate.php
 populate-exec.php
 PASTIE
 uploads/
-lib/editors/*
 js/jquery-1.9.1.js
 js/jquery-migrate-1.2.1.js
 js/slickgrid/examples/example10-async-post-render.html
