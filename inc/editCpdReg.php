@@ -392,6 +392,7 @@ if($id > 0) {
             }
             
             if(this['mol'] !== ChemDoodle.writeMOL(molObj)) {    
+                this['mol'] = ChemDoodle.writeMOL(molObj);
                 $.ajax({
                     url: 'getdatafromMOL.php?q=all',
                     data: {'mol': ChemDoodle.writeMOL(molObj)},
@@ -477,8 +478,8 @@ if($id > 0) {
            
                 }});
                              
-                this['mol'] = ChemDoodle.writeMOL(molObj);
                 viewer_display.loadMolecule(ChemDoodle.readMOL(this['mol']));
+
             }
             $('#editStructureDialog').dialog('close');
 

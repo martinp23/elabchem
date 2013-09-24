@@ -148,29 +148,28 @@ if($errflag) {
 
 $bdd->beginTransaction();
 
-if($regid == 0) {
-    // if this is a new registry entry, we will just create a placeholder row in compound_registry and then we can update it just as we would an existing entry.
-    // this does mean we make one redundant mysql request, so it could do with being cleaned up...
-    $sql = "INSERT INTO compound_registry (cpd_id, userid_entrant, validated, no_structure, is_salt) VALUES (:cpd_id, :userid_entrant, :validated, :no_structure, :is_salt)";
-    $req = $bdd->prepare($sql);
-    $result = $req->execute(array(
-                        'cpd_id' => 0,    // this breaks stuff!!!!!!!!
-                        'userid_entrant' => $_SESSION['userid'],
-                        'validated' => 0,
-                        'no_structure' => 0,
-                        'is_salt' => 0));
-    $regid = $bdd->lastInsertId();
-}
-
 if($mol !== '' && $cpdid !== '')  {
     // if we have a structure and a compound ID, we can fire away and add all of our data in one shot
     // for data integrity, we will not change mwt, exact_mass or formula.
     
-    $sql = "UPDATE compound_registry SET cpd_id = :cpdid WHERE id = :regid";
-    $req = $bdd->prepare($sql);
-    $result = $req->execute(array(
-                        'cpdid' =>  $cpdid,
-                        'regid' =>  $regid));
+
+    if($regid == 0) {
+        $sql = "INSERT INTO compound_registry (cpd_id, userid_entrant, validated, no_structure, is_salt) VALUES (:cpd_id, :userid_entrant, :validated, :no_structure, :is_salt)";
+        $req = $bdd->prepare($sql);
+        $result = $req->execute(array(
+                            'cpd_id' => $cpdid,
+                            'userid_entrant' => $_SESSION['userid'],
+                            'validated' => 0,
+                            'no_structure' => 0,
+                            'is_salt' => 0));
+        $regid = $bdd->lastInsertId();
+    } else {
+        $sql = "UPDATE compound_registry SET cpd_id = :cpdid WHERE id = :regid";
+        $req = $bdd->prepare($sql);
+        $result = $req->execute(array(
+                            'cpdid' =>  $cpdid,
+                            'regid' =>  $regid));
+    }
     
     $sql = "UPDATE compounds AS c JOIN compound_properties AS cp
     ON c.id = cp.compound_id JOIN compound_registry AS creg ON c.id = creg.cpd_id 
@@ -233,20 +232,49 @@ if($mol !== '' && $cpdid !== '')  {
     $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
     $result = $req->execute(array('density' => $density));
     
-    $sql = "UPDATE compound_registry SET cpd_id = $cpdid, is_salt = :issalt, parent_regid = :parent_regid, no_structure = 0 WHERE id = :regid";
-    $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
-    $result = $req->execute(array(
-                        'issalt' => $issalt,
-                        'parent_regid' => $parentregid,
-                        'regid'     => $regid));        
+
+
+    if($regid == 0) {
+        $sql = "INSERT INTO compound_registry (cpd_id, userid_entrant, validated, no_structure, is_salt, parent_regid) VALUES (:cpd_id, :userid_entrant, :validated, :no_structure, :is_salt, :parent_regid)";
+        $req = $bdd->prepare($sql);
+        $result = $req->execute(array(
+                            'cpd_id' => $cpdid,
+                            'userid_entrant' => $_SESSION['userid'],
+                            'validated' => 0,
+                            'no_structure' => 0,
+                            'is_salt' => $issalt,
+                            'parent_regid' => $parentregid));
+        $regid = $bdd->lastInsertId();
+    } else {
+        $sql = "UPDATE compound_registry SET cpd_id = $cpdid, is_salt = :issalt, parent_regid = :parent_regid, no_structure = 0 WHERE id = :regid";
+        $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
+        $result = $req->execute(array(
+                            'issalt' => $issalt,
+                            'parent_regid' => $parentregid,
+                            'regid'     => $regid));   
+    }     
     
 } else if($cpdid !== '') {
     // if we have no structure but we have a compound ID, we can update all compound properties (incl. mwt, exact_mass, formula)
-    $sql = "UPDATE compound_registry SET cpd_id = :cpdid WHERE id = :regid";
-    $req = $bdd->prepare($sql);
-    $result = $req->execute(array(
-                        'cpdid' =>  $cpdid,
-                        'regid' =>  $regid));
+
+
+    if($regid == 0) {
+        $sql = "INSERT INTO compound_registry (cpd_id, userid_entrant, validated, no_structure, is_salt) VALUES (:cpd_id, :userid_entrant, :validated, :no_structure, :is_salt)";
+        $req = $bdd->prepare($sql);
+        $result = $req->execute(array(
+                            'cpd_id' => $cpdid,
+                            'userid_entrant' => $_SESSION['userid'],
+                            'validated' => 0,
+                            'no_structure' => 1,
+                            'is_salt' => 0));
+        $regid = $bdd->lastInsertId();
+    } else {
+        $sql = "UPDATE compound_registry SET cpd_id = :cpdid WHERE id = :regid";
+        $req = $bdd->prepare($sql);
+        $result = $req->execute(array(
+                            'cpdid' =>  $cpdid,
+                            'regid' =>  $regid));
+    }
     
     $sql = "UPDATE compounds AS c JOIN compound_properties AS cp
     ON c.id = cp.compound_id JOIN compound_registry AS creg ON c.id = creg.cpd_id 
@@ -295,13 +323,25 @@ if($mol !== '' && $cpdid !== '')  {
                         'exact_mass' => $exact_mass,
                         'formula'   => $formula,
                         'density' => $density));    
-    
-    $sql = "UPDATE compound_registry SET cpd_id = $cpdid, is_salt = :issalt, parent_regid = :parent_regid, no_structure=1 WHERE id = :regid";
-    $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
-    $result = $req->execute(array(
-                        'issalt' => $isSalt,
-                        'parent_regid' => $parentregid,
-                        'regid'     => $regid)); 
+    if($regid == 0) {
+        $sql = "INSERT INTO compound_registry (cpd_id, userid_entrant, validated, no_structure, is_salt, parent_regid) VALUES (:cpd_id, :userid_entrant, :validated, :no_structure, :is_salt, :parent_regid)";
+        $req = $bdd->prepare($sql);
+        $result = $req->execute(array(
+                            'cpd_id' => $cpdid,
+                            'userid_entrant' => $_SESSION['userid'],
+                            'validated' => 0,
+                            'no_structure' => 1,
+                            'is_salt' => $issalt,
+                            'parent_regid' => $parentregid));
+        $regid = $bdd->lastInsertId();
+    } else {    
+        $sql = "UPDATE compound_registry SET cpd_id = $cpdid, is_salt = :issalt, parent_regid = :parent_regid, no_structure=1 WHERE id = :regid";
+        $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
+        $result = $req->execute(array(
+                            'issalt' => $isSalt,
+                            'parent_regid' => $parentregid,
+                            'regid'     => $regid)); 
+    }
 }
 
 if($isSalt) {
