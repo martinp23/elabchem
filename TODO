@@ -1,7 +1,11 @@
 ////// Priority
+* generate thumbnail of scheme even when using !chemdoodle
+
 
 ////// Fix/improve
 * when you follow a link and you're not logged in, you want to be redirected to the target page after login
+
+
 
 ////// New Features
 * editable list of status

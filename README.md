@@ -115,7 +115,9 @@ $ mysql -u root -p < ../src/mychemdb.sql
 ~~~
 
 On a new Wheezy install, you may need to pass the following flags to cmake:
+~~~ sh
 -DOPENBABEL2_INCLUDE_DIR=/usr/include/openbabel-2.0 -DOPENBABEL2_LIBRARIES=/usr/lib/libopenbabel.so
+~~~
 
 To check installation in mysql, either use the tests provided in the mychem package or:
 ~~~ mysql

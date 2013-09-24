@@ -154,7 +154,7 @@ if($regid == 0) {
     $sql = "INSERT INTO compound_registry (cpd_id, userid_entrant, validated, no_structure, is_salt) VALUES (:cpd_id, :userid_entrant, :validated, :no_structure, :is_salt)";
     $req = $bdd->prepare($sql);
     $result = $req->execute(array(
-                        'cpd_id' => 0,
+                        'cpd_id' => 0,    // this breaks stuff!!!!!!!!
                         'userid_entrant' => $_SESSION['userid'],
                         'validated' => 0,
                         'no_structure' => 0,

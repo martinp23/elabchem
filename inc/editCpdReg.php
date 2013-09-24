@@ -64,7 +64,7 @@ if($id > 0) {
     $reg_data = $req->fetch();
     
     $cpdid = $reg_data['cpd_id'];
-    
+    $mol; 
     if($reg_data['no_structure'] === '0') {
         $sql = "SELECT 3d.molfile FROM 3D_structures AS 3d JOIN compound_registry AS reg ON reg.cpd_id = 3d.compound_id WHERE reg.id = :id";
         $req = $bdd->prepare($sql);
