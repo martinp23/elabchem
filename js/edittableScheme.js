@@ -64,6 +64,7 @@ function updateStoichTable()
             url: 'getcompounddata.php',
             data:{reactants:reactants, products:products},
             dataType: "json",
+            type: 'POST',
             
             success: function(dbdata)
             {

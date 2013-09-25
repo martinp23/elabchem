@@ -84,6 +84,7 @@ if($_POST['regno'] === 'unassigned') {
     $registered = true;
 }
 $parentregid = null;
+$isSalt = 0;
 if(isset($_POST['saltCheck'])) {
     
     if ($_POST['saltCheck'] === 'true') {
@@ -103,12 +104,8 @@ if(isset($_POST['saltCheck'])) {
             $msg_arr[] = 'The parent registration ID for the salt is not valid!';
             $errflag = true;        
         }
-    } else {
-        $isSalt = 0;
-    }
-} else {
-    $isSalt = 0;
-}
+    } 
+} 
 
 
 $mol = check_rxn($_POST['mol']);
