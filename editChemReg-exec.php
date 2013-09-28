@@ -84,6 +84,7 @@ if($_POST['regno'] === 'unassigned') {
     $registered = true;
 }
 $parentregid = null;
+$isSalt = 0;
 if(isset($_POST['saltCheck'])) {
     
     if ($_POST['saltCheck'] === 'true') {
@@ -103,12 +104,8 @@ if(isset($_POST['saltCheck'])) {
             $msg_arr[] = 'The parent registration ID for the salt is not valid!';
             $errflag = true;        
         }
-    } else {
-        $isSalt = 0;
-    }
-} else {
-    $isSalt = 0;
-}
+    } 
+} 
 
 
 $mol = check_rxn($_POST['mol']);
@@ -242,14 +239,14 @@ if($mol !== '' && $cpdid !== '')  {
                             'userid_entrant' => $_SESSION['userid'],
                             'validated' => 0,
                             'no_structure' => 0,
-                            'is_salt' => $issalt,
+                            'is_salt' => $isSalt,
                             'parent_regid' => $parentregid));
         $regid = $bdd->lastInsertId();
     } else {
         $sql = "UPDATE compound_registry SET cpd_id = $cpdid, is_salt = :issalt, parent_regid = :parent_regid, no_structure = 0 WHERE id = :regid";
         $req = $bdd->prepare($sql, array(PDO::ATTR_EMULATE_PREPARES => false));
         $result = $req->execute(array(
-                            'issalt' => $issalt,
+                            'issalt' => $isSalt,
                             'parent_regid' => $parentregid,
                             'regid'     => $regid));   
     }     
@@ -331,7 +328,7 @@ if($mol !== '' && $cpdid !== '')  {
                             'userid_entrant' => $_SESSION['userid'],
                             'validated' => 0,
                             'no_structure' => 1,
-                            'is_salt' => $issalt,
+                            'is_salt' => $isSalt,
                             'parent_regid' => $parentregid));
         $regid = $bdd->lastInsertId();
     } else {    
