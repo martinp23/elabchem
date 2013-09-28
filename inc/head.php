@@ -58,9 +58,9 @@ echo "<title>".(isset($page_title)?$page_title:"Lab manager")." - eLabChem</titl
 <link rel="stylesheet" media="all" href="css/main.css" />
 <?php
 if (isset($_SESSION['auth']) && $_SESSION['auth'] === 1){
-echo "<link id='maincss' rel='stylesheet' media='all' href='themes/".$_SESSION['prefs']['theme']."/style.css' />";
+    echo "<link id='maincss' rel='stylesheet' media='all' href='themes/".$_SESSION['prefs']['theme']."/style.css' />";
 } else {
-echo "<link id='maincss' rel='stylesheet' media='all' href='themes/default/style.css' />";
+    echo "<link id='maincss' rel='stylesheet' media='all' href='themes/default/style.css' />";
 }
 ?>
 <link rel="stylesheet" media="all" href="css/jquery-ui-1.10.3.custom.min.css" />
