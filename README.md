@@ -90,7 +90,7 @@ For Debian/Ubuntu (recommended), most of this can be installed quickly using Apt
 ~~~ sh 
 $ sudo apt-get update
 $ sudo apt-get upgrade
-$ sudo apt-get install mysql-server mysql-client apache2 php5 php5-mysql libapache2-mod-php5 git gcc cmake libmysqlclient-dev libopenbabel-dev openbabel subversion build-essential php5-curl
+$ sudo apt-get install mysql-server mysql-client apache2 php5 php5-mysql libapache2-mod-php5 git gcc cmake libmysqlclient-dev libopenbabel-dev openbabel subversion build-essential php5-curl php5-gd
 ~~~
 
 Make sure to put a root password on your mysql installation :
